@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Implement Resident CRUD controllers and routes with search, filter (by barangay/sex/status), pagination, archive/restore, and print functionality. Add routes to routes/index.js following existing patterns. Controllers handle business logic: resident creation with auto-generated ID, updates, archiving (soft-delete), viewing, and report data fetching. All changes trigger ResidentActivity audit entries.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "Create controllers/residentController.js exporting: listResidents (GET with search, filter, pagination), showAddResidentPage (GET form), addResident (POST, generate resident_id, log activity), showResident (GET profile), showEditResidentPage (GET edit form), updateResident (PATCH, log activity), archiveResident (POST, log activity), restoreResident (POST, log activity), printResident (GET print view). All functions use try-catch, logAudit() on data changes.",
     "Create controllers/reportController.js exporting: residentReport (GET report page with filters), exportResidentsCSV (GET, streams CSV with resident list by applied filters).",
@@ -26,5 +26,5 @@
     "GET /reports/residents/export returns CSV data with correct mime-type (text/csv)"
   ],
   "blocked_reason": null,
-  "findings": "Resident ID generation: Query existing residents in 2026, find max sequence, increment by 1. Format: 'BSD-2026-' + zero-padded 5-digit number. Search/filter applied server-side using Sequelize Op.like and Op.or. Pagination follows userController.js pattern (offset, limit, page). Activity logging uses logAudit() from existing middleware; calls include userId, action ('RESIDENT_CREATED', 'RESIDENT_UPDATED', etc.), and description with resident name."
+  "findings": "All four controllers implemented and exported correctly. Routes registered successfully: 14 new resident-related routes covering list, add, view, edit, archive, restore, print for residents; list barangays with resident counts; generate resident reports with filtering; export CSV with proper mime-type. Resident ID generation uses 'BSD-YYYY-NNNNN' format with auto-increment per year. All data changes (add, edit, archive, restore) log audit entries via logAudit() and create ResidentActivity records. Search, filter (barangay/sex/status), and pagination implemented server-side using Sequelize Op.like and offset/limit. Permission checks use hasPermission('manage_residents') middleware for write operations. Print route allows no-auth access for print-friendly view. Controllers follow existing patterns: try-catch blocks, proper error handling, flash messages, re-render forms on validation errors."
 }

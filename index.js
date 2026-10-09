@@ -167,6 +167,59 @@ hbs.registerHelper('actionColor', function(action) {
   return colors[action] || 'bg-gray-100 text-gray-800';
 });
 
+// Register additional helpers for RIMS
+hbs.registerHelper('multiply', function(a, b) {
+  return parseInt(a) * parseInt(b);
+});
+
+hbs.registerHelper('json', function(obj) {
+  return JSON.stringify(obj);
+});
+
+hbs.registerHelper('formatDate', function(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+});
+
+hbs.registerHelper('calculateAge', function(birthdate) {
+  if (!birthdate) return '';
+  const today = new Date();
+  const birth = new Date(birthdate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+});
+
+hbs.registerHelper('or', function(a, b) {
+  return a || b;
+});
+
+hbs.registerHelper('and', function(a, b, options) {
+  if (!options || !options.fn) {
+    return a && b;
+  }
+  return (a && b) ? options.fn(this) : options.inverse(this);
+});
+
+hbs.registerHelper('ne', function(a, b, options) {
+  if (!options || !options.fn) {
+    return a !== b;
+  }
+  return a !== b ? options.fn(this) : options.inverse(this);
+});
+
+hbs.registerHelper('includes', function(arr, value) {
+  if (!Array.isArray(arr)) return false;
+  return arr.includes(value);
+});
+
 const partialsDir = path.join(__dirname, "views/partials");
 fs.readdir(partialsDir, (err, files) => {
   if (err) {

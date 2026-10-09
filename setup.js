@@ -16,10 +16,6 @@ async function setup() {
     await seedData();
 
     console.log('\n✅ Setup completed successfully!');
-    console.log('\nDemo Credentials:');
-    console.log('  Admin: username=admin, password=Admin@2026!');
-    console.log('  Staff: username=juan.delacruz, password=Staff@2026!');
-    console.log('  Resident: username=maria.santos, password=Resident@2026!');
     process.exit(0);
   } catch (error) {
     console.error('\n❌ Setup failed:', error.message);

@@ -1,0 +1,103 @@
+{{> head}}
+
+<div class="flex">
+    {{> sidebar}}
+    
+    <div class="flex-1 ml-64">
+        {{> topbar}}
+
+        <div class="p-8">
+            <div class="mb-8">
+                <a href="/dashboard" class="text-blue-600 hover:text-blue-800 font-medium">← Back to Dashboard</a>
+            </div>
+
+            <div class="max-w-2xl bg-white rounded-lg shadow p-8">
+                <!-- Header with Avatar -->
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-3xl mx-auto mb-4">
+                        {{substr Profile.first_name 0 1}}
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800">{{Profile.first_name}} {{Profile.last_name}}</h1>
+                    <p class="text-gray-600 mt-2">{{userRole}}</p>
+                    <div class="mt-3">
+                        {{#eq status 'active'}}
+                        <span class="inline-block bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">✅ Active</span>
+                        {{else}}
+                        <span class="inline-block bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">❌ Inactive</span>
+                        {{/eq}}
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="mb-8 pb-8 border-b">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Full Name</p>
+                            <p class="font-semibold text-gray-800">{{Profile.first_name}} {{#if Profile.middle_name}}{{Profile.middle_name}}{{/if}} {{Profile.last_name}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Username</p>
+                            <p class="font-semibold text-gray-800">{{username}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Email</p>
+                            <p class="font-semibold text-gray-800">{{email}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Contact Number</p>
+                            <p class="font-semibold text-gray-800">{{#if Profile.contact_number}}{{Profile.contact_number}}{{else}}-{{/if}}</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-sm text-gray-600">Address</p>
+                            <p class="font-semibold text-gray-800">{{#if Profile.address}}{{Profile.address}}{{else}}-{{/if}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Role</p>
+                            <p class="font-semibold text-gray-800">{{userRole}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
+                            <p class="font-semibold {{#eq status 'active'}}text-green-600{{else}}text-red-600{{/eq}}">
+                                {{#eq status 'active'}}Active{{else}}Inactive{{/eq}}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Member Since</p>
+                            <p class="font-semibold text-gray-800">{{dateFormat createdAt}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t">
+                    <a href="/profile/edit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition">
+                        ✏️ Edit Profile
+                    </a>
+                    <a href="/profile/change-password" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-lg transition">
+                        🔒 Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function dateFormat(dateString) {
+    return new Date(dateString).toLocaleDateString();
+}
+
+Handlebars.registerHelper('dateFormat', dateFormat);
+Handlebars.registerHelper('eq', function(a, b) { return a === b; });
+Handlebars.registerHelper('substr', function(str, start, end) { return str ? str.substring(start, end) : ''; });
+</script>
+
+{{> footer}}

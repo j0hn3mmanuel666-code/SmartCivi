@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Create Resident, Barangay, and ResidentActivity database models with relationships, and register them in models/index.js. These form the data backbone for the RIMS module. Barangay stores municipal subdivisions, Resident stores resident records with auto-generated IDs (BSD-YYYY-NNNNN), and ResidentActivity tracks audit history for resident records.",
+  "status": "pending",
+  "steps": [
+    "Create models/Barangay.js with fields: id (PK), name (unique, string), description (text), createdAt, updatedAt. Table name: 'barangays'.",
+    "Create models/Resident.js with fields: id (PK), resident_id (unique, string, auto-generated), first_name, middle_name, last_name, birthdate (date), sex (ENUM: Male/Female), civil_status (ENUM: Single/Married/Widowed/Separated/Annulled), address (text), barangay_id (FK to barangays), contact_number, email, status (ENUM: active/archived, default: active), created_at, updated_at. Table name: 'residents'. Add associations: belongsTo Barangay, hasMany ResidentActivity.",
+    "Create models/ResidentActivity.js with fields: id (PK), resident_id (FK to residents), action (ENUM: created/updated/archived/restored), description (text), user_id (FK to users), createdAt. Table name: 'resident_activities'. Add associations: belongsTo Resident, belongsTo User.",
+    "Update models/index.js to import all three new models from their respective files.",
+    "Add associations to models/index.js: Barangay.hasMany(Resident), Resident.belongsTo(Barangay), Resident.hasMany(ResidentActivity), ResidentActivity.belongsTo(Resident), ResidentActivity.belongsTo(User), User.hasMany(ResidentActivity).",
+    "Export the three new models from models/index.js alongside existing exports.",
+    "Test database sync: Run 'npm run xian' and observe that new tables create without errors in console output."
+  ],
+  "acceptance_criteria": [
+    "models/Barangay.js, models/Resident.js, models/ResidentActivity.js files exist with correct fields and types",
+    "models/index.js imports and exports all three new models",
+    "Association declarations in models/index.js establish bidirectional relationships correctly",
+    "npm run xian starts without database errors; tables barangays, residents, resident_activities created in SmartCivi database"
+  ],
+  "verification": [
+    "Run 'npm run xian' and check console for 'XianFire running at http://localhost:3000' with no Sequelize errors",
+    "Connect to MySQL: 'mysql -u root' then 'USE SmartCivi;' then 'SHOW TABLES;' and confirm barangays, residents, resident_activities tables exist",
+    "Verify table structures: 'DESCRIBE residents;' shows resident_id (unique), first_name, sex (ENUM), civil_status (ENUM), status (ENUM), barangay_id (FK), created_at, updated_at",
+    "Verify associations by examining models/index.js and confirming no JavaScript errors on import"
+  ],
+  "blocked_reason": null,
+  "findings": "Resident auto-generation strategy: resident_id will be generated in residentController.js as 'BSD-' + year + '-' + zero-padded sequence. Models define the schema only."
+}

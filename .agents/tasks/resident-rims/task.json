@@ -1,0 +1,7 @@
+{
+  "task_id": "resident-rims",
+  "task_description": "Implement the Bansud Resident Information Management System (RIMS) module for SmartCivi, including resident CRUD, barangay management, reporting, and activity tracking with role-based access control",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
+  "blocked_reason": null
+}

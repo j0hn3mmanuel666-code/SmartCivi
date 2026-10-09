@@ -1,0 +1,110 @@
+{{> head}}
+
+<div class="flex">
+    {{> sidebar}}
+    
+    <div class="flex-1 ml-64">
+        {{> topbar}}
+
+        <div class="p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Audit Logs</h1>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" name="search" placeholder="Search logs" value="{{search}}" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    
+                    <select name="action" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Actions</option>
+                        <option value="LOGIN" {{#eq selectedAction 'LOGIN'}}selected{{/eq}}>LOGIN</option>
+                        <option value="LOGOUT" {{#eq selectedAction 'LOGOUT'}}selected{{/eq}}>LOGOUT</option>
+                        <option value="USER_CREATED" {{#eq selectedAction 'USER_CREATED'}}selected{{/eq}}>USER_CREATED</option>
+                        <option value="USER_UPDATED" {{#eq selectedAction 'USER_UPDATED'}}selected{{/eq}}>USER_UPDATED</option>
+                        <option value="USER_ACTIVATED" {{#eq selectedAction 'USER_ACTIVATED'}}selected{{/eq}}>USER_ACTIVATED</option>
+                        <option value="USER_DEACTIVATED" {{#eq selectedAction 'USER_DEACTIVATED'}}selected{{/eq}}>USER_DEACTIVATED</option>
+                        <option value="ROLE_ASSIGNED" {{#eq selectedAction 'ROLE_ASSIGNED'}}selected{{/eq}}>ROLE_ASSIGNED</option>
+                        <option value="PASSWORD_RESET" {{#eq selectedAction 'PASSWORD_RESET'}}selected{{/eq}}>PASSWORD_RESET</option>
+                        <option value="PASSWORD_CHANGED" {{#eq selectedAction 'PASSWORD_CHANGED'}}selected{{/eq}}>PASSWORD_CHANGED</option>
+                    </select>
+
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                        Filter
+                    </button>
+                </form>
+            </div>
+
+            <!-- Audit Logs Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                {{#if logs}}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100 border-b">
+                            <tr>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Date/Time</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Action</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">User</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Target User</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Description</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each logs}}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3 px-4 text-sm text-gray-600">{{dateTimeFormat createdAt}}</td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded {{actionColor action}}">
+                                        {{action}}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-sm">
+                                    {{#if User}}
+                                        <div>
+                                            <p class="font-semibold text-gray-800">{{User.Profile.first_name}} {{User.Profile.last_name}}</p>
+                                            <p class="text-gray-500 text-xs">@{{User.username}}</p>
+                                        </div>
+                                    {{else}}
+                                        <span class="text-gray-500">System</span>
+                                    {{/if}}
+                                </td>
+                                <td class="py-3 px-4 text-sm text-gray-600">{{#if target_user_id}}-{{else}}-{{/if}}</td>
+                                <td class="py-3 px-4 text-sm text-gray-600">{{description}}</td>
+                                <td class="py-3 px-4 text-sm text-gray-500">{{ip_address}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex justify-center items-center gap-2 py-4 px-4">
+                    {{#if (gt currentPage 1)}}
+                    <a href="?page={{subtract currentPage 1}}&search={{search}}&action={{selectedAction}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">← Prev</a>
+                    {{/if}}
+
+                    {{#each (range 1 (add totalPages 1))}}
+                    {{#eq this ../currentPage}}
+                    <span class="px-3 py-1 bg-blue-600 text-white rounded font-bold">{{this}}</span>
+                    {{else}}
+                    <a href="?page={{this}}&search={{../search}}&action={{../selectedAction}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">{{this}}</a>
+                    {{/eq}}
+                    {{/each}}
+
+                    {{#if (lt currentPage totalPages)}}
+                    <a href="?page={{add currentPage 1}}&search={{search}}&action={{selectedAction}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">Next →</a>
+                    {{/if}}
+                </div>
+
+                {{else}}
+                <div class="text-center py-12">
+                    <p class="text-gray-600 text-lg">No audit logs found</p>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{{> footer}}

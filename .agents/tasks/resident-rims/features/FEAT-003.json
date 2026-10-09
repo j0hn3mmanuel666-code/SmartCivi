@@ -1,0 +1,38 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Create all 8 Resident module view files (.xian templates) for listing, adding, editing, viewing profiles, printing, barangays, reports, and activity logs. Views use existing Handlebars syntax ({{#if}}, {{#each}}, {{#eq}}), Tailwind CSS, and partials (head, sidebar, topbar, footer). Update sidebar partial to add Residents nav menu items.",
+  "status": "pending",
+  "steps": [
+    "Create views/residents.xian: main resident list with search bar (input name=search), filters (select for barangay, sex, status), pagination (prev/next buttons), Add Resident button, table (Resident ID, Name, Barangay, Contact, Status) with View/Edit/Archive action buttons.",
+    "Create views/residents-add.xian: form with fields (first_name, middle_name, last_name, birthdate, sex select, civil_status select, address textarea, barangay_id select, contact_number, email). Submit button creates resident.",
+    "Create views/residents-edit.xian: same form as add, pre-populated with resident data from resident object passed by controller. Submit updates resident.",
+    "Create views/residents-profile.xian: resident profile display with resident_id, full name, birthdate, age (calculated), sex, civil_status, address, barangay name, contact, email, status. Include Edit and Print buttons.",
+    "Create views/residents-print.xian: print-friendly version of profile (no sidebar/topbar, optimized for print layout, minimal styling).",
+    "Create views/barangays.xian: table of barangays with resident count per barangay. Link each barangay name to filter /residents by that barangay.",
+    "Create views/reports.xian: report generation page with filters (barangay select, sex select, age range inputs, status select), Report Type radio buttons (All Residents / By Barangay / By Sex / By Age Group), Export as CSV button.",
+    "Create views/resident-activities.xian: activity log table (Resident ID/Name, Action, User, Date/Time, Description) with filters (resident search, action type select) and pagination.",
+    "Update views/partials/sidebar.xian to add RIMS navigation section with links: Residents, Barangays, Reports, Resident Activity Log. Make visible to all authenticated users (not admin-only). Place after My Profile, before Admin section.",
+    "Update views/dashboard.xian to add resident stats cards for Administrator role: Total Residents, Active Residents, Archived Residents, Top 5 Barangays by Resident Count (chart or list)."
+  ],
+  "acceptance_criteria": [
+    "All 8 view files created with .xian extension in views/ directory",
+    "Each view renders without Handlebars syntax errors (test by visiting route in browser)",
+    "Sidebar partial includes Residents, Barangays, Reports, Resident Activity Log links",
+    "Dashboard includes resident stats cards for admin role",
+    "Forms include proper input names matching controller expectations, select dropdowns for enums, date input for birthdate",
+    "Search, filter, pagination UI elements present and functional (form submits to controller with correct param names)"
+  ],
+  "verification": [
+    "npm run xian starts server",
+    "GET /residents renders residents.xian with search form, filters, Add button, empty table (no data yet)",
+    "GET /residents/add renders residents-add.xian form with all fields, no validation errors",
+    "GET /barangays renders barangays.xian table (empty until seed)",
+    "GET /reports/residents renders reports.xian with filters and Export button",
+    "GET /resident-activities renders resident-activities.xian with empty activity log",
+    "Check sidebar.xian includes all 4 new menu items and renders in all views",
+    "Check dashboard.xian includes resident stats section for role='Administrator'"
+  ],
+  "blocked_reason": null,
+  "findings": "Form pattern from users-add.xian: use <input type=text name=field_name> for text, <select name=field_name><option value=val>Label</option></select> for dropdowns, <textarea name=field_name></textarea> for text areas, <input type=date name=birthdate> for dates, <button type=submit> for action buttons. Filter/pagination: form submits to GET route with query params. Age calculation in view: use calculateAge helper (to be added to hbs in FEAT-004)."
+}

@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Implement Resident CRUD controllers and routes with search, filter (by barangay/sex/status), pagination, archive/restore, and print functionality. Add routes to routes/index.js following existing patterns. Controllers handle business logic: resident creation with auto-generated ID, updates, archiving (soft-delete), viewing, and report data fetching. All changes trigger ResidentActivity audit entries.",
+  "status": "pending",
+  "steps": [
+    "Create controllers/residentController.js exporting: listResidents (GET with search, filter, pagination), showAddResidentPage (GET form), addResident (POST, generate resident_id, log activity), showResident (GET profile), showEditResidentPage (GET edit form), updateResident (PATCH, log activity), archiveResident (POST, log activity), restoreResident (POST, log activity), printResident (GET print view). All functions use try-catch, logAudit() on data changes.",
+    "Create controllers/reportController.js exporting: residentReport (GET report page with filters), exportResidentsCSV (GET, streams CSV with resident list by applied filters).",
+    "Create controllers/residentActivityController.js exporting: listResidentActivities (GET activity log, filtered by resident if id in query).",
+    "Create controllers/barangayController.js exporting: listBarangays (GET list with resident count per barangay).",
+    "Update routes/index.js to add routes: GET /residents, GET /residents/add, POST /residents/add, GET /residents/:id, GET /residents/:id/edit, POST /residents/:id/edit, POST /residents/:id/archive, POST /residents/:id/restore, GET /residents/:id/print (no auth, print-friendly), GET /barangays, GET /reports/residents, GET /reports/residents/export, GET /resident-activities. All except /residents/:id/print require isAuthenticated. Archive/restore/add/edit require hasPermission('manage_residents') OR adminOnly.",
+    "Verify all new routes load in browser without 404 errors and controllers execute without crashes."
+  ],
+  "acceptance_criteria": [
+    "All four controller files created with functions matching route handlers exactly",
+    "routes/index.js imports all four controllers and registers all 14 routes",
+    "Each resident data change (add, edit, archive, restore) calls logAudit with appropriate action",
+    "Search accepts query string parameter 'search', filters apply 'barangay', 'sex', 'status' params, pagination uses 'page' and 'limit'",
+    "Resident ID auto-generation uses format 'BSD-YYYY-NNNNN' (e.g., BSD-2026-00001) and increments uniquely"
+  ],
+  "verification": [
+    "npm run xian starts and logs no import or syntax errors",
+    "npm run route:list outputs all 14 new resident-related routes",
+    "GET /residents loads (renders view, no errors), POST /residents/add creates resident with generated ID, GET /residents/:id shows that resident",
+    "POST /residents/:id/archive marks resident status=archived, GET /residents shows archived filter working",
+    "GET /reports/residents/export returns CSV data with correct mime-type (text/csv)"
+  ],
+  "blocked_reason": null,
+  "findings": "Resident ID generation: Query existing residents in 2026, find max sequence, increment by 1. Format: 'BSD-2026-' + zero-padded 5-digit number. Search/filter applied server-side using Sequelize Op.like and Op.or. Pagination follows userController.js pattern (offset, limit, page). Activity logging uses logAudit() from existing middleware; calls include userId, action ('RESIDENT_CREATED', 'RESIDENT_UPDATED', etc.), and description with resident name."
+}

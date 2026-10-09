@@ -1,0 +1,171 @@
+{{> head}}
+
+<div class="flex">
+    {{> sidebar}}
+    
+    <div class="flex-1 ml-64">
+        {{> topbar}}
+
+        <div class="p-8">
+            {{#if success_msg}}
+            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                {{#each success_msg}}
+                    <p>{{this}}</p>
+                {{/each}}
+            </div>
+            {{/if}}
+
+            <div class="mb-8">
+                <a href="/users" class="text-blue-600 hover:text-blue-800 font-medium">← Back to Users</a>
+            </div>
+
+            <div class="max-w-2xl bg-white rounded-lg shadow p-8">
+                <!-- Header with Avatar -->
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-3xl mx-auto mb-4">
+                        {{substr Profile.first_name 0 1}}
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800">{{Profile.first_name}} {{Profile.last_name}}</h1>
+                    <p class="text-gray-600 mt-2">{{userRole}}</p>
+                    <div class="mt-3">
+                        {{#eq status 'active'}}
+                        <span class="inline-block bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">✅ Active</span>
+                        {{else}}
+                        <span class="inline-block bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">❌ Inactive</span>
+                        {{/eq}}
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="mb-8 pb-8 border-b">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Full Name</p>
+                            <p class="font-semibold text-gray-800">{{Profile.first_name}} {{#if Profile.middle_name}}{{Profile.middle_name}}{{/if}} {{Profile.last_name}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Username</p>
+                            <p class="font-semibold text-gray-800">{{username}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Email</p>
+                            <p class="font-semibold text-gray-800">{{email}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Contact Number</p>
+                            <p class="font-semibold text-gray-800">{{#if Profile.contact_number}}{{Profile.contact_number}}{{else}}-{{/if}}</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-sm text-gray-600">Address</p>
+                            <p class="font-semibold text-gray-800">{{#if Profile.address}}{{Profile.address}}{{else}}-{{/if}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Role</p>
+                            <p class="font-semibold text-gray-800">{{userRole}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
+                            <p class="font-semibold {{#eq status 'active'}}text-green-600{{else}}text-red-600{{/eq}}">
+                                {{#eq status 'active'}}Active{{else}}Inactive{{/eq}}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Date Created</p>
+                            <p class="font-semibold text-gray-800">{{dateFormat createdAt}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Last Login</p>
+                            <p class="font-semibold text-gray-800">{{#if last_login}}{{dateFormat last_login}}{{else}}-{{/if}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t">
+                    <a href="/users/{{id}}/edit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition">
+                        ✏️ Edit Profile
+                    </a>
+                    <a href="/users/{{id}}/assign-role" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition">
+                        🔄 Assign Role
+                    </a>
+                    <a href="/profile/change-password" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-lg transition">
+                        🔒 Change Password
+                    </a>
+                    <button onclick="resetPassword({{id}})" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition">
+                        🔑 Reset Password
+                    </button>
+                    {{#eq status 'active'}}
+                    <button onclick="deactivateUser({{id}})" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg transition">
+                        ❌ Deactivate
+                    </button>
+                    {{else}}
+                    <button onclick="activateUser({{id}})" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition">
+                        ✅ Activate
+                    </button>
+                    {{/eq}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function dateFormat(dateString) {
+    return new Date(dateString).toLocaleDateString() + ' ' + new Date(dateString).toLocaleTimeString();
+}
+
+Handlebars.registerHelper('dateFormat', dateFormat);
+Handlebars.registerHelper('eq', function(a, b) { return a === b; });
+Handlebars.registerHelper('if', function(condition) { return condition; });
+Handlebars.registerHelper('substr', function(str, start, end) { return str ? str.substring(start, end) : ''; });
+
+async function activateUser(userId) {
+    if (!confirm('Activate this user?')) return;
+    try {
+        const res = await fetch(`/users/${userId}/activate`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            location.reload();
+        }
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+async function deactivateUser(userId) {
+    if (!confirm('Deactivate this user?')) return;
+    try {
+        const res = await fetch(`/users/${userId}/deactivate`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            location.reload();
+        }
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+async function resetPassword(userId) {
+    if (!confirm('Reset password for this user?')) return;
+    try {
+        const res = await fetch(`/users/${userId}/reset-password`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            alert(`Password reset successful!\n\nTemporary Password: ${data.tempPassword}\n\nPlease share this with the user securely.`);
+            location.reload();
+        }
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+</script>
+
+{{> footer}}

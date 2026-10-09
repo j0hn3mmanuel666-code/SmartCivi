@@ -1,0 +1,30 @@
+{
+  "project_type": "XianFire Framework (Express.js + Handlebars) server with Sequelize ORM",
+  "language": "JavaScript (ESM modules)",
+  "build_system": "Node.js with npm; nodemon for dev. Framework: XianFire with express-session, bcrypt, Sequelize. No build step needed.",
+  "test_framework": "None currently defined; verification via manual application testing",
+  "build_command": "npm start (production) or npm run xian (development with nodemon)",
+  "test_command": "npm run xian (dev mode); manually verify features in browser at http://localhost:3000",
+  "verification_instructions": "1) npm run xian to start dev server, 2) Open http://localhost:3000, 3) Login with admin, 4) Navigate to Residents module, 5) Perform CRUD, search, filter, archive, export tests, 6) Verify audit logs record actions, 7) Test role-based access (Staff, Resident roles see subset), 8) Verify CSV export works",
+  "snapshot_or_generated_files": "Resident ID is auto-generated server-side using pattern 'BSD-YYYY-NNNNN'. No snapshot files, but generated IDs must be unique. seed.js must be run once (npm run xian with setup.js call), or edit setup.js to include seedResidents()",
+  "environment_constraints": "Database must be MySQL on localhost:3306, user=root, no password, database=SmartCivi. Sequelize uses alter:true in sync. Models auto-export from models/index.js. HBS partials auto-load from views/partials/*.xian on app start.",
+  "contribution_requirements": "All new files follow existing patterns: models use Sequelize with tableName in lowercase, controllers export async functions, routes use isAuthenticated + middleware chain, views use .xian extension with Handlebars {{}} syntax and {{> partial}} includes. Existing HBS helpers: eq, dateFormat, substr, gt, lt, gte, lte, add, subtract, range, dateTimeFormat, actionColor. No CommonJS require(); ESM only.",
+  "key_patterns": "Model pattern: DataTypes, sequelize.define(), timestamps:true, associations in models/index.js. Controller pattern: async functions, try-catch, User.findAll/findOne/create, render() or redirect(). Route pattern: express Router, middleware chaining (isAuthenticated, hasPermission). View pattern: {{> head}}, {{> sidebar}}, {{> topbar}}, {{> footer}} partials, Tailwind classes, flash messages, conditional {{#if}}, {{#each}}, {{#eq}}.",
+  "relevant_files": [
+    "models/User.js - study model structure",
+    "models/AuditLog.js - study model pattern for action tracking",
+    "models/index.js - update with new model imports and associations",
+    "controllers/userController.js - study CRUD pattern",
+    "controllers/authController.js - study dashboard stats pattern",
+    "controllers/auditLogController.js - study list pattern",
+    "routes/index.js - add new routes following pattern",
+    "views/users.xian - study table, search, filter, pagination pattern",
+    "views/users-add.xian - study form pattern",
+    "views/dashboard.xian - study stats card pattern for resident counts",
+    "views/partials/sidebar.xian - add Residents nav items",
+    "middleware/auth.js - study permission checking",
+    "middleware/auditLog.js - use for resident activity tracking",
+    "models/seed.js - extend to seed barangays and residents"
+  ],
+  "directory_structure": "Root: models/, controllers/, routes/, middleware/, views/, public/, bin/, utils/. Models in models/ export Sequelize definitions. Controllers in controllers/ export async route handlers. Routes consolidated in routes/index.js. Views: *.xian files, partials in views/partials/. Middleware in middleware/. No new directories needed for RIMS; all fits existing structure."
+}

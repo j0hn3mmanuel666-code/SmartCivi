@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Seed the database with 18 Bansud barangays and 15 fictional resident records for development/testing. Update models/seed.js to include seedBarangays() and seedResidents() functions called during initial setup. Also register 8 HBS (Handlebars) helpers needed by RIMS views in index.js.",
+  "status": "pending",
+  "steps": [
+    "Update models/seed.js to add seedBarangays() function that creates 18 barangay records: Poblacion, Caloocan, Cabulao, Carunog, Cawayan, Ipil, Mamburao, Mansalay, Olandoy, Panaluran, Pinamalayan, Pindasan, Rosario, Salogon, Talusan, Tigbao, Tinahak, Tiniguiban. Each has name and generic description.",
+    "Update models/seed.js to add seedResidents() function that creates 15 fictional residents with varied barangays, birthdates, sex, civil_status, address. Resident IDs auto-generated as BSD-2026-00001 through BSD-2026-00015. Status all 'active' except 2-3 marked 'archived' for testing filter.",
+    "Call seedBarangays() and seedResidents() from main seedData() function after existing user/role seed.",
+    "Register 8 HBS helpers in index.js: multiply (a*b), json (JSON.stringify), formatDate (YYYY-MM-DD for date inputs), calculateAge (birthdate -> current age), or (a||b logical or), and (a&&b logical and), ne (a!==b not equal), includes (array.includes(value)). Place after existing helpers.",
+    "Update setup.js to ensure it still shows demo credentials at end (admin/Admin@2026!, staff/Staff@2026!, resident/Resident@2026!). Credentials are not shown in views; they display only during npm run setup in console for developers."
+  ],
+  "acceptance_criteria": [
+    "models/seed.js contains seedBarangays() creating all 18 barangay records with unique names",
+    "models/seed.js contains seedResidents() creating 15 residents with varied data, auto-generated IDs BSD-2026-00001 to BSD-2026-00015",
+    "seedBarangays() and seedResidents() called from seedData() during app initialization",
+    "index.js registers 8 new HBS helpers (multiply, json, formatDate, calculateAge, or, and, ne, includes)",
+    "HBS helpers work correctly in templates (e.g., {{calculateAge birthdate}} returns integer age, {{formatDate birthdate}} returns YYYY-MM-DD)",
+    "setup.js outputs demo credentials to console on first run (one-time setup)"
+  ],
+  "verification": [
+    "Run 'npm run xian', check console logs show 'Seeding barangays' and 'Seeding residents' messages",
+    "Connect to MySQL: 'SELECT * FROM barangays;' shows 18 rows with correct names",
+    "Check 'SELECT * FROM residents;' shows 15 rows with resident_id values BSD-2026-00001 through BSD-2026-00015",
+    "GET /barangays renders barangays.xian with all 18 barangays and resident counts",
+    "GET /residents renders residents.xian with all 15 active residents visible, archive filter shows archived ones",
+    "GET /residents/:id shows resident profile with calculated age displayed correctly using calculateAge helper",
+    "View page source of any RIMS view and confirm no HBS syntax errors (all {{}} rendered to values/HTML)",
+    "POST /residents/add creates new resident with next sequential ID (BSD-2026-00016) and captures in ResidentActivity log"
+  ],
+  "blocked_reason": null,
+  "findings": "HBS helper registration uses hbs.registerHelper('name', function(args...) { return result; }). Helpers are synchronous only. calculateAge helper receives birthdate string, parses as Date, subtracts from current year. formatDate helper formats date as YYYY-MM-DD for HTML date input value. Resident seed uses varied contact_numbers, addresses referencing their assigned barangay, realistic names (Filipino). First 5 residents assigned to Poblacion, next 5 to Mamburao, last 5 distributed across other barangays."
+}

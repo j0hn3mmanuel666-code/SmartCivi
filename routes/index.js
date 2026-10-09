@@ -3,7 +3,11 @@ import * as authController from '../controllers/authController.js';
 import * as userController from '../controllers/userController.js';
 import * as profileController from '../controllers/profileController.js';
 import * as auditLogController from '../controllers/auditLogController.js';
-import { isAuthenticated, adminOnly } from '../middleware/auth.js';
+import * as residentController from '../controllers/residentController.js';
+import * as reportController from '../controllers/reportController.js';
+import * as residentActivityController from '../controllers/residentActivityController.js';
+import * as barangayController from '../controllers/barangayController.js';
+import { isAuthenticated, adminOnly, hasPermission } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -39,6 +43,27 @@ router.post('/users/:id/reset-password', isAuthenticated, adminOnly, userControl
 
 // Audit logs (admin only)
 router.get('/audit-logs', isAuthenticated, adminOnly, auditLogController.listAuditLogs);
+
+// Resident management (RIMS)
+router.get('/residents', isAuthenticated, residentController.listResidents);
+router.get('/residents/add', isAuthenticated, hasPermission('manage_residents'), residentController.showAddResidentPage);
+router.post('/residents/add', isAuthenticated, hasPermission('manage_residents'), residentController.addResident);
+router.get('/residents/:id', isAuthenticated, residentController.showResident);
+router.get('/residents/:id/edit', isAuthenticated, hasPermission('manage_residents'), residentController.showEditResidentPage);
+router.post('/residents/:id/edit', isAuthenticated, hasPermission('manage_residents'), residentController.updateResident);
+router.post('/residents/:id/archive', isAuthenticated, hasPermission('manage_residents'), residentController.archiveResident);
+router.post('/residents/:id/restore', isAuthenticated, hasPermission('manage_residents'), residentController.restoreResident);
+router.get('/residents/:id/print', residentController.printResident);
+
+// Barangay routes
+router.get('/barangays', isAuthenticated, barangayController.listBarangays);
+
+// Reports
+router.get('/reports/residents', isAuthenticated, reportController.residentReport);
+router.get('/reports/residents/export', isAuthenticated, reportController.exportResidentsCSV);
+
+// Resident activities
+router.get('/resident-activities', isAuthenticated, residentActivityController.listResidentActivities);
 
 // 404 handler
 router.use((req, res) => {

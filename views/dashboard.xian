@@ -20,7 +20,8 @@
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
                 <p class="text-gray-600 mb-8">System Overview</p>
 
-                <!-- Summary Cards -->
+                <!-- User Summary Cards -->
+                <h2 class="text-xl font-bold text-gray-800 mt-8 mb-4">User Management</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex justify-between items-start">
@@ -62,6 +63,84 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Resident Management Summary Cards -->
+                <h2 class="text-xl font-bold text-gray-800 mt-8 mb-4">Resident Management</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-600 text-sm font-medium">Total Residents</p>
+                                <p class="text-3xl font-bold text-indigo-900">{{stats.totalResidents}}</p>
+                            </div>
+                            <span class="text-4xl">👨‍👩‍👧‍👦</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-600 text-sm font-medium">Active Residents</p>
+                                <p class="text-3xl font-bold text-green-600">{{stats.activeResidents}}</p>
+                            </div>
+                            <span class="text-4xl">✅</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-600 text-sm font-medium">Archived Residents</p>
+                                <p class="text-3xl font-bold text-gray-600">{{stats.archivedResidents}}</p>
+                            </div>
+                            <span class="text-4xl">📦</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-600 text-sm font-medium">Total Barangays</p>
+                                <p class="text-3xl font-bold text-orange-600">{{stats.totalBarangays}}</p>
+                            </div>
+                            <span class="text-4xl">🗺️</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Barangays -->
+                {{#if stats.topBarangays}}
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Top Barangays by Resident Count</h3>
+                        <div class="space-y-3">
+                            {{#each stats.topBarangays}}
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="font-semibold text-gray-800">{{name}}</p>
+                                    <p class="text-xs text-gray-600">{{count}} residents</p>
+                                </div>
+                                <div class="text-2xl">{{count}}</div>
+                            </div>
+                            {{/each}}
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Resident Statistics</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700">Average Residents per Barangay</span>
+                                <span class="text-xl font-bold text-blue-600">{{stats.avgResidentsPerBarangay}}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: {{stats.activeResidentsPercentage}}%"></div>
+                            </div>
+                            <p class="text-xs text-gray-600">{{stats.activeResidentsPercentage}}% Active | {{stats.archivedResidentsPercentage}}% Archived</p>
+                        </div>
+                    </div>
+                </div>
+                {{/if}}
 
                 <!-- User Distribution & Recent Activity -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">

@@ -1,0 +1,142 @@
+{{> head}}
+
+<div class="flex">
+    {{> sidebar}}
+    
+    <div class="flex-1 ml-64">
+        {{> topbar}}
+
+        <div class="p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Resident Activity Log</h1>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" name="search" placeholder="Search resident by name or ID" value="{{search}}" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    
+                    <select name="action" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Actions</option>
+                        <option value="CREATED" {{#eq selectedAction 'CREATED'}}selected{{/eq}}>CREATED</option>
+                        <option value="UPDATED" {{#eq selectedAction 'UPDATED'}}selected{{/eq}}>UPDATED</option>
+                        <option value="ARCHIVED" {{#eq selectedAction 'ARCHIVED'}}selected{{/eq}}>ARCHIVED</option>
+                        <option value="RESTORED" {{#eq selectedAction 'RESTORED'}}selected{{/eq}}>RESTORED</option>
+                    </select>
+
+                    <select name="date_range" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Dates</option>
+                        <option value="today" {{#eq selectedDateRange 'today'}}selected{{/eq}}>Today</option>
+                        <option value="week" {{#eq selectedDateRange 'week'}}selected{{/eq}}>This Week</option>
+                        <option value="month" {{#eq selectedDateRange 'month'}}selected{{/eq}}>This Month</option>
+                    </select>
+
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                        Filter
+                    </button>
+                </form>
+            </div>
+
+            <!-- Activity Log Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                {{#if activities}}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100 border-b">
+                            <tr>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Date/Time</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Resident</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Action</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">User</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each activities}}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3 px-4 text-sm text-gray-600">{{dateTimeFormat createdAt}}</td>
+                                <td class="py-3 px-4">
+                                    {{#if Resident}}
+                                    <div>
+                                        <p class="font-semibold text-gray-800">{{Resident.first_name}} {{Resident.last_name}}</p>
+                                        <p class="text-xs text-gray-500">{{Resident.resident_id}}</p>
+                                    </div>
+                                    {{else}}
+                                    <span class="text-gray-500">-</span>
+                                    {{/if}}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded {{actionColor action}}">
+                                        {{action}}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-sm">
+                                    {{#if User}}
+                                        <div>
+                                            <p class="font-semibold text-gray-800">{{User.Profile.first_name}} {{User.Profile.last_name}}</p>
+                                            <p class="text-gray-500 text-xs">@{{User.username}}</p>
+                                        </div>
+                                    {{else}}
+                                        <span class="text-gray-500">System</span>
+                                    {{/if}}
+                                </td>
+                                <td class="py-3 px-4 text-sm text-gray-600">{{description}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex justify-center items-center gap-2 py-4 px-4">
+                    {{#if (gt currentPage 1)}}
+                    <a href="?page={{subtract currentPage 1}}&search={{search}}&action={{selectedAction}}&date_range={{selectedDateRange}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">← Prev</a>
+                    {{/if}}
+
+                    {{#each (range 1 (add totalPages 1))}}
+                    {{#eq this ../currentPage}}
+                    <span class="px-3 py-1 bg-blue-600 text-white rounded font-bold">{{this}}</span>
+                    {{else}}
+                    <a href="?page={{this}}&search={{../search}}&action={{../selectedAction}}&date_range={{../selectedDateRange}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">{{this}}</a>
+                    {{/eq}}
+                    {{/each}}
+
+                    {{#if (lt currentPage totalPages)}}
+                    <a href="?page={{add currentPage 1}}&search={{search}}&action={{selectedAction}}&date_range={{selectedDateRange}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">Next →</a>
+                    {{/if}}
+                </div>
+
+                {{else}}
+                <div class="text-center py-12">
+                    <p class="text-gray-600 text-lg">No activity logs found</p>
+                </div>
+                {{/if}}
+            </div>
+
+            <!-- Activity Summary -->
+            {{#if totalActivities}}
+            <div class="mt-8 bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Activity Summary</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-600 text-sm font-medium">Total Activities</p>
+                        <p class="text-3xl font-bold text-blue-900">{{totalActivities}}</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <p class="text-gray-600 text-sm font-medium">Residents Created</p>
+                        <p class="text-3xl font-bold text-green-600">{{createdCount}}</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <p class="text-gray-600 text-sm font-medium">Records Updated</p>
+                        <p class="text-3xl font-bold text-blue-600">{{updatedCount}}</p>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <p class="text-gray-600 text-sm font-medium">Records Archived</p>
+                        <p class="text-3xl font-bold text-orange-600">{{archivedCount}}</p>
+                    </div>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
+
+{{> footer}}

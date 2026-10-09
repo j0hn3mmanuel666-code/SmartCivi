@@ -1,0 +1,94 @@
+{{> head}}
+
+<div class="flex">
+    {{> sidebar}}
+    
+    <div class="flex-1 ml-64">
+        {{> topbar}}
+
+        <div class="p-8">
+            {{#if success_msg}}
+            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                {{#each success_msg}}
+                    <p>{{this}}</p>
+                {{/each}}
+            </div>
+            {{/if}}
+
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Barangays</h1>
+                <p class="text-gray-600">List of barangays in Bansud with resident counts</p>
+            </div>
+
+            <!-- Barangays Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                {{#if barangays}}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100 border-b">
+                            <tr>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Barangay Name</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Active Residents</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Archived Residents</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Total Residents</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each barangays}}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3 px-4 font-semibold text-gray-800">{{name}}</td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                        {{#if activeCount}}{{activeCount}}{{else}}0{{/if}}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                        {{#if archivedCount}}{{archivedCount}}{{else}}0{{/if}}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-lg font-bold text-gray-800">
+                                    {{#if totalCount}}{{totalCount}}{{else}}0{{/if}}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <a href="/residents?barangay={{id}}" class="text-blue-600 hover:text-blue-800 font-medium">View Residents</a>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+
+                {{else}}
+                <div class="text-center py-12">
+                    <p class="text-gray-600 text-lg">No barangays found</p>
+                </div>
+                {{/if}}
+            </div>
+
+            <!-- Summary Card -->
+            {{#if barangays}}
+            <div class="mt-8 bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Summary</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Total Barangays</p>
+                        <p class="text-3xl font-bold text-blue-900">{{barangayCount}}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Total Active Residents</p>
+                        <p class="text-3xl font-bold text-green-600">{{totalActiveResidents}}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Total Residents</p>
+                        <p class="text-3xl font-bold text-purple-600">{{totalResidents}}</p>
+                    </div>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
+
+{{> footer}}

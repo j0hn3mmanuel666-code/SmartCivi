@@ -1,0 +1,140 @@
+{{> head}}
+
+<div class="flex">
+    {{> sidebar}}
+    
+    <div class="flex-1 ml-64">
+        {{> topbar}}
+
+        <div class="p-8">
+            {{#if success_msg}}
+            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                {{#each success_msg}}
+                    <p>{{this}}</p>
+                {{/each}}
+            </div>
+            {{/if}}
+
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Residents</h1>
+                    <p class="text-gray-600">Manage resident records and information</p>
+                </div>
+                <a href="/residents/add" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition">
+                    + Add Resident
+                </a>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" name="search" placeholder="Search by name or Resident ID" value="{{search}}" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    
+                    <select name="barangay" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Barangays</option>
+                        {{#each barangays}}
+                        <option value="{{id}}" {{#eq ../selectedBarangay id}}selected{{/eq}}>{{name}}</option>
+                        {{/each}}
+                    </select>
+
+                    <select name="sex" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Sexes</option>
+                        <option value="Male" {{#eq selectedSex 'Male'}}selected{{/eq}}>Male</option>
+                        <option value="Female" {{#eq selectedSex 'Female'}}selected{{/eq}}>Female</option>
+                    </select>
+
+                    <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Statuses</option>
+                        <option value="active" {{#eq selectedStatus 'active'}}selected{{/eq}}>Active</option>
+                        <option value="archived" {{#eq selectedStatus 'archived'}}selected{{/eq}}>Archived</option>
+                    </select>
+
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            <!-- Residents Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                {{#if residents}}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100 border-b">
+                            <tr>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Resident ID</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Name</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Barangay</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Contact</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Status</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-800">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each residents}}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3 px-4 font-semibold text-gray-800">{{resident_id}}</td>
+                                <td class="py-3 px-4">
+                                    <p class="font-semibold text-gray-800">{{first_name}} {{middle_name}} {{last_name}}</p>
+                                    <p class="text-xs text-gray-500">DOB: {{dateFormat birthdate}}</p>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600">{{#if Barangay}}{{Barangay.name}}{{else}}-{{/if}}</td>
+                                <td class="py-3 px-4 text-gray-600">{{contact_number}}</td>
+                                <td class="py-3 px-4">
+                                    {{#eq status 'active'}}
+                                    <span class="inline-block bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">✅ Active</span>
+                                    {{else}}
+                                    <span class="inline-block bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full">📦 Archived</span>
+                                    {{/eq}}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex gap-2">
+                                        <a href="/residents/{{id}}" class="text-blue-600 hover:text-blue-800 font-medium">View</a>
+                                        <a href="/residents/{{id}}/edit" class="text-blue-600 hover:text-blue-800 font-medium">Edit</a>
+                                        {{#eq status 'active'}}
+                                        <form method="POST" action="/residents/{{id}}/archive" style="display:inline;">
+                                            <button type="submit" class="text-orange-600 hover:text-orange-800 font-medium" onclick="return confirm('Archive this resident?')">Archive</button>
+                                        </form>
+                                        {{else}}
+                                        <form method="POST" action="/residents/{{id}}/restore" style="display:inline;">
+                                            <button type="submit" class="text-green-600 hover:text-green-800 font-medium">Restore</button>
+                                        </form>
+                                        {{/eq}}
+                                    </div>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex justify-center items-center gap-2 py-4 px-4">
+                    {{#if (gt currentPage 1)}}
+                    <a href="?page={{subtract currentPage 1}}&search={{search}}&barangay={{selectedBarangay}}&sex={{selectedSex}}&status={{selectedStatus}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">← Prev</a>
+                    {{/if}}
+
+                    {{#each (range 1 (add totalPages 1))}}
+                    {{#eq this ../currentPage}}
+                    <span class="px-3 py-1 bg-blue-600 text-white rounded font-bold">{{this}}</span>
+                    {{else}}
+                    <a href="?page={{this}}&search={{../search}}&barangay={{../selectedBarangay}}&sex={{../selectedSex}}&status={{../selectedStatus}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">{{this}}</a>
+                    {{/eq}}
+                    {{/each}}
+
+                    {{#if (lt currentPage totalPages)}}
+                    <a href="?page={{add currentPage 1}}&search={{search}}&barangay={{selectedBarangay}}&sex={{selectedSex}}&status={{selectedStatus}}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">Next →</a>
+                    {{/if}}
+                </div>
+
+                {{else}}
+                <div class="text-center py-12">
+                    <p class="text-gray-600 text-lg">No residents found. <a href="/residents/add" class="text-blue-600 hover:text-blue-800 font-semibold">Add one to get started</a></p>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> footer}}

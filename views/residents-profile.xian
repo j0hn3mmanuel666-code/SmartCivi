@@ -1,0 +1,136 @@
+{{> head}}
+
+<div class="flex">
+    {{> sidebar}}
+    
+    <div class="flex-1 ml-64">
+        {{> topbar}}
+
+        <div class="p-8">
+            {{#if success_msg}}
+            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                {{#each success_msg}}
+                    <p>{{this}}</p>
+                {{/each}}
+            </div>
+            {{/if}}
+
+            <div class="mb-8">
+                <a href="/residents" class="text-blue-600 hover:text-blue-800 font-medium">← Back to Residents</a>
+            </div>
+
+            <div class="max-w-3xl bg-white rounded-lg shadow p-8">
+                <!-- Header with Avatar -->
+                <div class="text-center mb-8 pb-8 border-b">
+                    <div class="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-3xl mx-auto mb-4">
+                        {{substr resident.first_name 0 1}}
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800">{{resident.first_name}} {{resident.middle_name}} {{resident.last_name}}</h1>
+                    <p class="text-gray-600 mt-2">Resident ID: {{resident.resident_id}}</p>
+                    <div class="mt-3">
+                        {{#eq resident.status 'active'}}
+                        <span class="inline-block bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">✅ Active</span>
+                        {{else}}
+                        <span class="inline-block bg-gray-100 text-gray-800 text-sm px-3 py-1 rounded-full">📦 Archived</span>
+                        {{/eq}}
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="mb-8 pb-8 border-b">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Full Name</p>
+                            <p class="font-semibold text-gray-800">{{resident.first_name}} {{#if resident.middle_name}}{{resident.middle_name}}{{/if}} {{resident.last_name}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Birthdate</p>
+                            <p class="font-semibold text-gray-800">{{dateFormat resident.birthdate}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Sex</p>
+                            <p class="font-semibold text-gray-800">{{resident.sex}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Civil Status</p>
+                            <p class="font-semibold text-gray-800">{{resident.civil_status}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Information -->
+                <div class="mb-8 pb-8 border-b">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Location Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <p class="text-sm text-gray-600">Address</p>
+                            <p class="font-semibold text-gray-800">{{resident.address}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Barangay</p>
+                            <p class="font-semibold text-gray-800">{{#if resident.Barangay}}{{resident.Barangay.name}}{{else}}-{{/if}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="mb-8 pb-8 border-b">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Contact Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Contact Number</p>
+                            <p class="font-semibold text-gray-800">{{resident.contact_number}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Email</p>
+                            <p class="font-semibold text-gray-800">{{#if resident.email}}{{resident.email}}{{else}}-{{/if}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Information -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Registration Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Registration Date</p>
+                            <p class="font-semibold text-gray-800">{{dateFormat resident.createdAt}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
+                            <p class="font-semibold {{#eq resident.status 'active'}}text-green-600{{else}}text-gray-600{{/eq}}">
+                                {{#eq resident.status 'active'}}Active{{else}}Archived{{/eq}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t">
+                    <a href="/residents/{{resident.id}}/edit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition">
+                        ✏️ Edit
+                    </a>
+                    <a href="/residents/{{resident.id}}/print" target="_blank" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition">
+                        🖨️ Print
+                    </a>
+                    {{#eq resident.status 'active'}}
+                    <form method="POST" action="/residents/{{resident.id}}/archive" style="display:inline;">
+                        <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg transition" onclick="return confirm('Archive this resident?')">
+                            📦 Archive
+                        </button>
+                    </form>
+                    {{else}}
+                    <form method="POST" action="/residents/{{resident.id}}/restore" style="display:inline;">
+                        <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition">
+                            ✅ Restore
+                        </button>
+                    </form>
+                    {{/eq}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> footer}}

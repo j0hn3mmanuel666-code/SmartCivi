@@ -18,7 +18,8 @@ export async function seedData() {
       'activate_deactivate_user',
       'reset_user_password',
       'view_audit_logs',
-      'manage_permissions'
+      'manage_permissions',
+      'manage_residents'
     ];
 
     const permissionRecords = [];

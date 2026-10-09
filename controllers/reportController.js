@@ -35,7 +35,7 @@ export const residentReport = async (req, res) => {
     const maleCount = residents.filter(r => r.sex === 'Male').length;
     const femaleCount = residents.filter(r => r.sex === 'Female').length;
 
-    res.render('reports-residents', {
+    res.render('reports', {
       residents,
       barangays,
       selectedBarangay: barangay,

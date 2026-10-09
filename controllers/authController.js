@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
-import { User, Profile, Role, Permission, RolePermission, AuditLog } from '../models/index.js';
+import { User, Profile, Role, Permission, RolePermission, AuditLog, Resident, Barangay } from '../models/index.js';
 import { logAudit } from '../middleware/auditLog.js';
 
 export const loginPage = (req, res) => {
@@ -143,6 +143,32 @@ export const showDashboard = async (req, res) => {
       const staffCount = await staffRole.countUsers();
       const residentCount = await residentRole.countUsers();
 
+      // Get resident statistics
+      const totalResidents = await Resident.count();
+      const activeResidents = await Resident.count({ where: { status: 'active' } });
+      const archivedResidents = await Resident.count({ where: { status: 'archived' } });
+      const totalBarangays = await Barangay.count();
+
+      // Get top barangays by resident count
+      const topBarangays = await Barangay.findAll({
+        attributes: {
+          include: [[
+            require('sequelize').fn('COUNT', require('sequelize').col('Residents.id')),
+            'count'
+          ]]
+        },
+        include: [{ model: Resident, attributes: [] }],
+        group: ['Barangay.id', 'Barangay.name'],
+        raw: true,
+        order: [[require('sequelize').fn('COUNT', require('sequelize').col('Residents.id')), 'DESC']],
+        limit: 5
+      });
+
+      // Calculate statistics
+      const avgResidentsPerBarangay = totalBarangays > 0 ? (totalResidents / totalBarangays).toFixed(2) : 0;
+      const activeResidentsPercentage = totalResidents > 0 ? ((activeResidents / totalResidents) * 100).toFixed(1) : 0;
+      const archivedResidentsPercentage = totalResidents > 0 ? ((archivedResidents / totalResidents) * 100).toFixed(1) : 0;
+
       // Get recent audit logs
       const recentLogs = await AuditLog.findAll({
         include: [{ model: User, as: 'User', include: [Profile] }],
@@ -156,7 +182,15 @@ export const showDashboard = async (req, res) => {
         inactiveUsers,
         adminCount,
         staffCount,
-        residentCount
+        residentCount,
+        totalResidents,
+        activeResidents,
+        archivedResidents,
+        totalBarangays,
+        topBarangays,
+        avgResidentsPerBarangay,
+        activeResidentsPercentage,
+        archivedResidentsPercentage
       };
       res.locals.recentLogs = recentLogs;
     } else {

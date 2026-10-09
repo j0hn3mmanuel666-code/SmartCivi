@@ -1,5 +1,5 @@
 /*
-  Setup script for User and Access Management Module
+  Setup script for Bansud Resident Information Management System (RIMS)
   Syncs database schema and seeds demo data
 */
 
@@ -16,6 +16,7 @@ async function setup() {
     await seedData();
 
     console.log('\n✅ Setup completed successfully!');
+    console.log('\n📝 Note: Demo credentials are seeded but never displayed in views for security.');
     process.exit(0);
   } catch (error) {
     console.error('\n❌ Setup failed:', error.message);

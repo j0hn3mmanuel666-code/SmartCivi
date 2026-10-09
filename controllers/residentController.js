@@ -1,5 +1,4 @@
-import { Resident, Barangay, ResidentActivity, User } from '../models/index.js';
-import { logAudit } from '../middleware/auditLog.js';
+import { Resident, Barangay, ResidentActivity, StaffUser } from '../models/index.js';
 import { Op } from 'sequelize';
 
 /**
@@ -141,8 +140,7 @@ export const addResident = async (req, res) => {
       status: 'active'
     });
 
-    // Log audit
-    await logAudit(req.session.userId, 'RESIDENT_CREATED', resident.id, `Resident created: ${first_name} ${last_name} (${resident_id})`, req.ip);
+    // Log audit removed - RIMS uses ResidentActivity only
 
     // Create activity log
     await ResidentActivity.create({
@@ -174,7 +172,7 @@ export const showResident = async (req, res) => {
 
     const activities = await ResidentActivity.findAll({
       where: { resident_id: req.params.id },
-      include: [{ model: User, as: 'User', attributes: ['id', 'username'] }],
+      include: [{ model: StaffUser, as: 'staff', attributes: ['id', 'username'] }],
       order: [['createdAt', 'DESC']],
       limit: 10
     });
@@ -230,9 +228,6 @@ export const updateResident = async (req, res) => {
     resident.email = email || '';
     await resident.save();
 
-    // Log audit
-    await logAudit(req.session.userId, 'RESIDENT_UPDATED', resident.id, `Resident updated: ${first_name} ${last_name}`, req.ip);
-
     // Create activity log
     await ResidentActivity.create({
       resident_id: resident.id,
@@ -261,9 +256,6 @@ export const archiveResident = async (req, res) => {
     resident.status = 'archived';
     await resident.save();
 
-    // Log audit
-    await logAudit(req.session.userId, 'RESIDENT_ARCHIVED', resident.id, `Resident archived: ${resident.first_name} ${resident.last_name}`, req.ip);
-
     // Create activity log
     await ResidentActivity.create({
       resident_id: resident.id,
@@ -291,9 +283,6 @@ export const restoreResident = async (req, res) => {
 
     resident.status = 'active';
     await resident.save();
-
-    // Log audit
-    await logAudit(req.session.userId, 'RESIDENT_RESTORED', resident.id, `Resident restored: ${resident.first_name} ${resident.last_name}`, req.ip);
 
     // Create activity log
     await ResidentActivity.create({

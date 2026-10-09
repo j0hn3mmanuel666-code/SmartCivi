@@ -15,264 +15,110 @@
             </div>
             {{/if}}
 
-            {{#eq role 'Administrator'}}
-                <!-- Admin Dashboard -->
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-                <p class="text-gray-600 mb-8">System Overview</p>
+            <!-- Dashboard Header -->
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
+            <p class="text-gray-600 mb-8">Bansud Resident Information Management System</p>
 
-                <!-- User Summary Cards -->
-                <h2 class="text-xl font-bold text-gray-800 mt-8 mb-4">User Management</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-600 text-sm font-medium">Total Users</p>
-                                <p class="text-3xl font-bold text-blue-900">{{stats.totalUsers}}</p>
-                            </div>
-                            <span class="text-4xl">👥</span>
+            <!-- Resident Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Residents</p>
+                            <p class="text-3xl font-bold text-indigo-900">{{stats.totalResidents}}</p>
                         </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-600 text-sm font-medium">Active Users</p>
-                                <p class="text-3xl font-bold text-green-600">{{stats.activeUsers}}</p>
-                            </div>
-                            <span class="text-4xl">✅</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-600 text-sm font-medium">Inactive Users</p>
-                                <p class="text-3xl font-bold text-red-600">{{stats.inactiveUsers}}</p>
-                            </div>
-                            <span class="text-4xl">❌</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-600 text-sm font-medium">Administrators</p>
-                                <p class="text-3xl font-bold text-purple-600">{{stats.adminCount}}</p>
-                            </div>
-                            <span class="text-4xl">🔑</span>
-                        </div>
+                        <span class="text-4xl">👨‍👩‍👧‍👦</span>
                     </div>
                 </div>
 
-                <!-- Resident Management Summary Cards -->
-                <h2 class="text-xl font-bold text-gray-800 mt-8 mb-4">Resident Management</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-600 text-sm font-medium">Total Residents</p>
-                                <p class="text-3xl font-bold text-indigo-900">{{stats.totalResidents}}</p>
-                            </div>
-                            <span class="text-4xl">👨‍👩‍👧‍👦</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Active Residents</p>
+                            <p class="text-3xl font-bold text-green-600">{{stats.activeResidents}}</p>
                         </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-600 text-sm font-medium">Active Residents</p>
-                                <p class="text-3xl font-bold text-green-600">{{stats.activeResidents}}</p>
-                            </div>
-                            <span class="text-4xl">✅</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-600 text-sm font-medium">Archived Residents</p>
-                                <p class="text-3xl font-bold text-gray-600">{{stats.archivedResidents}}</p>
-                            </div>
-                            <span class="text-4xl">📦</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-600 text-sm font-medium">Total Barangays</p>
-                                <p class="text-3xl font-bold text-orange-600">{{stats.totalBarangays}}</p>
-                            </div>
-                            <span class="text-4xl">🗺️</span>
-                        </div>
+                        <span class="text-4xl">✅</span>
                     </div>
                 </div>
 
-                <!-- Top Barangays -->
-                {{#if stats.topBarangays}}
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Top Barangays by Resident Count</h3>
-                        <div class="space-y-3">
-                            {{#each stats.topBarangays}}
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-semibold text-gray-800">{{name}}</p>
-                                    <p class="text-xs text-gray-600">{{count}} residents</p>
-                                </div>
-                                <div class="text-2xl">{{count}}</div>
-                            </div>
-                            {{/each}}
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Archived Residents</p>
+                            <p class="text-3xl font-bold text-gray-600">{{stats.archivedResidents}}</p>
                         </div>
+                        <span class="text-4xl">📦</span>
                     </div>
+                </div>
 
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Resident Statistics</h3>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-700">Average Residents per Barangay</span>
-                                <span class="text-xl font-bold text-blue-600">{{stats.avgResidentsPerBarangay}}</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Barangays</p>
+                            <p class="text-3xl font-bold text-orange-600">{{stats.totalBarangays}}</p>
+                        </div>
+                        <span class="text-4xl">🗺️</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Barangays & Statistics -->
+            {{#if stats.topBarangays}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Top Barangays by Resident Count</h3>
+                    <div class="space-y-3">
+                        {{#each stats.topBarangays}}
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">{{this.name}}</p>
+                                <p class="text-xs text-gray-600">{{this.resident_count}} residents</p>
                             </div>
+                            <div class="text-2xl">{{this.resident_count}}</div>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Resident Statistics</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">Average Residents per Barangay</span>
+                            <span class="text-xl font-bold text-blue-600">{{stats.avgResidentsPerBarangay}}</span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">Active vs Archived Distribution</p>
                             <div class="w-full bg-gray-200 rounded-full h-2">
                                 <div class="bg-green-600 h-2 rounded-full" style="width: {{stats.activeResidentsPercentage}}%"></div>
                             </div>
-                            <p class="text-xs text-gray-600">{{stats.activeResidentsPercentage}}% Active | {{stats.archivedResidentsPercentage}}% Archived</p>
+                            <p class="text-xs text-gray-600 mt-2">{{stats.activeResidentsPercentage}}% Active | {{stats.archivedResidentsPercentage}}% Archived</p>
                         </div>
                     </div>
                 </div>
-                {{/if}}
+            </div>
+            {{/if}}
 
-                <!-- User Distribution & Recent Activity -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <div class="lg:col-span-1 bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">User Distribution</h3>
-                        <canvas id="distributionChart" height="150"></canvas>
-                    </div>
-
-                    <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Recent Activity</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
-                                <thead class="border-b">
-                                    <tr>
-                                        <th class="text-left py-2 px-2">Time</th>
-                                        <th class="text-left py-2 px-2">Action</th>
-                                        <th class="text-left py-2 px-2">User</th>
-                                        <th class="text-left py-2 px-2">Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {{#each recentLogs}}
-                                    <tr class="border-b">
-                                        <td class="py-2 px-2 text-xs text-gray-500">{{dateFormat createdAt}}</td>
-                                        <td class="py-2 px-2"><span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{{action}}</span></td>
-                                        <td class="py-2 px-2">{{#if User}}{{User.Profile.first_name}} {{User.Profile.last_name}}{{else}}-{{/if}}</td>
-                                        <td class="py-2 px-2 text-gray-600">{{description}}</td>
-                                    </tr>
-                                    {{/each}}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="/residents/add" class="block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded text-center transition">
+                        ➕ Add Resident
+                    </a>
+                    <a href="/residents" class="block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded text-center transition">
+                        👥 View Residents
+                    </a>
+                    <a href="/reports/residents" class="block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded text-center transition">
+                        📊 View Reports
+                    </a>
+                    <a href="/resident-activities" class="block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded text-center transition">
+                        📋 Activity Logs
+                    </a>
                 </div>
-
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-lg shadow p-6 mb-8">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <a href="/users/add" class="block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded text-center transition">
-                            ➕ Add User
-                        </a>
-                        <a href="/users" class="block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded text-center transition">
-                            👥 Manage Users
-                        </a>
-                        <a href="/audit-logs" class="block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded text-center transition">
-                            📋 View Audit Logs
-                        </a>
-                        <a href="/profile" class="block bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded text-center transition">
-                            👤 My Profile
-                        </a>
-                    </div>
-                </div>
-
-            {{else}}
-                <!-- Staff/Resident Dashboard -->
-                <div class="flex justify-between items-start mb-8">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome, {{user.Profile.first_name}}!</h1>
-                        <p class="text-gray-600">{{role}}</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Your Profile</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <p class="text-gray-600 text-sm">Name</p>
-                                <p class="font-semibold text-gray-800">{{user.Profile.first_name}} {{user.Profile.last_name}}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-600 text-sm">Email</p>
-                                <p class="font-semibold text-gray-800">{{user.email}}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-600 text-sm">Role</p>
-                                <p class="font-semibold text-gray-800">{{userRole}}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-600 text-sm">Status</p>
-                                <p class="font-semibold {{#eq user.status 'active'}}text-green-600{{else}}text-red-600{{/eq}}">
-                                    {{#eq user.status 'active'}}✅ Active{{else}}❌ Inactive{{/eq}}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
-                        <div class="space-y-3">
-                            <a href="/profile" class="block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center transition">
-                                👤 View Full Profile
-                            </a>
-                            <a href="/profile/edit" class="block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center transition">
-                                ✏️ Edit Profile
-                            </a>
-                            <a href="/profile/change-password" class="block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center transition">
-                                🔒 Change Password
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {{/eq}}
+            </div>
         </div>
     </div>
 </div>
-
-<script>
-// User distribution chart
-const ctx = document.getElementById('distributionChart');
-if (ctx) {
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Administrators', 'LGU Staff', 'Residents'],
-            datasets: [{
-                data: [{{stats.adminCount}}, {{stats.staffCount}}, {{stats.residentCount}}],
-                backgroundColor: ['#9333ea', '#3b82f6', '#10b981'],
-                borderColor: '#fff',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: { position: 'bottom' }
-            }
-        }
-    });
-}
-</script>
 
 {{> footer}}

@@ -1,88 +1,57 @@
 import bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
-import { User, Profile, Role, Permission, RolePermission, AuditLog, Resident, Barangay } from '../models/index.js';
-import { logAudit } from '../middleware/auditLog.js';
+import { StaffUser, Resident, Barangay } from '../models/index.js';
 
-export const loginPage = (req, res) => {
+export const showLoginPage = (req, res) => {
+  if (req.session.userId) {
+    return res.redirect('/dashboard');
+  }
   res.render('login');
 };
 
-export const loginUser = async (req, res) => {
+export const login = async (req, res) => {
   try {
-    const { email_username, password, remember_me } = req.body;
+    const { username_email, password } = req.body;
 
-    if (!email_username || !password) {
-      req.flash('error_msg', 'Please provide email/username and password');
+    if (!username_email || !password) {
+      req.flash('error_msg', 'Please provide username/email and password');
       return res.redirect('/login');
     }
 
-    // Find user by email or username
-    const user = await User.findOne({
+    // Find staff user by email or username
+    const user = await StaffUser.findOne({
       where: {
         [Op.or]: [
-          { email: email_username },
-          { username: email_username }
+          { email: username_email },
+          { username: username_email }
         ]
-      },
-      include: {
-        model: Profile,
-        as: 'Profile'
       }
     });
 
     if (!user) {
-      await logAudit(null, 'LOGIN_FAILED', null, `Failed login attempt for: ${email_username}`, req.ip);
-      req.flash('error_msg', 'Invalid email/username or password');
+      req.flash('error_msg', 'Invalid username/email or password');
       return res.redirect('/login');
     }
 
     // Check password
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
-      await logAudit(null, 'LOGIN_FAILED', null, `Failed login attempt for user: ${user.username}`, req.ip);
-      req.flash('error_msg', 'Invalid email/username or password');
+      req.flash('error_msg', 'Invalid username/email or password');
       return res.redirect('/login');
     }
 
     // Check if account is active
     if (user.status !== 'active') {
-      await logAudit(user.id, 'LOGIN_FAILED', null, 'Account is inactive', req.ip);
       req.flash('error_msg', 'Your account has been deactivated. Please contact your administrator.');
       return res.redirect('/login');
-    }
-
-    // Fetch user's roles and permissions
-    const userRoles = await user.getRoles();
-    const rolePermissions = [];
-
-    for (const role of userRoles) {
-      const permissions = await role.getPermissions();
-      permissions.forEach(perm => {
-        if (!rolePermissions.includes(perm.name)) {
-          rolePermissions.push(perm.name);
-        }
-      });
     }
 
     // Set session
     req.session.userId = user.id;
     req.session.username = user.username;
     req.session.email = user.email;
-    req.session.role = userRoles.length > 0 ? userRoles[0].name : 'User';
-    req.session.permissions = rolePermissions;
 
-    if (remember_me === 'on') {
-      req.session.cookie.maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
-    }
-
-    // Update last login
-    user.last_login = new Date();
-    await user.save();
-
-    // Log audit entry
-    await logAudit(user.id, 'LOGIN', null, `User logged in: ${user.username}`, req.ip);
-
-    req.flash('success_msg', `Welcome back, ${user.username}!`);
+    req.flash('success_msg', `Welcome, ${user.username}!`);
     res.redirect('/dashboard');
   } catch (error) {
     console.error('Login error:', error);
@@ -91,113 +60,53 @@ export const loginUser = async (req, res) => {
   }
 };
 
-export const logoutUser = async (req, res) => {
-  try {
-    if (req.session.userId) {
-      await logAudit(req.session.userId, 'LOGOUT', null, 'User logged out', req.ip);
+export const logout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
     }
-
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Logout error:', err);
-      }
-      res.redirect('/login');
-    });
-  } catch (error) {
-    console.error('Logout error:', error);
     res.redirect('/login');
-  }
-};
-
-export const forgotPasswordPage = (req, res) => {
-  res.render('forgot-password');
+  });
 };
 
 export const showDashboard = async (req, res) => {
   try {
-    const user = await User.findByPk(req.session.userId, {
-      include: [
-        { model: Profile, as: 'Profile' },
-        { model: Role }
-      ]
+    // Get resident statistics
+    const totalResidents = await Resident.count();
+    const activeResidents = await Resident.count({ where: { status: 'active' } });
+    const archivedResidents = await Resident.count({ where: { status: 'archived' } });
+    const totalBarangays = await Barangay.count();
+
+    // Get top barangays by resident count
+    const topBarangays = await Barangay.findAll({
+      attributes: {
+        include: [[
+          require('sequelize').fn('COUNT', require('sequelize').col('Residents.id')),
+          'resident_count'
+        ]]
+      },
+      include: [{ model: Resident, attributes: [] }],
+      group: ['Barangay.id', 'Barangay.name'],
+      raw: true,
+      order: [[require('sequelize').fn('COUNT', require('sequelize').col('Residents.id')), 'DESC']],
+      limit: 5
     });
 
-    if (!user) {
-      return res.redirect('/login');
-    }
+    // Calculate statistics
+    const avgResidentsPerBarangay = totalBarangays > 0 ? (totalResidents / totalBarangays).toFixed(2) : 0;
+    const activeResidentsPercentage = totalResidents > 0 ? ((activeResidents / totalResidents) * 100).toFixed(1) : 0;
+    const archivedResidentsPercentage = totalResidents > 0 ? ((archivedResidents / totalResidents) * 100).toFixed(1) : 0;
 
-    res.locals.user = user;
-    res.locals.role = req.session.role;
-
-    if (req.session.role === 'Administrator') {
-      // Admin dashboard
-      const totalUsers = await User.count();
-      const activeUsers = await User.count({ where: { status: 'active' } });
-      const inactiveUsers = await User.count({ where: { status: 'inactive' } });
-
-      const adminRole = await Role.findOne({ where: { name: 'Administrator' } });
-      const staffRole = await Role.findOne({ where: { name: 'LGU Staff' } });
-      const residentRole = await Role.findOne({ where: { name: 'Resident' } });
-
-      const adminCount = await adminRole.countUsers();
-      const staffCount = await staffRole.countUsers();
-      const residentCount = await residentRole.countUsers();
-
-      // Get resident statistics
-      const totalResidents = await Resident.count();
-      const activeResidents = await Resident.count({ where: { status: 'active' } });
-      const archivedResidents = await Resident.count({ where: { status: 'archived' } });
-      const totalBarangays = await Barangay.count();
-
-      // Get top barangays by resident count
-      const topBarangays = await Barangay.findAll({
-        attributes: {
-          include: [[
-            require('sequelize').fn('COUNT', require('sequelize').col('Residents.id')),
-            'count'
-          ]]
-        },
-        include: [{ model: Resident, attributes: [] }],
-        group: ['Barangay.id', 'Barangay.name'],
-        raw: true,
-        order: [[require('sequelize').fn('COUNT', require('sequelize').col('Residents.id')), 'DESC']],
-        limit: 5
-      });
-
-      // Calculate statistics
-      const avgResidentsPerBarangay = totalBarangays > 0 ? (totalResidents / totalBarangays).toFixed(2) : 0;
-      const activeResidentsPercentage = totalResidents > 0 ? ((activeResidents / totalResidents) * 100).toFixed(1) : 0;
-      const archivedResidentsPercentage = totalResidents > 0 ? ((archivedResidents / totalResidents) * 100).toFixed(1) : 0;
-
-      // Get recent audit logs
-      const recentLogs = await AuditLog.findAll({
-        include: [{ model: User, as: 'User', include: [Profile] }],
-        order: [['createdAt', 'DESC']],
-        limit: 10
-      });
-
-      res.locals.stats = {
-        totalUsers,
-        activeUsers,
-        inactiveUsers,
-        adminCount,
-        staffCount,
-        residentCount,
-        totalResidents,
-        activeResidents,
-        archivedResidents,
-        totalBarangays,
-        topBarangays,
-        avgResidentsPerBarangay,
-        activeResidentsPercentage,
-        archivedResidentsPercentage
-      };
-      res.locals.recentLogs = recentLogs;
-    } else {
-      // Staff/Resident dashboard - get the first role name
-      const userRoles = await user.getRoles();
-      res.locals.userRole = userRoles.length > 0 ? userRoles[0].name : req.session.role;
-    }
+    res.locals.stats = {
+      totalResidents,
+      activeResidents,
+      archivedResidents,
+      totalBarangays,
+      topBarangays,
+      avgResidentsPerBarangay,
+      activeResidentsPercentage,
+      archivedResidentsPercentage
+    };
 
     res.render('dashboard');
   } catch (error) {
@@ -206,3 +115,4 @@ export const showDashboard = async (req, res) => {
     res.redirect('/login');
   }
 };
+

@@ -27,7 +27,7 @@ export const ResidentActivity = sequelize.define("ResidentActivity", {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'users',
+      model: 'staff_users',
       key: 'id'
     }
   }

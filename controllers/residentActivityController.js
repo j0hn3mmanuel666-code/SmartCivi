@@ -1,4 +1,4 @@
-import { ResidentActivity, Resident, User } from '../models/index.js';
+import { ResidentActivity, Resident, StaffUser } from '../models/index.js';
 
 export const listResidentActivities = async (req, res) => {
   try {
@@ -16,7 +16,7 @@ export const listResidentActivities = async (req, res) => {
       where: whereClause,
       include: [
         { model: Resident, as: 'Resident', attributes: ['id', 'resident_id', 'first_name', 'last_name'] },
-        { model: User, as: 'User', attributes: ['id', 'username'] }
+        { model: StaffUser, as: 'staff', attributes: ['id', 'username'] }
       ],
       limit: parseInt(limit),
       offset: parseInt(offset),

@@ -1,7 +1,7 @@
 <div class="w-64 bg-blue-900 text-white h-screen fixed left-0 top-0 overflow-y-auto pt-20">
     <nav class="px-4 py-6">
         <div class="mb-8">
-            <h2 class="text-lg font-bold text-white">Navigation</h2>
+            <h2 class="text-lg font-bold text-white">Bansud RIMS</h2>
         </div>
 
         <ul class="space-y-2">
@@ -10,13 +10,8 @@
                     📊 Dashboard
                 </a>
             </li>
-            <li>
-                <a href="/profile" class="block px-4 py-2 rounded hover:bg-blue-800">
-                    👤 My Profile
-                </a>
-            </li>
 
-            <!-- RIMS Module -->
+            <!-- Resident Management -->
             <li class="pt-4 border-t border-blue-700">
                 <span class="text-xs uppercase text-blue-300 font-semibold px-4 py-2">Resident Management</span>
             </li>
@@ -41,21 +36,14 @@
                 </a>
             </li>
 
-            {{#eq role 'Administrator'}}
+            <!-- Logout -->
             <li class="pt-4 border-t border-blue-700">
-                <span class="text-xs uppercase text-blue-300 font-semibold px-4 py-2">Admin</span>
+                <form method="GET" action="/logout" style="display: inline;">
+                    <button type="submit" class="w-full text-left px-4 py-2 rounded hover:bg-blue-800 text-red-300 hover:text-red-100">
+                        🚪 Logout
+                    </button>
+                </form>
             </li>
-            <li>
-                <a href="/users" class="block px-4 py-2 rounded hover:bg-blue-800">
-                    👥 User Management
-                </a>
-            </li>
-            <li>
-                <a href="/audit-logs" class="block px-4 py-2 rounded hover:bg-blue-800">
-                    📋 Audit Logs
-                </a>
-            </li>
-            {{/eq}}
         </ul>
     </nav>
 </div>

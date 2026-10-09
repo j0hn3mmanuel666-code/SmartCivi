@@ -1,4 +1,4 @@
-import { User, Role, Permission, RolePermission } from '../models/index.js';
+import { StaffUser } from '../models/index.js';
 
 export const isAuthenticated = (req, res, next) => {
   if (!req.session.userId) {
@@ -7,24 +7,18 @@ export const isAuthenticated = (req, res, next) => {
   }
   res.locals.userId = req.session.userId;
   res.locals.username = req.session.username;
-  res.locals.role = req.session.role;
-  res.locals.permissions = req.session.permissions || [];
   next();
 };
 
-export const hasPermission = (permissionName) => {
-  return (req, res, next) => {
-    if (!req.session.userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+export const loadUser = async (req, res, next) => {
+  if (req.session.userId) {
+    try {
+      const user = await StaffUser.findByPk(req.session.userId);
+      req.user = user;
+    } catch (error) {
+      console.error('Error loading user:', error);
     }
-    
-    const permissions = req.session.permissions || [];
-    if (!permissions.includes(permissionName)) {
-      return res.status(403).json({ error: 'Forbidden: insufficient permissions' });
-    }
-    
-    next();
-  };
+  }
+  next();
 };
 
-export const adminOnly = hasPermission('view_all_users');

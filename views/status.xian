@@ -1,0 +1,78 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+
+  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+      <div class="hidden md:flex space-x-4">
+        <a href="/browse" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Services</a>
+        <a href="/logout" class="text-white">Logout</a>
+      </div>
+      <button class="md:hidden hover:opacity-80">☰</button>
+    </div>
+  </nav>
+
+  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Track Your Requests</h1>
+    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">Track the progress of your submitted requests below.</p>
+    <div class="mt-3">
+      <a href="/browse" class="text-sm text-white underline">← Back to Services</a>
+    </div>
+  </section>
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Your Requests</h2>
+
+      {{#if requests}}
+        <div class="space-y-4">
+          {{#each requests}}
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gray-50 rounded p-4">
+              <div class="md:flex md:items-center md:space-x-4">
+                <div class="font-semibold text-gray-800">{{this.documentType}} — {{this.fullName}}</div>
+                <div class="text-sm text-gray-600 mt-1 md:mt-0">Submitted: {{this.createdAt}}</div>
+                {{#if this.appointmentDate}}
+                  <div class="text-sm text-gray-600 ml-0 md:ml-4">Appointment: {{this.appointmentDate}}</div>
+                {{/if}}
+              </div>
+
+              <div class="mt-3 md:mt-0 flex items-center space-x-3">
+                <div class="px-3 py-1 rounded-full text-xs font-medium ">
+                  {{#ifEq this.status 'pending'}}
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>
+                  {{/ifEq}}
+                  {{#ifEq this.status 'processing'}}
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">processing</span>
+                  {{/ifEq}}
+                  {{#ifEq this.status 'approved'}}
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded">approved</span>
+                  {{/ifEq}}
+                  {{#ifEq this.status 'payment_pending'}}
+                    <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded">payment pending</span>
+                  {{/ifEq}}
+                  {{#ifEq this.status 'paid'}}
+                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">paid</span>
+                  {{/ifEq}}
+                  {{#ifEq this.status 'rejected'}}
+                    <span class="bg-red-100 text-red-800 px-2 py-1 rounded">rejected</span>
+                  {{/ifEq}}
+                </div>
+
+                <a href="/request/{{this.id}}" class="text-sm text-blue-600">View</a>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <div class="text-center text-gray-600 py-12">
+          <p class="mb-4">You have no submitted requests yet.</p>
+          <a href="/request" class="bg-blue-600 text-white px-4 py-2 rounded">Submit a Request</a>
+        </div>
+      {{/if}}
+
+    </div>
+  </main>
+
+
+
+</body>

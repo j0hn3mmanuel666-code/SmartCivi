@@ -1,0 +1,374 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+
+  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+
+      <ul class="hidden md:flex space-x-6 font-medium">
+        <li><a href="/admin" class="hover:text-yellow-300 transition-all">Dashboard</a></li>
+        <li><a href="/admin/requests" class="hover:text-yellow-300 transition-all">Requests</a></li>
+        <li><a href="/admin/users" class="hover:text-yellow-300 transition-all">Users</a></li>
+        <li><a href="/admin/reports" class="hover:text-yellow-300 transition-all text-yellow-300">Reports</a></li>
+        <li><a href="/help" class="hover:text-yellow-300 transition-all">Help</a></li>
+      </ul>
+
+      <div class="hidden md:flex space-x-4">
+        <a href="/logout" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Logout</a>
+      </div>
+
+      <button class="md:hidden hover:opacity-80">☰</button>
+    </div>
+  </nav>
+
+  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Generate Reports</h1>
+    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">Create detailed reports for civil registry requests and system analytics.</p>
+    <div class="mt-3">
+      <a href="/admin" class="text-sm text-white underline">← Back to Dashboard</a>
+    </div>
+  </section>
+
+  <main class="container mx-auto px-4 py-8">
+    
+    <!-- Report Generation Form -->
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 mb-6 max-w-4xl mx-auto">
+      <h2 class="text-xl font-semibold text-gray-800 mb-6">Generate Custom Report</h2>
+      
+      <form method="POST" action="/reports/generate" class="space-y-6 main-report-form">
+        
+        <!-- Report Type Selection -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+            <select name="reportType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Report Type</option>
+              <option value="all">All Requests</option>
+              <option value="birth">Birth Certificates</option>
+              <option value="marriage">Marriage Certificates</option>
+              <option value="death">Death Certificates</option>
+              <option value="status">Status Summary</option>
+              <option value="monthly">Monthly Summary</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Output Format</label>
+            <select name="format" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Format</option>
+              <option value="html">HTML (Web View)</option>
+              <option value="pdf">PDF Download</option>
+              <option value="csv">CSV Export</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Date Range -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+            <input type="date" name="startDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+            <input type="date" name="endDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status Filter (Optional)</label>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <label class="flex items-center">
+              <input type="checkbox" name="statusFilter" value="pending" class="mr-2">
+              <span class="text-sm">Pending</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="statusFilter" value="processing" class="mr-2">
+              <span class="text-sm">Processing</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="statusFilter" value="approved" class="mr-2">
+              <span class="text-sm">Approved</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="statusFilter" value="paid" class="mr-2">
+              <span class="text-sm">Paid</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="statusFilter" value="rejected" class="mr-2">
+              <span class="text-sm">Rejected</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="statusFilter" value="payment_pending" class="mr-2">
+              <span class="text-sm">Payment Pending</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <div class="flex justify-center">
+          <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-all font-medium">
+            Generate Report
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Quick Report Templates -->
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+      <h2 class="text-xl font-semibold text-gray-800 mb-6">Quick Report Templates</h2>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <!-- Today's Requests -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-all">
+          <h3 class="font-medium text-gray-900 mb-2">Today's Requests</h3>
+          <p class="text-sm text-gray-600 mb-3">All requests submitted today</p>
+          <form method="POST" action="/reports/generate" class="inline quick-report-form">
+            <input type="hidden" name="reportType" value="all">
+            <input type="hidden" name="startDate" value="{{todayDate}}">
+            <input type="hidden" name="endDate" value="{{todayDate}}">
+            <input type="hidden" name="format" value="html">
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 transition-all">
+              Generate
+            </button>
+          </form>
+        </div>
+
+        <!-- This Week's Summary -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-all">
+          <h3 class="font-medium text-gray-900 mb-2">This Week's Summary</h3>
+          <p class="text-sm text-gray-600 mb-3">Weekly activity summary</p>
+          <form method="POST" action="/reports/generate" class="inline quick-report-form">
+            <input type="hidden" name="reportType" value="all">
+            <input type="hidden" name="startDate" value="{{weekStartDate}}">
+            <input type="hidden" name="endDate" value="{{todayDate}}">
+            <input type="hidden" name="format" value="html">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-all">
+              Generate
+            </button>
+          </form>
+        </div>
+
+        <!-- Monthly Report -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-all">
+          <h3 class="font-medium text-gray-900 mb-2">Monthly Report</h3>
+          <p class="text-sm text-gray-600 mb-3">Current month statistics</p>
+          <form method="POST" action="/reports/generate" class="inline quick-report-form">
+            <input type="hidden" name="reportType" value="monthly">
+            <input type="hidden" name="startDate" value="{{monthStartDate}}">
+            <input type="hidden" name="endDate" value="{{todayDate}}">
+            <input type="hidden" name="format" value="html">
+            <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded text-sm hover:bg-purple-700 transition-all">
+              Generate
+            </button>
+          </form>
+        </div>
+
+        <!-- Pending Requests -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-all">
+          <h3 class="font-medium text-gray-900 mb-2">Pending Requests</h3>
+          <p class="text-sm text-gray-600 mb-3">All pending requests</p>
+          <form method="POST" action="/reports/generate" class="inline quick-report-form">
+            <input type="hidden" name="reportType" value="all">
+            <input type="hidden" name="startDate" value="2020-01-01">
+            <input type="hidden" name="endDate" value="{{todayDate}}">
+            <input type="hidden" name="format" value="html">
+            <input type="hidden" name="statusFilter" value="pending">
+            <button type="submit" class="bg-yellow-600 text-white px-4 py-2 rounded text-sm hover:bg-yellow-700 transition-all">
+              Generate
+            </button>
+          </form>
+        </div>
+
+        <!-- Birth Certificates -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-all">
+          <h3 class="font-medium text-gray-900 mb-2">Birth Certificates</h3>
+          <p class="text-sm text-gray-600 mb-3">All birth certificate requests</p>
+          <form method="POST" action="/reports/generate" class="inline quick-report-form">
+            <input type="hidden" name="reportType" value="birth">
+            <input type="hidden" name="startDate" value="2020-01-01">
+            <input type="hidden" name="endDate" value="{{todayDate}}">
+            <input type="hidden" name="format" value="html">
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700 transition-all">
+              Generate
+            </button>
+          </form>
+        </div>
+
+        <!-- Export All Data -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-all">
+          <h3 class="font-medium text-gray-900 mb-2">Export All Data</h3>
+          <p class="text-sm text-gray-600 mb-3">Complete database export</p>
+          <form method="POST" action="/reports/generate" class="inline quick-report-form">
+            <input type="hidden" name="reportType" value="all">
+            <input type="hidden" name="startDate" value="2020-01-01">
+            <input type="hidden" name="endDate" value="{{todayDate}}">
+            <input type="hidden" name="format" value="csv">
+            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-700 transition-all">
+              Export CSV
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Report Results -->
+    {{#if reportData}}
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 mt-6 max-w-6xl mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">Report Results</h2>
+        <div class="text-sm text-gray-600">
+          Generated: {{reportDate}} | Total Records: {{reportData.length}}
+        </div>
+      </div>
+
+      {{#if reportData.length}}
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ID</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Document</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                {{#if showPayment}}
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Payment</th>
+                {{/if}}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              {{#each reportData}}
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm text-gray-900">#{{this.id}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-900">{{this.fullName}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600 capitalize">{{this.documentType}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{this.email}}</td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                      {{#ifEq this.status 'pending'}}bg-yellow-100 text-yellow-800{{/ifEq}}
+                      {{#ifEq this.status 'processing'}}bg-blue-100 text-blue-800{{/ifEq}}
+                      {{#ifEq this.status 'approved'}}bg-green-100 text-green-800{{/ifEq}}
+                      {{#ifEq this.status 'rejected'}}bg-red-100 text-red-800{{/ifEq}}
+                      {{#ifEq this.status 'paid'}}bg-purple-100 text-purple-800{{/ifEq}}
+                      {{#ifEq this.status 'payment_pending'}}bg-orange-100 text-orange-800{{/ifEq}}">
+                      {{this.status}}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{this.createdAt}}</td>
+                  {{#if ../showPayment}}
+                  <td class="px-4 py-3 text-sm text-gray-600">
+                    {{#if this.paymentAmount}}₱{{this.paymentAmount}}{{else}}-{{/if}}
+                  </td>
+                  {{/if}}
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Report Summary -->
+        {{#if reportSummary}}
+        <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <p class="text-sm text-blue-600">Total Requests</p>
+            <p class="text-2xl font-bold text-blue-900">{{reportSummary.total}}</p>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <p class="text-sm text-yellow-600">Pending</p>
+            <p class="text-2xl font-bold text-yellow-900">{{reportSummary.pending}}</p>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <p class="text-sm text-green-600">Completed</p>
+            <p class="text-2xl font-bold text-green-900">{{reportSummary.completed}}</p>
+          </div>
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <p class="text-sm text-purple-600">Revenue</p>
+            <p class="text-2xl font-bold text-purple-900">₱{{reportSummary.revenue}}</p>
+          </div>
+        </div>
+        {{/if}}
+
+      {{else}}
+        <div class="text-center py-12">
+          <div class="text-6xl text-gray-300 mb-4">📊</div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">No Data Found</h3>
+          <p class="text-gray-600">No records match your report criteria.</p>
+        </div>
+      {{/if}}
+    </div>
+    {{/if}}
+
+  </main>
+
+  <script>
+    // Set default dates
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date();
+      const startDate = document.querySelector('input[name="startDate"]');
+      const endDate = document.querySelector('input[name="endDate"]');
+      
+      if (startDate && endDate) {
+        // Set end date to today
+        endDate.value = today.toISOString().split('T')[0];
+        
+        // Set start date to 30 days ago
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        startDate.value = thirtyDaysAgo.toISOString().split('T')[0];
+      }
+    });
+
+    // Form validation for main form
+    const mainForm = document.querySelector('.main-report-form');
+    if (mainForm) {
+      mainForm.addEventListener('submit', function(e) {
+        const reportType = this.querySelector('select[name="reportType"]').value;
+        const format = this.querySelector('select[name="format"]').value;
+        const startDate = this.querySelector('input[name="startDate"]').value;
+        const endDate = this.querySelector('input[name="endDate"]').value;
+
+        if (!reportType || !format || !startDate || !endDate) {
+          e.preventDefault();
+          alert('Please fill in all required fields');
+          return;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+          e.preventDefault();
+          alert('Start date cannot be after end date');
+          return;
+        }
+
+        // Show loading state
+        const button = this.querySelector('button[type="submit"]');
+        button.textContent = 'Generating...';
+        button.disabled = true;
+      });
+    }
+
+    // Handle quick report forms
+    document.querySelectorAll('.quick-report-form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        // Show loading state
+        const button = this.querySelector('button[type="submit"]');
+        const originalText = button.textContent;
+        button.textContent = 'Generating...';
+        button.disabled = true;
+        
+        // Re-enable button after 10 seconds in case of error
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.disabled = false;
+        }, 10000);
+      });
+    });
+  </script>
+
+</body>

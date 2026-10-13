@@ -1,0 +1,54 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+
+  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+      <div class="hidden md:flex space-x-4">
+        <a href="/browse" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Services</a>
+        <a href="/logout" class="text-white">Logout</a>
+      </div>
+      <button class="md:hidden hover:opacity-80">☰</button>
+    </div>
+  </nav>
+
+  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">My Records</h1>
+    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">View and download your issued documents and records.</p>
+    <div class="mt-3">
+      <a href="/browse" class="text-sm text-white underline">← Back to Services</a>
+    </div>
+  </section>
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Your Issued Documents</h2>
+
+      {{#if requests}}
+        <div class="space-y-4">
+          {{#each requests}}
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gray-50 rounded p-4">
+              <div>
+                <div class="font-semibold text-gray-800">{{this.documentType}} — {{this.fullName}}</div>
+                <div class="text-sm text-gray-600">Issued: {{this.createdAt}}</div>
+              </div>
+              <div class="mt-3 md:mt-0 flex items-center space-x-3">
+                <a href="/request/{{this.id}}/attachments" class="text-sm text-blue-600">Attachments</a>
+                <a href="/request/{{this.id}}/print" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Download</a>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <div class="text-center text-gray-600 py-12">
+          <p class="mb-4">No issued documents found yet.</p>
+          <a href="/request" class="bg-blue-600 text-white px-4 py-2 rounded">Submit a Request</a>
+        </div>
+      {{/if}}
+
+    </div>
+  </main>
+
+
+
+</body>

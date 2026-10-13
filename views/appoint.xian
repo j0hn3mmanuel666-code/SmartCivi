@@ -1,0 +1,261 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 min-h-screen flex items-center justify-center">
+
+  <form id="multiRequestForm" method="POST" action="/request" class="bg-white bg-opacity-90 backdrop-blur-lg w-full max-w-2xl p-6 rounded-xl shadow-lg border border-gray-200">
+    <h2 class="text-2xl font-extrabold text-center mb-4 text-blue-700">Set an Appointment</h2>
+
+    {{#if success_msg}}
+      <div class="mb-3 text-green-800 bg-green-100 p-2 rounded">{{success_msg}}</div>
+    {{/if}}
+    {{#if error_msg}}
+      <div class="mb-3 text-red-800 bg-red-100 p-2 rounded">{{error_msg}}</div>
+    {{/if}}
+
+    <!-- Step indicators -->
+    <div class="flex items-center justify-between text-xs text-gray-600 mb-4">
+      <div id="stepIndicator">Step <span id="currentStep">1</span> of 4</div>
+      <div>Region → Details → Appointment → Confirm</div>
+    </div>
+
+    <!-- STEP 1: Region & Personal Info -->
+    <section data-step="1" class="step">
+      <label class="text-xs text-gray-700">Region</label>
+      <select id="region" name="region" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
+        <option value="">-- Select Region --</option>
+        <option>Region I</option>
+        <option>Region II</option>
+        <option>Region III</option>
+        <option>Region IV-A</option>
+        <option>Region IV-B</option>
+        <option>Region V</option>
+        <option>Region VI</option>
+        <option>Region VII</option>
+        <option>Region VIII</option>
+        <option>Region IX</option>
+        <option>Region X</option>
+        <option>Region XI</option>
+        <option>Region XII</option>
+        <option>CAR</option>
+        <option>NCR</option>
+      </select>
+
+      <label class="text-xs text-gray-700">Your full name</label>
+      <input type="text" id="fullName" name="fullName" value="{{#if user}}{{user.name}}{{/if}}" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+
+      <label class="text-xs text-gray-700">Email</label>
+      <input type="email" id="email" name="email" value="{{#if user}}{{user.email}}{{/if}}" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+
+      <label class="text-xs text-gray-700">Phone</label>
+      <input type="tel" id="phone" name="phone" placeholder="0917xxxxxxx" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+
+      <div class="flex items-center justify-between mt-4">
+        <div></div>
+        <button type="button" id="toStep2" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: Certificate Details -->
+    <section data-step="2" class="step hidden">
+      <label class="text-xs text-gray-700">Certificate Type</label>
+      <select id="certificateType" name="documentType" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
+        <option value="birth">Birth Certificate</option>
+        <option value="marriage">Marriage Certificate</option>
+        <option value="death">Death Certificate</option>
+        <option value="id">ID / Clearance</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label class="text-xs text-gray-700">Relationship to person on certificate</label>
+      <select id="relationship" name="relationship" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
+        <option value="self">Self</option>
+        <option value="parent">Parent</option>
+        <option value="spouse">Spouse</option>
+        <option value="child">Child</option>
+        <option value="other">Other</option>
+      </select>
+
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="text-xs text-gray-700">Given / First name</label>
+          <input type="text" id="givenName" name="givenName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Middle name</label>
+          <input type="text" id="middleName" name="middleName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Family / Last name</label>
+          <input type="text" id="familyName" name="familyName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mt-2">
+        <div>
+          <label class="text-xs text-gray-700">Birthdate</label>
+          <input type="date" id="birthdate" name="birthdate" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Father's full name</label>
+          <input type="text" id="fatherName" name="fatherName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Mother's full name</label>
+          <input type="text" id="motherName" name="motherName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo1" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="button" id="toStep3" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 3: Appointment selection -->
+    <section data-step="3" class="step hidden">
+      <p class="text-xs text-gray-700 mb-2">Select an available date for appointment</p>
+      <div id="datesGrid" class="grid grid-cols-3 gap-2 mb-3"></div>
+      <input type="hidden" id="appointmentDate" name="appointmentDate" />
+      <div class="text-xs text-gray-500 mb-3" id="dateHelp">Select a date above. Weekends are unavailable.</div>
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo2" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="button" id="toStep4" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 4: Review & Confirm -->
+    <section data-step="4" class="step hidden">
+      <h3 class="text-sm font-semibold text-gray-800 mb-2">Review your appointment</h3>
+      <div id="summary" class="text-sm text-gray-700 mb-4"></div>
+
+      <!-- purpose will be constructed before submit -->
+      <input type="hidden" id="purposeField" name="purpose" />
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo3" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="submit" id="confirmBtn" class="bg-green-600 text-white px-4 py-2 rounded">Confirm & Submit</button>
+      </div>
+    </section>
+
+  </form>
+
+  <script>
+    (function(){
+      const steps = Array.from(document.querySelectorAll('.step'));
+      let current = 0;
+      const setStep = (idx) => {
+        steps.forEach((s,i)=> s.classList.toggle('hidden', i!==idx));
+        current = idx;
+        document.getElementById('currentStep').textContent = (idx+1);
+      };
+
+      // navigation buttons
+      document.getElementById('toStep2').addEventListener('click', ()=>{
+        // basic validation for step 1
+        const region = document.getElementById('region').value;
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        if(!region || !fullName || !email || !phone){
+          alert('Please fill in your region and personal information.');
+          return;
+        }
+        setStep(1);
+      });
+
+      document.getElementById('backTo1').addEventListener('click', ()=> setStep(0));
+      document.getElementById('toStep3').addEventListener('click', ()=>{
+        // validate certificate details
+        const cert = document.getElementById('certificateType').value;
+        const rel = document.getElementById('relationship').value;
+        const given = document.getElementById('givenName').value.trim();
+        const family = document.getElementById('familyName').value.trim();
+        const birthdate = document.getElementById('birthdate').value;
+        // require certificate type, relationship, name on certificate, and birthdate
+        if(!cert || !rel || !given || !family || !birthdate){
+          alert('Please select certificate type, relationship, provide the name on the certificate, and the birthdate.');
+          return;
+        }
+        // prepare dates
+        populateDates();
+        setStep(2);
+      });
+      document.getElementById('backTo2').addEventListener('click', ()=> setStep(1));
+      document.getElementById('toStep4').addEventListener('click', ()=>{
+        const appt = document.getElementById('appointmentDate').value;
+        if(!appt){ alert('Please select an appointment date.'); return; }
+        buildSummary();
+        setStep(3);
+      });
+      document.getElementById('backTo3').addEventListener('click', ()=> setStep(2));
+
+      // date population (next 14 days excluding Sundays)
+      function populateDates(){
+        const container = document.getElementById('datesGrid');
+        container.innerHTML='';
+        const today = new Date();
+        for(let i=1; i<=14; i++){
+          const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
+          const weekday = d.getDay(); // 0 Sunday
+          if(weekday===0) continue; // skip Sundays
+          const btn = document.createElement('button');
+          btn.type='button';
+          btn.className='p-2 rounded border text-sm bg-white';
+          const iso = d.toISOString().slice(0,10);
+          btn.textContent = d.toLocaleDateString();
+          btn.dataset.date = iso;
+          btn.addEventListener('click', ()=>{
+            // clear selected
+            Array.from(container.querySelectorAll('button')).forEach(b=> b.classList.remove('border-blue-600','bg-blue-50'));
+            btn.classList.add('border-blue-600','bg-blue-50');
+            document.getElementById('appointmentDate').value = iso;
+          });
+          container.appendChild(btn);
+        }
+      }
+
+      function buildSummary(){
+        const region = document.getElementById('region').value;
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const cert = document.getElementById('certificateType').value;
+        const rel = document.getElementById('relationship').value;
+        const given = document.getElementById('givenName').value.trim();
+        const middle = document.getElementById('middleName').value.trim();
+        const family = document.getElementById('familyName').value.trim();
+        const birthdate = document.getElementById('birthdate').value;
+        const father = document.getElementById('fatherName').value.trim();
+        const mother = document.getElementById('motherName').value.trim();
+        const appt = document.getElementById('appointmentDate').value;
+
+        const summaryEl = document.getElementById('summary');
+        summaryEl.innerHTML = `
+          <div><strong>Region:</strong> ${region}</div>
+          <div><strong>Requester:</strong> ${fullName} — ${email} — ${phone}</div>
+          <div><strong>Certificate:</strong> ${cert} (for ${rel})</div>
+          <div><strong>Name on certificate:</strong> ${given} ${middle} ${family}</div>
+          <div><strong>Birthdate:</strong> ${birthdate || 'N/A'}</div>
+          <div><strong>Father:</strong> ${father || 'N/A'}</div>
+          <div><strong>Mother:</strong> ${mother || 'N/A'}</div>
+          <div><strong>Appointment:</strong> ${appt}</div>
+        `;
+
+        // construct purpose text for server
+        const purpose = `Requesting ${cert} for ${given} ${middle} ${family} (relationship: ${rel}). Birthdate: ${birthdate || 'N/A'}. Parents: ${father || 'N/A'} / ${mother || 'N/A'}. Appointment: ${appt}`;
+        document.getElementById('purposeField').value = purpose;
+      }
+
+      // final submit: ensure required server fields exist
+      document.getElementById('multiRequestForm').addEventListener('submit', (e)=>{
+        // ensure documentType (certificate type) and fullName/email/phone are set — they are present
+      });
+
+      // initialize
+      setStep(0);
+    })();
+  </script>
+
+  
+
+</body>

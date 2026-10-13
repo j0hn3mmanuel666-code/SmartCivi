@@ -1,0 +1,217 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+
+	<!-- NAVBAR -->
+	<nav class="fixed w-full top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20 shadow-md">
+		<div class="container mx-auto px-4 py-3 flex items-center justify-between">
+			<a href="/" class="text-lg font-bold tracking-wide text-white hover:text-gray-200 transition">
+				SmartCivi
+			</a>
+
+						<div class="flex items-center space-x-3">
+								{{#if user}}
+									<a href="/logout" class="text-sm bg-white/90 text-blue-700 font-semibold px-4 py-1.5 rounded-full shadow 
+										hover:bg-white transition">
+										Logout
+									</a>
+								{{/if}}
+						</div>
+		</div>
+	</nav>
+
+	<!-- CONTENT -->
+	<main class="pt-28 container mx-auto px-4 max-w-5xl">
+
+		<!-- HEADER -->
+		<header class="mb-10 flex items-start justify-between">
+			<div>
+				<h1 class="text-3xl md:text-4xl font-extrabold text-white drop-shadow">
+					Available Services
+				</h1>
+				<p class="text-sm text-white/90 mt-2">
+				 Quick access to SmartCivi’s most used citizen services.
+				</p>
+			</div>
+
+			<div class="text-sm text-white/90 mt-1">
+				{{#if user}}
+					<span class="bg-black/20 backdrop-blur px-3 py-1 rounded-full">
+						Welcome, {{user.name}}
+					</span>
+				{{else}}
+					<a href="/login" class="underline hover:text-gray-200">Sign in</a>
+				{{/if}}
+			</div>
+		</header>
+
+		<!-- SERVICE GRID -->
+		<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+			<!-- CARD COMPONENT (Set an Appointment) -->
+			<a href="/request" 
+				class="group bg-white/95 hover:bg-white rounded-xl p-5 shadow-md border border-gray-200 
+				hover:shadow-xl transition-all flex items-start space-x-4">
+				
+				<div class="w-11 h-11 flex items-center justify-center rounded-full bg-pink-100 text-pink-600 text-xl">
+				 📅
+				</div>
+
+				<div class="flex-1">
+					<h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600 transition">
+						Set an Appointment
+					</h3>
+					<p class="text-xs text-gray-500 mt-1">
+						Schedule an in-person appointment for document processing.
+					</p>
+				</div>
+
+				<div class="text-blue-600 text-sm font-medium group-hover:translate-x-1 transition">
+					Open →
+				</div>
+			</a>
+
+			<!-- CARD COMPONENT (Submit a Request) -->
+			<a href="/request/submit" 
+				class="group bg-white/95 hover:bg-white rounded-xl p-5 shadow-md border border-gray-200 
+				hover:shadow-xl transition-all flex items-start space-x-4">
+				
+				<div class="w-11 h-11 flex items-center justify-center rounded-full bg-pink-100 text-pink-600 text-xl">
+				 📄
+				</div>
+
+				<div class="flex-1">
+					<h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600 transition">
+						Submit a Request
+					</h3>
+					<p class="text-xs text-gray-500 mt-1">
+						Apply for birth, marriage, death certificates, and more (submit document request online).
+					</p>
+				</div>
+
+				<div class="text-blue-600 text-sm font-medium group-hover:translate-x-1 transition">
+					Open →
+				</div>
+			</a>
+
+			<!-- CARD 2 -->
+			<a href="/status" 
+				class="group bg-white/95 hover:bg-white rounded-xl p-5 shadow-md border border-gray-200 
+				hover:shadow-xl transition-all flex items-start space-x-4">
+				
+				<div class="w-11 h-11 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 text-xl">
+				 🔎
+				</div>
+
+				<div class="flex-1">
+					<h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600 transition">
+						Check Status
+					</h3>
+					<p class="text-xs text-gray-500 mt-1">Track the progress of your requests.</p>
+				</div>
+
+				<div class="text-blue-600 text-sm font-medium group-hover:translate-x-1 transition">Open →</div>
+			</a>
+
+			<!-- CARD 3 -->
+			<a href="/records" 
+				class="group bg-white/95 hover:bg-white rounded-xl p-5 shadow-md border border-gray-200 
+				hover:shadow-xl transition-all flex items-start space-x-4">
+				
+				<div class="w-11 h-11 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 text-xl">
+				 📁
+				</div>
+
+				<div class="flex-1">
+					<h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600 transition">
+						My Records
+					</h3>
+					<p class="text-xs text-gray-500 mt-1">View and download your documents.</p>
+				</div>
+
+				<div class="text-blue-600 text-sm font-medium group-hover:translate-x-1 transition">Open →</div>
+			</a>
+
+			<!-- CARD 4 -->
+			<a href="/my-appointments" 
+				class="group bg-white/95 hover:bg-white rounded-xl p-5 shadow-md border border-gray-200 
+				hover:shadow-xl transition-all flex items-start space-x-4">
+
+				<div class="w-11 h-11 flex items-center justify-center rounded-full bg-orange-100 text-orange-600 text-xl">
+				 📅
+				</div>
+
+				<div class="flex-1">
+					<h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600 transition">
+						My Appointments
+					</h3>
+					<p class="text-xs text-gray-500 mt-1">View and manage your scheduled appointments.</p>
+				</div>
+
+				<div class="text-blue-600 text-sm font-medium group-hover:translate-x-1 transition">Open →</div>
+			</a>
+
+			<!-- CARD 5 -->
+			<a href="/payments" 
+				class="group bg-white/95 hover:bg-white rounded-xl p-5 shadow-md border border-gray-200 
+				hover:shadow-xl transition-all flex items-start space-x-4">
+
+				<div class="w-11 h-11 flex items-center justify-center rounded-full bg-green-100 text-green-600 text-xl">
+				 💳
+				</div>
+
+				<div class="flex-1">
+					<h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600 transition">
+						Payments & Receipts
+					</h3>
+					<p class="text-xs text-gray-500 mt-1">View payments or download receipts.</p>
+				</div>
+
+				<div class="text-blue-600 text-sm font-medium group-hover:translate-x-1 transition">Open →</div>
+			</a>
+
+			<!-- CARD 5 -->
+			<a href="/help" 
+				class="group bg-white/95 hover:bg-white rounded-xl p-5 shadow-md border border-gray-200 
+				hover:shadow-xl transition-all flex items-start space-x-4">
+
+				<div class="w-11 h-11 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600 text-xl">
+				 ❓
+				</div>
+
+				<div class="flex-1">
+					<h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600 transition">
+						Help & Support
+					</h3>
+					<p class="text-xs text-gray-500 mt-1">FAQs and support information.</p>
+				</div>
+
+				<div class="text-blue-600 text-sm font-medium group-hover:translate-x-1 transition">Open →</div>
+			</a>
+
+			<!-- CARD 6 -->
+			<a href="/offices" 
+				class="group bg-white/95 hover:bg-white rounded-xl p-5 shadow-md border border-gray-200 
+				hover:shadow-xl transition-all flex items-start space-x-4">
+
+				<div class="w-11 h-11 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 text-xl">
+				 📍
+				</div>
+
+				<div class="flex-1">
+					<h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600 transition">
+						Local Offices
+					</h3>
+					<p class="text-xs text-gray-500 mt-1">Find office locations and hours.</p>
+				</div>
+
+				<div class="text-blue-600 text-sm font-medium group-hover:translate-x-1 transition">Open →</div>
+			</a>
+
+		</section>
+
+		
+	</main>
+
+
+
+</body>

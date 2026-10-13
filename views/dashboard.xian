@@ -1,0 +1,75 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-400 via-white to-blue-400 min-h-screen">
+
+  <!-- Slim Dashboard Nav -->
+  <nav class="w-full sticky top-0 z-50 bg-white/5 backdrop-blur-sm text-white">
+    <div class="container mx-auto px-4 py-2 flex items-center justify-between">
+      <a href="/" class="text-sm font-semibold">SmartCivi</a>
+      <div class="flex items-center space-x-2">
+        <a href="/dashboard/requests" class="text-xs text-white/90 hover:text-white">My Requests</a>
+        <a href="/request" class="text-xs text-white/90 hover:text-white">New</a>
+        <a href="/logout" class="text-xs text-white/90 hover:text-white">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="pt-16 container mx-auto px-4 max-w-xl">
+    <section class="mb-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-white text-lg font-semibold">Welcome{{#if user.name}}, {{user.name}}{{/if}}</div>
+          <div class="text-white/80 text-xs mt-1">Quick actions</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white bg-opacity-95 rounded-md shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Feature</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
+              <th class="px-4 py-2 w-20"></th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200 text-sm">
+            <tr>
+              <td class="px-4 py-3">Submit a Request</td>
+              <td class="px-4 py-3 text-gray-600">Apply for birth, marriage, or death certificates and other civil documents.</td>
+              <td class="px-4 py-3 text-right"><a href="/request" class="text-blue-600 hover:underline">Open</a></td>
+            </tr>
+
+            <tr>
+              <td class="px-4 py-3">Track Requests</td>
+              <td class="px-4 py-3 text-gray-600">View status and progress of your submitted requests.</td>
+              <td class="px-4 py-3 text-right"><a href="/dashboard/requests" class="text-blue-600 hover:underline">Open</a></td>
+            </tr>
+
+            <tr>
+              <td class="px-4 py-3">Profile</td>
+              <td class="px-4 py-3 text-gray-600">View or edit your account details and contact info.</td>
+              <td class="px-4 py-3 text-right"><a href="/dashboard/profile" class="text-blue-600 hover:underline">Open</a></td>
+            </tr>
+
+            <tr>
+              <td class="px-4 py-3">Help & Support</td>
+              <td class="px-4 py-3 text-gray-600">Find help articles or contact support for assistance.</td>
+              <td class="px-4 py-3 text-right"><a href="/help" class="text-blue-600 hover:underline">Open</a></td>
+            </tr>
+
+            <tr>
+              <td class="px-4 py-3">Sign out</td>
+              <td class="px-4 py-3 text-gray-600">Log out from your account securely.</td>
+              <td class="px-4 py-3 text-right"><a href="/logout" class="text-blue-600 hover:underline">Open</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="mt-4 text-center text-white text-xs">
+      <p>Need more? Visit <a href="/browse" class="underline">Services</a></p>
+    </footer>
+  </main>
+

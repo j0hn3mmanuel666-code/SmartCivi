@@ -1,0 +1,53 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 min-h-screen flex items-center justify-center">
+
+  <form 
+    class="bg-white bg-opacity-80 backdrop-blur-lg w-96 p-8 rounded-xl shadow-lg border border-gray-200"
+    method="POST" 
+    action="/register"
+  >
+    <h2 class="text-3xl font-extrabold text-center mb-6 text-blue-700 drop-shadow">Create Account</h2>
+
+    {{#if error_msg}}
+      <div class="mb-4 text-red-700 bg-red-100 p-2 rounded">{{error_msg}}</div>
+    {{/if}}
+
+    <input 
+      type="text" 
+      name="name" 
+      placeholder="Full name" 
+      class="mb-4 w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
+      required 
+    />
+
+    <input 
+      type="email" 
+      name="email" 
+      placeholder="Email" 
+      class="mb-4 w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
+      required 
+    />
+
+    <input 
+      type="password" 
+      name="password" 
+      placeholder="Password" 
+      class="mb-4 w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
+      required 
+    />
+
+    <button 
+      type="submit" 
+      class="w-full bg-gradient-to-r from-blue-500 to-pink-500 text-white py-3 rounded-md font-semibold hover:opacity-90 transition-all"
+    >
+      Register
+    </button>
+
+    <a href="/login" class="block text-center text-blue-700 mt-4 hover:underline">
+      Already have an account? Log in
+    </a>
+  </form>
+
+
+
+</body>

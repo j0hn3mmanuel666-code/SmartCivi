@@ -1,0 +1,568 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 min-h-screen flex items-center justify-center">
+
+  <form id="submitRequestForm" method="POST" action="/request" class="bg-white bg-opacity-90 backdrop-blur-lg w-full max-w-3xl p-6 rounded-xl shadow-lg border border-gray-200">
+    <h2 class="text-2xl font-extrabold text-center mb-4 text-blue-700">Submit a Request</h2>
+
+    {{#if success_msg}}
+      <div class="mb-3 text-green-800 bg-green-100 p-2 rounded">{{success_msg}}</div>
+    {{/if}}
+    {{#if error_msg}}
+      <div class="mb-3 text-red-800 bg-red-100 p-2 rounded">{{error_msg}}</div>
+    {{/if}}
+
+    <div class="flex items-center justify-between text-xs text-gray-600 mb-4">
+      <div id="stepIndicator">Step <span id="currentStep">1</span> of 7</div>
+      <div>Personal → Father → Mother → Birthplace → Purpose → Delivery → Review</div>
+    </div>
+
+    <!-- STEP 1: Personal info -->
+    <section data-step="1" class="step">
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-xs text-gray-700">Gender</label>
+          <select id="gender" name="gender" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
+            <option value="">-- Select Gender --</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Birthdate</label>
+          <input type="date" id="birthdate" name="birthdate" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2">
+        <div>
+          <label class="text-xs text-gray-700">First name</label>
+          <input type="text" id="firstName" name="firstName" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Second name</label>
+          <input type="text" id="secondName" name="secondName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Middle name</label>
+          <input type="text" id="middleName" name="middleName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Last name</label>
+          <input type="text" id="lastName" name="lastName" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+      </div>
+
+      <label class="text-xs text-gray-700">Email</label>
+      <input type="email" id="email" name="email" value="{{#if user}}{{user.email}}{{/if}}" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+
+      <label class="text-xs text-gray-700">Mobile / Phone</label>
+      <input type="tel" id="phone" name="phone" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+
+      <label class="text-xs text-gray-700">ID to present upon delivery</label>
+      <select id="presentId" name="presentId" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
+        <option value="">-- Select ID --</option>
+        <option>Passport</option>
+        <option>Driver's License</option>
+        <option>UMID / GSIS</option>
+        <option>SSS</option>
+        <option>Postal ID</option>
+        <option>Voter's ID</option>
+        <option>Other</option>
+      </select>
+
+      <div class="flex items-start space-x-2 mt-2">
+        <input type="checkbox" id="confirmPersonal" />
+        <label for="confirmPersonal" class="text-xs text-gray-700">I confirm the information above is correct</label>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <div></div>
+        <button type="button" id="toStep2" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: Father -->
+    <section data-step="2" class="step hidden">
+      <div class="flex items-start space-x-2">
+        <input type="checkbox" id="noFatherName" />
+        <label for="noFatherName" class="text-xs text-gray-700">There is no Father's Name in the Certificate of Live Birth</label>
+      </div>
+
+      <label class="text-xs text-gray-700 mt-3">Father's Full Name</label>
+      <input type="text" id="fatherName" name="fatherName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo1" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="button" id="toStep3" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 3: Mother (use maiden name) -->
+    <section data-step="3" class="step hidden">
+      <p class="text-xs text-gray-700 mb-2">Use your mother's maiden name as it appears on the certificate.</p>
+      <label class="text-xs text-gray-700">Mother's Full Name (maiden)</label>
+      <input type="text" id="motherName" name="motherName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo2" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="button" id="toStep4" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 4: Birthplace (selects - alphabetical) -->
+    <section data-step="4" class="step hidden">
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="text-xs text-gray-700">Birth Country</label>
+          <select id="birthCountry" name="birthCountry" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300"></select>
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Birth Province</label>
+          <select id="birthProvince" name="birthProvince" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300"></select>
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Birth Municipality / City</label>
+          <select id="birthMunicipality" name="birthMunicipality" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300"></select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo3" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="button" id="toStep5" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 5: Purpose -->
+    <section data-step="5" class="step hidden">
+      <label class="text-xs text-gray-700">Purpose of Request</label>
+      <select id="purposeSelect" name="purposeSelect" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
+        <option value="">-- Select Purpose --</option>
+        <option value="passport">Passport / Travel</option>
+        <option value="school">School Requirement</option>
+        <option value="localEmployment">Local Employment</option>
+        <option value="foreignEmployment">Foreign Employment</option>
+        <option value="marriage">Marriage</option>
+        <option value="claims">Claims / Benefits / Loans</option>
+        <option value="lateRegistration">Late Registration</option>
+        <option value="dfa">DFA / Apostille</option>
+        <option value="afp">AFP</option>
+        <option value="others">Others</option>
+      </select>
+
+      <div id="passportCountryWrap" class="hidden">
+        <label class="text-xs text-gray-700">Select a country</label>
+        <input type="text" id="passportCountry" name="passportCountry" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo4" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="button" id="toStep6" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 6: Delivery -->
+    <section data-step="6" class="step hidden">
+      <label class="text-xs text-gray-700">Delivery Option</label>
+      <div class="mb-3 mt-1">
+        <label class="inline-flex items-center mr-4"><input type="radio" name="deliveryOption" value="pickup" checked class="mr-2">Pick up</label>
+        <label class="inline-flex items-center"><input type="radio" name="deliveryOption" value="door" class="mr-2">Door-to-door</label>
+      </div>
+
+      <div id="deliveryAddress" class="hidden">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-gray-700">Province</label>
+            <input type="text" id="delProvince" name="delProvince" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+          </div>
+          <div>
+            <label class="text-xs text-gray-700">Municipality / City</label>
+            <input type="text" id="delMunicipality" name="delMunicipality" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-gray-700">Barangay</label>
+            <input type="text" id="delBarangay" name="delBarangay" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+          </div>
+          <div>
+            <label class="text-xs text-gray-700">House No / Street / Subdivision / Building</label>
+            <input type="text" id="delStreet" name="delStreet" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-gray-700">Zipcode</label>
+            <input type="text" id="delZip" name="delZip" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+          </div>
+          <div>
+            <label class="text-xs text-gray-700">Mobile (for courier)</label>
+            <input type="tel" id="delMobile" name="delMobile" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+          </div>
+        </div>
+
+        <label class="text-xs text-gray-700">Email</label>
+        <input type="email" id="delEmail" name="delEmail" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo5" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="button" id="toStep7" class="bg-blue-600 text-white px-4 py-2 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- STEP 7: Review & Copies & Recipient -->
+    <section data-step="7" class="step hidden">
+      <h3 class="text-sm font-semibold text-gray-800 mb-2">Review your request</h3>
+      <div id="reviewSummary" class="text-sm text-gray-700 mb-4"></div>
+
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div>
+          <label class="text-xs text-gray-700">Number of copies (1 copy = 300)</label>
+          <input type="number" id="copies" name="copies" min="1" value="1" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-700">Total (PHP)</label>
+          <input type="text" id="totalCost" readonly value="300" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300 bg-gray-50" />
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="text-xs text-gray-700">Who will receive the document?</label>
+        <div class="mt-2">
+          <label class="inline-flex items-center mr-4"><input type="radio" name="recipientType" value="self" checked class="mr-2">I am the only one who will receive the document.</label>
+          <label class="inline-flex items-center"><input type="radio" name="recipientType" value="authorized" class="mr-2">I want to assign an Authorized Person to receive the document.</label>
+        </div>
+      </div>
+
+      <div id="authorizedWrap" class="hidden">
+        <label class="text-xs text-gray-700">Authorized Person's Full Name</label>
+        <input type="text" id="authName" name="authName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+        <label class="text-xs text-gray-700">Authorized Person's Mobile</label>
+        <input type="tel" id="authMobile" name="authMobile" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
+      </div>
+
+      <div class="mb-3">
+        <label class="text-xs text-gray-700">Reminder (optional)</label>
+        <textarea id="reminder" name="reminder" rows="2" class="w-full p-2 rounded border border-gray-300"></textarea>
+      </div>
+
+      <input type="hidden" id="fullNameHidden" name="fullName" />
+      <input type="hidden" id="purposeField" name="purpose" />
+
+      <div class="flex items-center justify-between mt-4">
+        <button type="button" id="backTo6" class="text-gray-700 px-4 py-2 rounded">Back</button>
+        <button type="submit" id="submitBtn" class="bg-green-600 text-white px-4 py-2 rounded">Confirm & Submit</button>
+      </div>
+    </section>
+
+  </form>
+
+  <script>
+    (function(){
+      const steps = Array.from(document.querySelectorAll('.step'));
+      let current = 0;
+      const setStep = (idx) => {
+        steps.forEach((s,i)=> s.classList.toggle('hidden', i!==idx));
+        current = idx;
+        document.getElementById('currentStep').textContent = (idx+1);
+      };
+
+      // Step navigation buttons
+      document.getElementById('toStep2').addEventListener('click', ()=>{
+        // validate step 1
+        const gender = document.getElementById('gender').value;
+        const birthdate = document.getElementById('birthdate').value;
+        const first = document.getElementById('firstName').value.trim();
+        const last = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const presentId = document.getElementById('presentId').value;
+        const confirm = document.getElementById('confirmPersonal').checked;
+        if(!gender || !birthdate || !first || !last || !email || !phone || !presentId){
+          alert('Please fill in all required personal fields.');
+          return;
+        }
+        if(!confirm){
+          alert('Please confirm that your information is correct before proceeding.');
+          return;
+        }
+        setStep(1);
+      });
+
+      document.getElementById('backTo1').addEventListener('click', ()=> setStep(0));
+
+      document.getElementById('toStep3').addEventListener('click', ()=>{
+        // father step: if checkbox not checked require fatherName
+        const noFather = document.getElementById('noFatherName').checked;
+        const father = document.getElementById('fatherName').value.trim();
+        if(!noFather && !father){
+          alert('Please provide father\'s full name or check the box if it is not present on the certificate.');
+          return;
+        }
+        setStep(2);
+      });
+
+      document.getElementById('backTo2').addEventListener('click', ()=> setStep(1));
+      document.getElementById('toStep4').addEventListener('click', ()=>{
+        const mother = document.getElementById('motherName').value.trim();
+        if(!mother){
+          alert('Please provide your mother\'s maiden name.');
+          return;
+        }
+        setStep(3);
+      });
+
+      document.getElementById('backTo3').addEventListener('click', ()=> setStep(2));
+      document.getElementById('toStep5').addEventListener('click', ()=>{
+        const country = document.getElementById('birthCountry').value;
+        const prov = document.getElementById('birthProvince').value;
+        const mun = document.getElementById('birthMunicipality').value;
+        if(!country || !prov || !mun){
+          alert('Please select your birth country, province and municipality/city.');
+          return;
+        }
+        setStep(4);
+      });
+
+      document.getElementById('backTo4').addEventListener('click', ()=> setStep(3));
+      document.getElementById('toStep6').addEventListener('click', ()=>{
+        const purpose = document.getElementById('purposeSelect').value;
+        if(!purpose){ alert('Please select a purpose'); return; }
+        if(purpose==='passport'){
+          const pc = document.getElementById('passportCountry').value.trim();
+          if(!pc){ alert('Please specify the country for passport/travel'); return; }
+        }
+        setStep(5);
+      });
+
+      document.getElementById('backTo5').addEventListener('click', ()=> setStep(4));
+      document.getElementById('toStep7').addEventListener('click', ()=>{
+        // delivery option validation
+        const delivery = document.querySelector('input[name="deliveryOption"]:checked').value;
+        if(delivery==='door'){
+          const prov = document.getElementById('delProvince').value.trim();
+          const mun = document.getElementById('delMunicipality').value.trim();
+          const mobile = document.getElementById('delMobile').value.trim();
+          if(!prov || !mun || !mobile){ alert('Please provide delivery address and mobile for courier'); return; }
+        }
+        buildReview();
+        setStep(6);
+      });
+
+      document.getElementById('backTo6').addEventListener('click', ()=> setStep(5));
+
+      // dynamic behavior
+      document.getElementById('noFatherName').addEventListener('change', (e)=>{
+        document.getElementById('fatherName').disabled = e.target.checked;
+        if(e.target.checked) document.getElementById('fatherName').value = '';
+      });
+
+      document.getElementById('purposeSelect').addEventListener('change', (e)=>{
+        document.getElementById('passportCountryWrap').classList.toggle('hidden', e.target.value!=='passport');
+      });
+
+      document.querySelectorAll('input[name="deliveryOption"]').forEach(r=> r.addEventListener('change', (e)=>{
+        document.getElementById('deliveryAddress').classList.toggle('hidden', e.target.value!=='door');
+      }));
+
+      // Populate country and province selects alphabetically and dynamically fill municipalities
+      const countryEl = document.getElementById('birthCountry');
+      const provinceEl = document.getElementById('birthProvince');
+      const municipalityEl = document.getElementById('birthMunicipality');
+
+      // Try to load a comprehensive countries -> states -> cities JSON from public folder.
+      // Expected format (example):
+      // [ { "name": "Philippines", "states": [ { "name": "Oriental Mindoro", "cities": ["Calapan","Pinamalayan"] }, ... ] }, { "name": "Japan", "states": [ { "name": "Tokyo", "cities": ["Shinjuku","Shibuya"] }, ... ] }, ... ]
+      let countriesData = null;
+
+      async function tryLoadCountriesJson(){
+        try{
+          const res = await fetch('/data/countries.json');
+          if(!res.ok) throw new Error('no file');
+          const json = await res.json();
+          if(Array.isArray(json) && json.length>0){
+            countriesData = json;
+            const countryNames = json.map(c=>c.name).sort((a,b)=> a.localeCompare(b));
+            populateSelect(countryEl, countryNames);
+            return true;
+          }
+        }catch(err){
+          // fallback to small built-in sample lists below
+        }
+        return false;
+      }
+
+      function populateSelect(sel, items, includeEmpty=true){
+        sel.innerHTML = '';
+        if(includeEmpty){
+          const opt = document.createElement('option'); opt.value=''; opt.textContent='-- Select --'; sel.appendChild(opt);
+        }
+        items.sort((a,b)=> a.localeCompare(b)).forEach(it=>{
+          const o = document.createElement('option'); o.value = it; o.textContent = it; sel.appendChild(o);
+        });
+      }
+
+      // fallback small sample data when no countries.json is available
+      const fallbackCountries = ['Japan','Philippines','United States','United Kingdom','Canada','Australia'].sort((a,b)=> a.localeCompare(b));
+      const fallbackMap = {
+        'Philippines': {
+          states: [
+            { name: 'Cebu', cities: ['Cebu City','Mandaue','Lapu-Lapu'] },
+            { name: 'Metro Manila', cities: ['Manila','Quezon City','Makati','Pasig'] },
+            { name: 'Oriental Mindoro', cities: ['Calapan','Pinamalayan','Baco','Socorro'] },
+            { name: 'Occidental Mindoro', cities: ['Mamburao','San Jose','Abra de Ilog'] },
+            { name: 'Palawan', cities: ['Puerto Princesa','El Nido','Coron'] },
+            { name: 'Quezon', cities: ['Lucena','Tayabas','Gumaca'] },
+            { name: 'Rizal', cities: ['Antipolo','Cainta','Taytay'] }
+          ]
+        },
+        'Japan': {
+          states: [
+            { name: 'Hokkaido', cities: ['Sapporo','Hakodate'] },
+            { name: 'Tokyo', cities: ['Shinjuku','Shibuya','Taito'] },
+            { name: 'Osaka', cities: ['Osaka','Sakai'] },
+            { name: 'Aichi', cities: ['Nagoya','Toyota'] }
+          ]
+        },
+        'United States': { states: [ { name: 'California', cities: ['Los Angeles','San Francisco'] }, { name: 'New York', cities: ['New York City','Buffalo'] } ] },
+        'United Kingdom': { states: [ { name: 'England', cities: ['London','Manchester'] } ] },
+        'Canada': { states: [ { name: 'Ontario', cities: ['Toronto','Ottawa'] } ] },
+        'Australia': { states: [ { name: 'New South Wales', cities: ['Sydney'] } ] }
+      };
+
+      // Initialize selects: first try to load comprehensive JSON, otherwise use fallback
+      (async ()=>{
+        const ok = await tryLoadCountriesJson();
+        if(!ok){
+          populateSelect(countryEl, fallbackCountries);
+        }
+      })();
+
+      // When a country is selected, populate provinces/states for that country
+      countryEl.addEventListener('change', ()=>{
+        const c = countryEl.value;
+        municipalityEl.innerHTML = '';
+        if(!c){ populateSelect(provinceEl, []); return; }
+        if(countriesData){
+          const entry = countriesData.find(x=> x.name === c);
+          const states = (entry && Array.isArray(entry.states)) ? entry.states.map(s=>s.name) : [];
+          populateSelect(provinceEl, states);
+        } else {
+          const entry = fallbackMap[c];
+          const states = entry ? entry.states.map(s=>s.name) : [];
+          populateSelect(provinceEl, states);
+        }
+      });
+
+      // When a province/state is selected, populate municipalities/cities
+      provinceEl.addEventListener('change', ()=>{
+        const country = countryEl.value;
+        const prov = provinceEl.value;
+        if(!prov){ populateSelect(municipalityEl, []); return; }
+        if(countriesData){
+          const entry = countriesData.find(x=> x.name === country);
+          const stateObj = entry && entry.states ? entry.states.find(s=> s.name === prov) : null;
+          const cities = stateObj && Array.isArray(stateObj.cities) ? stateObj.cities : [];
+          populateSelect(municipalityEl, cities);
+        } else {
+          const entry = fallbackMap[country];
+          const stateObj = entry && entry.states ? entry.states.find(s=> s.name === prov) : null;
+          const cities = stateObj && Array.isArray(stateObj.cities) ? stateObj.cities : [];
+          populateSelect(municipalityEl, cities);
+        }
+      });
+
+      // copies cost
+      const copiesEl = document.getElementById('copies');
+      const totalEl = document.getElementById('totalCost');
+      const updateTotal = ()=>{
+        const copies = parseInt(copiesEl.value) || 1;
+        totalEl.value = (copies * 300).toString();
+      };
+      copiesEl.addEventListener('input', updateTotal);
+
+      function buildReview(){
+        const gender = document.getElementById('gender').value;
+        const birthdate = document.getElementById('birthdate').value;
+        const first = document.getElementById('firstName').value.trim();
+        const second = document.getElementById('secondName').value.trim();
+        const middle = document.getElementById('middleName').value.trim();
+        const last = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const presentId = document.getElementById('presentId').value;
+        const noFather = document.getElementById('noFatherName').checked;
+        const father = document.getElementById('fatherName').value.trim();
+        const mother = document.getElementById('motherName').value.trim();
+        const birthCountry = document.getElementById('birthCountry').value.trim();
+        const birthProvince = document.getElementById('birthProvince').value.trim();
+        const birthMunicipality = document.getElementById('birthMunicipality').value.trim();
+        const purpose = document.getElementById('purposeSelect').value;
+        const passportCountry = document.getElementById('passportCountry').value.trim();
+        const delivery = document.querySelector('input[name="deliveryOption"]:checked').value;
+        const delProvince = document.getElementById('delProvince').value.trim();
+        const delMunicipality = document.getElementById('delMunicipality').value.trim();
+        const delBarangay = document.getElementById('delBarangay').value.trim();
+        const delStreet = document.getElementById('delStreet').value.trim();
+        const delZip = document.getElementById('delZip').value.trim();
+        const delMobile = document.getElementById('delMobile').value.trim();
+        const delEmail = document.getElementById('delEmail').value.trim();
+        const copies = document.getElementById('copies').value;
+        const recipient = document.querySelector('input[name="recipientType"]:checked').value;
+        const authName = document.getElementById('authName').value.trim();
+        const authMobile = document.getElementById('authMobile').value.trim();
+        const reminder = document.getElementById('reminder').value.trim();
+
+        const fullName = [first, second, middle, last].filter(Boolean).join(' ');
+        document.getElementById('fullNameHidden').value = fullName;
+
+        // build readable purpose
+        let purposeText = purpose;
+        if(purpose==='passport') purposeText += ` (Country: ${passportCountry || 'N/A'})`;
+
+        const deliveryText = delivery==='door' ? `Door delivery to ${delStreet}, ${delBarangay}, ${delMunicipality}, ${delProvince} ${delZip}. Contact: ${delMobile} / ${delEmail}` : 'Pick up at office';
+
+        const reviewEl = document.getElementById('reviewSummary');
+        reviewEl.innerHTML = `
+          <div><strong>Full name:</strong> ${fullName}</div>
+          <div><strong>Gender / Birthdate:</strong> ${gender} / ${birthdate}</div>
+          <div><strong>Email / Mobile:</strong> ${email} / ${phone}</div>
+          <div><strong>ID to present:</strong> ${presentId}</div>
+          <div><strong>Father:</strong> ${noFather ? 'Not present on certificate' : (father || 'N/A')}</div>
+          <div><strong>Mother (maiden):</strong> ${mother || 'N/A'}</div>
+          <div><strong>Birthplace:</strong> ${birthCountry}, ${birthProvince}, ${birthMunicipality}</div>
+          <div><strong>Purpose:</strong> ${purposeText}</div>
+          <div><strong>Delivery:</strong> ${deliveryText}</div>
+          <div><strong>Copies:</strong> ${copies} (PHP ${ (parseInt(copies)||1) * 300 })</div>
+          <div><strong>Recipient:</strong> ${ recipient === 'self' ? 'Self' : `Authorized: ${authName} / ${authMobile}` }</div>
+          <div><strong>Reminder:</strong> ${ reminder || '—' }</div>
+        `;
+
+        // construct purpose field (concise machine-readable summary)
+        const purposeField = `Purpose:${purposeText}; Birthplace:${birthCountry}/${birthProvince}/${birthMunicipality}; Parent:${ noFather ? 'NoFather' : father }/${mother }; Delivery:${delivery}; Copies:${copies}`;
+        document.getElementById('purposeField').value = purposeField;
+      }
+
+      // show/hide authorized person fields
+      document.querySelectorAll('input[name="recipientType"]').forEach(r=> r.addEventListener('change', (e)=>{
+        document.getElementById('authorizedWrap').classList.toggle('hidden', e.target.value!=='authorized');
+      }));
+
+      // submit handler: ensure hidden fullName and purpose are set
+      document.getElementById('submitRequestForm').addEventListener('submit', (e)=>{
+        buildReview();
+        // final minimal check
+        if(!document.getElementById('fullNameHidden').value){ alert('Missing name'); e.preventDefault(); }
+      });
+
+      // initialize
+      setStep(0);
+      updateTotal();
+    })();
+  </script>
+
+</body>
+

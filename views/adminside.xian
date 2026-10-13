@@ -1,0 +1,296 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+
+  <!-- Nav (matching home) -->
+  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+
+      <ul class="hidden md:flex space-x-6 font-medium">
+        <li><a href="/admin/requests" class="hover:text-yellow-300 transition-all">Requests</a></li>
+        <li><a href="/admin/users" class="hover:text-yellow-300 transition-all">Users</a></li>
+        <li><a href="/help" class="hover:text-yellow-300 transition-all">Help</a></li>
+      </ul>
+
+      <div class="hidden md:flex space-x-4">
+        <a href="/logout" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Logout</a>
+      </div>
+
+      <button class="md:hidden hover:opacity-80">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="flex flex-col justify-center items-center text-center h-64 px-6 pt-24">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Admin Control Panel</h1>
+    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">Manage requests, users and system settings from here.</p>
+    <div class="mt-4 space-x-3">
+      <a href="/admin/requests" class="bg-white text-blue-700 px-5 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-all">View Requests</a>
+      <a href="/admin/users" class="bg-transparent border border-white text-white px-5 py-2 rounded-lg font-semibold hover:bg-white hover:text-blue-700 transition-all">Manage Users</a>
+    </div>
+  </section>
+
+  <!-- Admin quick action tabs -->
+  <div class="container mx-auto px-6 mt-6">
+    <div class="flex items-center justify-center space-x-3">
+      <button id="adminTabAll" class="px-4 py-2 bg-white rounded-md text-sm font-medium">All Requests</button>
+      <button id="adminTabAppointments" class="px-4 py-2 bg-white rounded-md text-sm font-medium">Manage Appointments</button>
+      <button id="adminTabSubmissions" class="px-4 py-2 bg-white rounded-md text-sm font-medium">Manage Submissions</button>
+      <button id="adminTabUsers" class="px-4 py-2 bg-white rounded-md text-sm font-medium">User Accounts</button>
+    </div>
+  </div>
+
+  <main class="py-10 px-4 container mx-auto">
+    <div class="flex justify-center">
+      <!-- Main area: Requests table (centered) -->
+      <section id="requestsSection" class="w-full bg-white bg-opacity-90 rounded-lg shadow-md p-6 mx-auto max-w-6xl">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Requests</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-100 text-left">
+              <tr>
+                <th class="px-3 py-2">#</th>
+                <th class="px-3 py-2">Name</th>
+                <th class="px-3 py-2">Document</th>
+                <th class="px-3 py-2">Submitted</th>
+                <th class="px-3 py-2">Status</th>
+                <th class="px-3 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#if requests}}
+                {{#each requests}}
+                  <tr class="border-t" data-appointment="{{this.appointmentDate}}">
+                    <td class="px-3 py-2">{{this.id}}</td>
+                    <td class="px-3 py-2">{{this.fullName}}</td>
+                    <td class="px-3 py-2">{{this.documentType}}</td>
+                    <td class="px-3 py-2">{{this.createdAt}}</td>
+                    <td class="px-3 py-2">
+                      <span class="px-2 py-1 rounded text-xs font-medium
+                        {{#ifEq this.status 'pending'}}bg-yellow-100 text-yellow-800{{/ifEq}}
+                        {{#ifEq this.status 'processing'}}bg-blue-100 text-blue-800{{/ifEq}}
+                        {{#ifEq this.status 'approved'}}bg-green-100 text-green-800{{/ifEq}}
+                        {{#ifEq this.status 'rejected'}}bg-red-100 text-red-800{{/ifEq}}
+                        {{#ifEq this.status 'paid'}}bg-purple-100 text-purple-800{{/ifEq}}
+                        {{#ifEq this.status 'payment_pending'}}bg-orange-100 text-orange-800{{/ifEq}}">
+                        {{this.status}}
+                      </span>
+                    </td>
+                    <td class="px-3 py-2">
+                      <div class="flex items-center space-x-2">
+                        <form method="POST" action="/admin/requests/{{this.id}}/status" class="flex items-center space-x-2">
+                          <select name="status" class="text-sm p-1 border rounded">
+                            <option value="pending" {{#ifEq this.status 'pending'}}selected{{/ifEq}}>pending</option>
+                            <option value="processing" {{#ifEq this.status 'processing'}}selected{{/ifEq}}>processing</option>
+                            <option value="approved" {{#ifEq this.status 'approved'}}selected{{/ifEq}}>approved</option>
+                            <option value="rejected" {{#ifEq this.status 'rejected'}}selected{{/ifEq}}>rejected</option>
+                            <option value="paid" {{#ifEq this.status 'paid'}}selected{{/ifEq}}>paid</option>
+                          </select>
+                          <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Update</button>
+                        </form>
+
+                        <a href="/request/{{this.id}}" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700">View</a>
+
+                        <form method="POST" action="/admin/requests/{{this.id}}/delete" onsubmit="return confirm('Delete this request?');" class="inline">
+                          <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700">Delete</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {{/each}}
+              {{else}}
+                <tr><td colspan="6" class="px-3 py-4 text-gray-500 text-center">No requests available.</td></tr>
+              {{/if}}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- Users section (below, centered) -->
+    <section id="usersSection" class="mt-8 bg-white bg-opacity-90 rounded-lg shadow-md p-6 mx-auto max-w-6xl">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">User Accounts</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-100 text-left">
+            <tr>
+              <th class="px-3 py-2">ID</th>
+              <th class="px-3 py-2">Name</th>
+              <th class="px-3 py-2">Email</th>
+              <th class="px-3 py-2">Role</th>
+              <th class="px-3 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if users}}
+              {{#each users}}
+                <tr class="border-t">
+                  <td class="px-3 py-2">{{this.id}}</td>
+                  <td class="px-3 py-2">{{this.name}}</td>
+                  <td class="px-3 py-2">{{this.email}}</td>
+                  <td class="px-3 py-2">{{this.role}}</td>
+                  <td class="px-3 py-2">
+                    <form method="POST" action="/admin/users" class="flex items-center space-x-2">
+                      <input type="hidden" name="id" value="{{this.id}}" />
+                      <select name="role" class="text-sm p-1 border rounded">
+                        <option value="user" {{#ifEq this.role 'user'}}selected{{/ifEq}}>user</option>
+                        <option value="staff" {{#ifEq this.role 'staff'}}selected{{/ifEq}}>staff</option>
+                        <option value="admin" {{#ifEq this.role 'admin'}}selected{{/ifEq}}>admin</option>
+                      </select>
+                      <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Save</button>
+                    </form>
+                  </td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr><td colspan="5" class="px-3 py-4 text-gray-500">No users found.</td></tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+
+
+  <script>
+    // Admin AJAX handlers: update status, assign, delete
+    (function(){
+      const table = document.querySelector('table');
+      if (!table) return;
+
+      // Delegate submit events for forms in the table
+      table.addEventListener('submit', async (e) => {
+        const form = e.target;
+        if (!(form && (form.action || form.getAttribute('action')))) return;
+        const action = form.getAttribute('action');
+
+        // Match status update
+        const statusMatch = action.match(/\/admin\/requests\/(\d+)\/status/);
+        const assignMatch = action.match(/\/admin\/requests\/(\d+)\/assign/);
+        const deleteMatch = action.match(/\/admin\/requests\/(\d+)\/delete/);
+
+        if (statusMatch) {
+          e.preventDefault();
+          const id = statusMatch[1];
+          const formData = new FormData(form);
+          try {
+            const res = await fetch(action, {
+              method: 'POST',
+              headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+              body: formData
+            });
+            const data = await res.json();
+            if (data && data.success) {
+              // Update status cell in the same row
+              const tr = form.closest('tr');
+              if (tr) {
+                const cells = tr.querySelectorAll('td');
+                if (cells && cells.length > 4) {
+                  cells[4].textContent = data.status;
+                }
+              }
+            } else {
+              alert('Failed to update status');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Failed to update status');
+          }
+          return;
+        }
+
+        if (assignMatch) {
+          e.preventDefault();
+          const id = assignMatch[1];
+          const formData = new FormData(form);
+          try {
+            const res = await fetch(action, {
+              method: 'POST',
+              headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+              body: formData
+            });
+            const data = await res.json();
+            if (data && data.success) {
+              alert('Assigned successfully');
+            } else {
+              alert('Failed to assign');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Failed to assign');
+          }
+          return;
+        }
+
+        if (deleteMatch) {
+          // Ask confirm again (forms already have onsubmit confirm, but double-check)
+          if (!confirm('Are you sure you want to delete this request? This cannot be undone.')) {
+            e.preventDefault();
+            return;
+          }
+
+          e.preventDefault();
+          try {
+            const formData = new FormData(form);
+            const res = await fetch(action, {
+              method: 'POST',
+              headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+              body: formData
+            });
+            const data = await res.json();
+            if (data && data.success) {
+              const tr = form.closest('tr');
+              if (tr) tr.remove();
+            } else {
+              alert('Failed to delete request');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Failed to delete request');
+          }
+          return;
+        }
+      });
+    })();
+
+    // Tab controls and filtering logic
+    (function(){
+      const btnAll = document.getElementById('adminTabAll');
+      const btnAppt = document.getElementById('adminTabAppointments');
+      const btnSub = document.getElementById('adminTabSubmissions');
+      const btnUsers = document.getElementById('adminTabUsers');
+      const usersSection = document.getElementById('usersSection');
+      const requestsSection = document.getElementById('requestsSection');
+
+      function setActive(button){
+        [btnAll, btnAppt, btnSub, btnUsers].forEach(b=> b.classList.remove('ring','ring-2','ring-blue-300'));
+        if(button) button.classList.add('ring','ring-2','ring-blue-300');
+      }
+
+      function showUsers(){ requestsSection.classList.add('hidden'); usersSection.scrollIntoView({behavior:'smooth'}); usersSection.classList.remove('hidden'); }
+      function showRequests(){ usersSection.classList.add('hidden'); requestsSection.classList.remove('hidden'); }
+
+      btnUsers.addEventListener('click', ()=>{ setActive(btnUsers); showUsers(); });
+      btnAll.addEventListener('click', ()=>{ setActive(btnAll); showRequests(); // show all rows
+        document.querySelectorAll('#requestsSection tbody tr').forEach(r=> r.style.display='');
+      });
+      btnAppt.addEventListener('click', ()=>{ setActive(btnAppt); showRequests(); // show only rows with appointmentDate
+        document.querySelectorAll('#requestsSection tbody tr').forEach(r=>{
+          const a = r.getAttribute('data-appointment');
+          r.style.display = (a && a.trim()) ? '' : 'none';
+        });
+      });
+      btnSub.addEventListener('click', ()=>{ setActive(btnSub); showRequests(); // show only rows without appointmentDate
+        document.querySelectorAll('#requestsSection tbody tr').forEach(r=>{
+          const a = r.getAttribute('data-appointment');
+          r.style.display = (a && a.trim()) ? 'none' : '';
+        });
+      });
+
+      // default: show all
+      setActive(btnAll);
+    })();
+  </script>
+
+</body>

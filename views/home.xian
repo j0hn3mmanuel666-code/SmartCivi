@@ -1,0 +1,313 @@
+{{> head }}
+<body class="bg-white text-gray-800 overflow-x-hidden">
+
+  <!-- Navigation -->
+  <nav class="fixed w-full top-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 transition-all duration-300">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 group">
+        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 via-purple-500 to-blue-600 rounded-lg flex items-center justify-center transform group-hover:rotate-6 transition-transform duration-300">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <span class="text-2xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">SmartCivi</span>
+      </a>
+
+      <ul class="hidden md:flex space-x-8 font-medium">
+        <li><a href="/login" class="text-gray-700 hover:text-purple-600 transition-colors duration-300 relative group">
+          Request
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-600 group-hover:w-full transition-all duration-300"></span>
+        </a></li>
+        <li><a href="/login" class="text-gray-700 hover:text-purple-600 transition-colors duration-300 relative group">
+          Records
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-600 group-hover:w-full transition-all duration-300"></span>
+        </a></li>
+        <li><a href="/login" class="text-gray-700 hover:text-purple-600 transition-colors duration-300 relative group">
+          Status
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-600 group-hover:w-full transition-all duration-300"></span>
+        </a></li>
+      </ul>
+
+      <div class="hidden md:flex space-x-4">
+        <a href="/login" class="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Login</a>
+      </div>
+
+      <button class="md:hidden text-gray-700 hover:text-purple-600 text-2xl">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex flex-col justify-center items-center text-center px-6 pt-20 overflow-hidden">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50"></div>
+    <div class="absolute inset-0 opacity-30">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 max-w-5xl">
+      <div class="animate-fade-in-up">
+        <div class="inline-block px-4 py-2 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full text-purple-700 font-semibold text-sm mb-6 animate-bounce-slow">
+           Modern Civil Registry System
+        </div>
+      </div>
+      
+      <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 mb-6 animate-fade-in-up" style="animation-delay: 0.1s">
+        Welcome to <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">SmartCivi</span>
+      </h1>
+      
+      <p class="text-xl md:text-2xl text-gray-600 mt-6 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style="animation-delay: 0.2s">
+        A Smart Civil Registry Information Management System for Efficient and Digitized Municipal Operations
+      </p>
+
+      <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style="animation-delay: 0.3s">
+        <a href="/login" class="group bg-gradient-to-r from-pink-500 via-purple-500 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+          Get Started
+          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </a>
+        <a href="#about" class="bg-white border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold hover:border-purple-500 hover:text-purple-600 hover:shadow-lg transition-all duration-300">Learn More</a>
+      </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-10 animate-bounce">
+      <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-24 px-4 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+    <div class="container mx-auto text-center max-w-4xl relative z-10">
+      <div class="inline-block px-4 py-2 bg-purple-100 rounded-full text-purple-700 font-semibold text-sm mb-4 fade-in-on-scroll">
+        About Us
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-8 fade-in-on-scroll">What is <span class="bg-gradient-to-r from-pink-500 to-blue-600 bg-clip-text text-transparent">SmartCivi</span>?</h2>
+      <p class="text-lg md:text-xl text-gray-600 leading-relaxed fade-in-on-scroll">
+        SmartCivi is a cutting-edge digital civil registry platform designed to revolutionize how municipalities manage and process citizen records such as birth, marriage, and death certificates. Our system combines efficiency, security, and user-friendly design to provide seamless access to essential civil services for both residents and municipal officers.
+      </p>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-24 px-4 bg-gradient-to-br from-gray-50 to-purple-50">
+    <div class="container mx-auto">
+      <div class="text-center mb-16">
+        <div class="inline-block px-4 py-2 bg-purple-100 rounded-full text-purple-700 font-semibold text-sm mb-4 fade-in-on-scroll">
+          Features
+        </div>
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 fade-in-on-scroll">Everything You Need</h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto fade-in-on-scroll">Powerful tools designed to streamline civil registry operations</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <!-- Feature 1 -->
+        <div class="feature-card group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+          <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">Online Requests</h3>
+          <p class="text-gray-600 leading-relaxed">Submit requests for civil documents online anytime, anywhere. No more long queues or office visits.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100" style="animation-delay: 0.1s">
+          <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">Real-Time Tracking</h3>
+          <p class="text-gray-600 leading-relaxed">Monitor the progress of your document requests in real-time via an intuitive dashboard.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100" style="animation-delay: 0.2s">
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">Admin Tools</h3>
+          <p class="text-gray-600 leading-relaxed">Municipal staff can manage registry data efficiently with powerful built-in administrative tools.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-20 px-4 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-600">
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center text-white">
+        <div class="counter-card">
+          <div class="text-5xl font-bold mb-2">24/7</div>
+          <div class="text-xl opacity-90">Service Availability</div>
+        </div>
+        <div class="counter-card" style="animation-delay: 0.1s">
+          <div class="text-5xl font-bold mb-2">100%</div>
+          <div class="text-xl opacity-90">Digital Processing</div>
+        </div>
+        <div class="counter-card" style="animation-delay: 0.2s">
+          <div class="text-5xl font-bold mb-2">Fast</div>
+          <div class="text-xl opacity-90">Document Delivery</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-24 px-4 bg-white">
+    <div class="container mx-auto text-center max-w-3xl">
+      <div class="inline-block px-4 py-2 bg-purple-100 rounded-full text-purple-700 font-semibold text-sm mb-4 fade-in-on-scroll">
+        Get in Touch
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 fade-in-on-scroll">Contact Us</h2>
+      <p class="text-xl text-gray-600 mb-8 fade-in-on-scroll">Have questions or feedback? We'd love to hear from you.</p>
+      <a href="mailto:support@smartcivi.ph" class="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all duration-300 fade-in-on-scroll">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+        Email Support
+      </a>
+    </div>
+  </section>
+
+
+
+  <style>
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes bounceFlow {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      33% {
+        transform: translate(30px, -50px) scale(1.1);
+      }
+      66% {
+        transform: translate(-20px, 20px) scale(0.9);
+      }
+    }
+
+    .animate-fade-in-up {
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .animate-bounce-slow {
+      animation: bounceFlow 2s ease-in-out infinite;
+    }
+
+    .feature-card {
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0s; }
+    .feature-card:nth-child(2) { animation-delay: 0.1s; }
+    .feature-card:nth-child(3) { animation-delay: 0.2s; }
+
+    .counter-card {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+    }
+
+    /* Blob animations */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .blob-1 {
+      width: 300px;
+      height: 300px;
+      background: rgba(236, 72, 153, 0.3);
+      top: 10%;
+      left: 10%;
+    }
+
+    .blob-2 {
+      width: 400px;
+      height: 400px;
+      background: rgba(147, 51, 234, 0.3);
+      top: 50%;
+      right: 10%;
+      animation-delay: -5s;
+    }
+
+    .blob-3 {
+      width: 350px;
+      height: 350px;
+      background: rgba(59, 130, 246, 0.3);
+      bottom: 10%;
+      left: 50%;
+      animation-delay: -10s;
+    }
+
+    /* Grid pattern */
+    .bg-grid-pattern {
+      background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* Scroll animations */
+    .fade-in-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .fade-in-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+
+  <script>
+    // Scroll animation observer
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in-on-scroll').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

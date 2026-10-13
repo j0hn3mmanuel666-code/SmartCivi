@@ -1,0 +1,176 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+
+  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+      <div class="hidden md:flex space-x-4">
+        <a href="/browse" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Services</a>
+        <a href="/logout" class="text-white">Logout</a>
+      </div>
+      <button class="md:hidden hover:opacity-80">☰</button>
+    </div>
+  </nav>
+
+  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">My Appointments</h1>
+    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">Track the status of your scheduled appointments.</p>
+    <div class="mt-3">
+      <a href="/browse" class="text-sm text-white underline">← Back to Services</a>
+    </div>
+  </section>
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Your Appointments</h2>
+
+      {{#if appointments}}
+        <div class="space-y-4">
+          {{#each appointments}}
+            <div class="bg-gray-50 rounded-lg p-4 border-l-4 
+              {{#ifEq this.status 'scheduled'}}border-blue-500{{/ifEq}}
+              {{#ifEq this.status 'confirmed'}}border-green-500{{/ifEq}}
+              {{#ifEq this.status 'completed'}}border-purple-500{{/ifEq}}
+              {{#ifEq this.status 'cancelled'}}border-red-500{{/ifEq}}
+              {{#ifEq this.status 'rescheduled'}}border-yellow-500{{/ifEq}}">
+              
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-3 mb-2">
+                    <h3 class="font-semibold text-gray-900 capitalize">{{this.documentType}} Certificate</h3>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                      {{#ifEq this.status 'scheduled'}}bg-blue-100 text-blue-800{{/ifEq}}
+                      {{#ifEq this.status 'confirmed'}}bg-green-100 text-green-800{{/ifEq}}
+                      {{#ifEq this.status 'completed'}}bg-purple-100 text-purple-800{{/ifEq}}
+                      {{#ifEq this.status 'cancelled'}}bg-red-100 text-red-800{{/ifEq}}
+                      {{#ifEq this.status 'rescheduled'}}bg-yellow-100 text-yellow-800{{/ifEq}}">
+                      {{this.status}}
+                    </span>
+                  </div>
+                  
+                  <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                    <div>
+                      <p><strong>Name on Certificate:</strong> {{this.givenName}} {{this.middleName}} {{this.familyName}}</p>
+                      <p><strong>Relationship:</strong> {{this.relationship}}</p>
+                      <p><strong>Region:</strong> {{this.region}}</p>
+                    </div>
+                    <div>
+                      <p><strong>Appointment Date:</strong> {{this.appointmentDate}}</p>
+                      <p><strong>Submitted:</strong> {{this.createdAt}}</p>
+                      {{#if this.notes}}
+                        <p><strong>Notes:</strong> {{this.notes}}</p>
+                      {{/if}}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mt-4 md:mt-0 flex flex-col space-y-2">
+                  <a href="/request/{{this.requestId}}" class="bg-blue-600 text-white px-4 py-2 rounded text-sm text-center hover:bg-blue-700 transition-all">
+                    View Details
+                  </a>
+                  {{#ifEq this.status 'scheduled'}}
+                    <button onclick="requestReschedule({{this.id}})" class="bg-yellow-600 text-white px-4 py-2 rounded text-sm hover:bg-yellow-700 transition-all">
+                      Request Reschedule
+                    </button>
+                  {{/ifEq}}
+                  {{#ifEq this.status 'confirmed'}}
+                    <div class="bg-green-50 text-green-800 px-4 py-2 rounded text-sm text-center">
+                      Confirmed - Please attend
+                    </div>
+                  {{/ifEq}}
+                </div>
+              </div>
+              
+              <!-- Status Messages -->
+              <div class="mt-4 p-3 rounded-md text-sm
+                {{#ifEq this.status 'scheduled'}}bg-blue-50 text-blue-800{{/ifEq}}
+                {{#ifEq this.status 'confirmed'}}bg-green-50 text-green-800{{/ifEq}}
+                {{#ifEq this.status 'completed'}}bg-purple-50 text-purple-800{{/ifEq}}
+                {{#ifEq this.status 'cancelled'}}bg-red-50 text-red-800{{/ifEq}}
+                {{#ifEq this.status 'rescheduled'}}bg-yellow-50 text-yellow-800{{/ifEq}}">
+                
+                {{#ifEq this.status 'scheduled'}}
+                  <p><strong>Status:</strong> Your appointment is scheduled and awaiting confirmation from our office.</p>
+                  <p><strong>Next Steps:</strong> Wait for confirmation or contact our office if urgent.</p>
+                {{/ifEq}}
+                
+                {{#ifEq this.status 'confirmed'}}
+                  <p><strong>Status:</strong> Your appointment has been confirmed!</p>
+                  <p><strong>Next Steps:</strong> Please arrive 15 minutes early with required documents.</p>
+                {{/ifEq}}
+                
+                {{#ifEq this.status 'completed'}}
+                  <p><strong>Status:</strong> Your appointment has been completed.</p>
+                  <p><strong>Next Steps:</strong> Your document is being processed. Check your request status for updates.</p>
+                {{/ifEq}}
+                
+                {{#ifEq this.status 'cancelled'}}
+                  <p><strong>Status:</strong> This appointment has been cancelled.</p>
+                  <p><strong>Next Steps:</strong> You can schedule a new appointment if needed.</p>
+                {{/ifEq}}
+                
+                {{#ifEq this.status 'rescheduled'}}
+                  <p><strong>Status:</strong> This appointment has been rescheduled.</p>
+                  <p><strong>Next Steps:</strong> Check for your new appointment date or contact our office.</p>
+                {{/ifEq}}
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <div class="text-center text-gray-600 py-12">
+          <div class="text-6xl text-gray-300 mb-4">📅</div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">No Appointments Found</h3>
+          <p class="text-gray-600 mb-6">You haven't scheduled any appointments yet.</p>
+          <a href="/appoint" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-all">
+            Schedule an Appointment
+          </a>
+        </div>
+      {{/if}}
+
+    </div>
+  </main>
+
+  <script>
+    function requestReschedule(appointmentId) {
+      if (confirm('Do you want to request a reschedule for this appointment? Our office will contact you with available dates.')) {
+        fetch(`/appointments/${appointmentId}/reschedule`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showMessage('Reschedule request submitted successfully!', 'success');
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } else {
+            showMessage(data.message || 'Failed to request reschedule', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showMessage('An error occurred. Please try again.', 'error');
+        });
+      }
+    }
+
+    function showMessage(message, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `fixed top-20 right-4 px-4 py-2 rounded-md text-white z-50 ${
+        type === 'success' ? 'bg-green-600' : 'bg-red-600'
+      }`;
+      messageDiv.textContent = message;
+      
+      document.body.appendChild(messageDiv);
+      
+      setTimeout(() => {
+        messageDiv.remove();
+      }, 3000);
+    }
+  </script>
+
+</body>

@@ -1,0 +1,365 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+
+  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+
+      <ul class="hidden md:flex space-x-6 font-medium">
+        <li><a href="/admin" class="hover:text-yellow-300 transition-all">Dashboard</a></li>
+        <li><a href="/admin/requests" class="hover:text-yellow-300 transition-all">Requests</a></li>
+        <li><a href="/admin/appointments" class="hover:text-yellow-300 transition-all text-yellow-300">Appointments</a></li>
+        <li><a href="/admin/users" class="hover:text-yellow-300 transition-all">Users</a></li>
+        <li><a href="/help" class="hover:text-yellow-300 transition-all">Help</a></li>
+      </ul>
+
+      <div class="hidden md:flex space-x-4">
+        <a href="/logout" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Logout</a>
+      </div>
+
+      <button class="md:hidden hover:opacity-80">☰</button>
+    </div>
+  </nav>
+
+  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Manage Appointments</h1>
+    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">Review, confirm, and manage all scheduled appointments.</p>
+    <div class="mt-3">
+      <a href="/admin" class="text-sm text-white underline">← Back to Dashboard</a>
+    </div>
+  </section>
+
+  <main class="container mx-auto px-4 py-8">
+    
+    <!-- Filter Tabs -->
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-4 mb-6 max-w-6xl mx-auto">
+      <div class="flex flex-wrap gap-2 justify-center">
+        <button id="filterAll" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-all">
+          All Appointments
+        </button>
+        <button id="filterScheduled" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+          Scheduled
+        </button>
+        <button id="filterConfirmed" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+          Confirmed
+        </button>
+        <button id="filterToday" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+          Today's Appointments
+        </button>
+        <button id="filterUpcoming" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+          Upcoming
+        </button>
+      </div>
+    </div>
+
+    <!-- Appointments Table -->
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 max-w-6xl mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">All Appointments</h2>
+        <div class="text-sm text-gray-600">
+          Total: <span id="totalCount">{{appointments.length}}</span> appointments
+        </div>
+      </div>
+
+      {{#if appointments}}
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ID</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Applicant</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Document</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Name on Certificate</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Appointment Date</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200" id="appointmentsTableBody">
+              {{#each appointments}}
+                <tr class="hover:bg-gray-50 appointment-row" data-status="{{this.status}}" data-date="{{this.appointmentDate}}" data-appointment-id="{{this.id}}">
+                  <td class="px-4 py-3 text-sm text-gray-900">#{{this.id}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-900">
+                    <div>{{this.fullName}}</div>
+                    <div class="text-xs text-gray-500">{{this.email}}</div>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-gray-600 capitalize">{{this.documentType}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{this.givenName}} {{this.familyName}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{this.appointmentDate}}</td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                      {{#ifEq this.status 'scheduled'}}bg-blue-100 text-blue-800{{/ifEq}}
+                      {{#ifEq this.status 'confirmed'}}bg-green-100 text-green-800{{/ifEq}}
+                      {{#ifEq this.status 'completed'}}bg-purple-100 text-purple-800{{/ifEq}}
+                      {{#ifEq this.status 'cancelled'}}bg-red-100 text-red-800{{/ifEq}}
+                      {{#ifEq this.status 'rescheduled'}}bg-yellow-100 text-yellow-800{{/ifEq}}">
+                      {{this.status}}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center space-x-2">
+                      <!-- Status Update -->
+                      <form method="POST" action="/admin/appointments/{{this.id}}/status" class="flex items-center space-x-1">
+                        <select name="status" class="text-xs px-2 py-1 border border-gray-300 rounded">
+                          <option value="scheduled" {{#ifEq this.status 'scheduled'}}selected{{/ifEq}}>Scheduled</option>
+                          <option value="confirmed" {{#ifEq this.status 'confirmed'}}selected{{/ifEq}}>Confirmed</option>
+                          <option value="completed" {{#ifEq this.status 'completed'}}selected{{/ifEq}}>Completed</option>
+                          <option value="cancelled" {{#ifEq this.status 'cancelled'}}selected{{/ifEq}}>Cancelled</option>
+                          <option value="rescheduled" {{#ifEq this.status 'rescheduled'}}selected{{/ifEq}}>Rescheduled</option>
+                        </select>
+                        <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-all">
+                          Update
+                        </button>
+                      </form>
+
+                      <!-- View Request -->
+                      <a href="/request/{{this.requestId}}" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition-all">
+                        View Request
+                      </a>
+
+                      <!-- Add Notes -->
+                      <button onclick="addNotes({{this.id}})" class="bg-purple-600 text-white px-2 py-1 rounded text-xs hover:bg-purple-700 transition-all">
+                        Notes
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      {{else}}
+        <div class="text-center py-12">
+          <div class="text-6xl text-gray-300 mb-4">📅</div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">No Appointments Found</h3>
+          <p class="text-gray-600">No appointments have been scheduled yet.</p>
+        </div>
+      {{/if}}
+
+    </div>
+  </main>
+
+  <!-- Notes Modal -->
+  <div id="notesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Add Notes</h3>
+        <textarea id="notesText" rows="4" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter notes for this appointment..."></textarea>
+        <div class="flex justify-end space-x-3 mt-4">
+          <button onclick="closeNotesModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+          <button onclick="saveNotes()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save Notes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentAppointmentId = null;
+
+    // Filter functionality
+    const filterButtons = {
+      filterAll: document.getElementById('filterAll'),
+      filterScheduled: document.getElementById('filterScheduled'),
+      filterConfirmed: document.getElementById('filterConfirmed'),
+      filterToday: document.getElementById('filterToday'),
+      filterUpcoming: document.getElementById('filterUpcoming')
+    };
+
+    const appointmentRows = document.querySelectorAll('.appointment-row');
+    const totalCountElement = document.getElementById('totalCount');
+
+    function setActiveFilter(activeButton) {
+      Object.values(filterButtons).forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-700');
+      });
+      activeButton.classList.remove('bg-gray-200', 'text-gray-700');
+      activeButton.classList.add('bg-blue-600', 'text-white');
+    }
+
+    function filterAppointments(filterType) {
+      let visibleCount = 0;
+      const today = new Date().toISOString().split('T')[0];
+      
+      appointmentRows.forEach(row => {
+        const status = row.getAttribute('data-status');
+        const appointmentDate = row.getAttribute('data-date');
+        let show = false;
+
+        switch(filterType) {
+          case 'all':
+            show = true;
+            break;
+          case 'scheduled':
+            show = status === 'scheduled';
+            break;
+          case 'confirmed':
+            show = status === 'confirmed';
+            break;
+          case 'today':
+            show = appointmentDate === today;
+            break;
+          case 'upcoming':
+            show = new Date(appointmentDate) >= new Date(today);
+            break;
+        }
+
+        if (show) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      totalCountElement.textContent = visibleCount;
+    }
+
+    // Add event listeners
+    filterButtons.filterAll.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterAll);
+      filterAppointments('all');
+    });
+
+    filterButtons.filterScheduled.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterScheduled);
+      filterAppointments('scheduled');
+    });
+
+    filterButtons.filterConfirmed.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterConfirmed);
+      filterAppointments('confirmed');
+    });
+
+    filterButtons.filterToday.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterToday);
+      filterAppointments('today');
+    });
+
+    filterButtons.filterUpcoming.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterUpcoming);
+      filterAppointments('upcoming');
+    });
+
+    // AJAX form handling for status updates
+    document.addEventListener('submit', async function(e) {
+      const form = e.target;
+      if (form.action && form.action.includes('/admin/appointments/') && form.action.includes('/status')) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const newStatus = formData.get('status');
+        
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+          });
+
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update the status badge in the row
+            const row = form.closest('tr');
+            const statusCell = row.querySelector('td:nth-child(6) span');
+            
+            // Remove old classes
+            statusCell.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full';
+            
+            // Add new classes based on status
+            const statusClasses = {
+              'scheduled': 'bg-blue-100 text-blue-800',
+              'confirmed': 'bg-green-100 text-green-800',
+              'completed': 'bg-purple-100 text-purple-800',
+              'cancelled': 'bg-red-100 text-red-800',
+              'rescheduled': 'bg-yellow-100 text-yellow-800'
+            };
+            
+            statusCell.className += ' ' + (statusClasses[newStatus] || 'bg-gray-100 text-gray-800');
+            statusCell.textContent = newStatus;
+            
+            // Update row data attribute
+            row.setAttribute('data-status', newStatus);
+            
+            showMessage('Appointment status updated successfully', 'success');
+          } else {
+            showMessage('Failed to update appointment status', 'error');
+          }
+        } catch (error) {
+          console.error('Error updating status:', error);
+          showMessage('An error occurred while updating status', 'error');
+        }
+      }
+    });
+
+    // Notes functionality
+    function addNotes(appointmentId) {
+      currentAppointmentId = appointmentId;
+      document.getElementById('notesModal').classList.remove('hidden');
+    }
+
+    function closeNotesModal() {
+      document.getElementById('notesModal').classList.add('hidden');
+      document.getElementById('notesText').value = '';
+      currentAppointmentId = null;
+    }
+
+    async function saveNotes() {
+      const notes = document.getElementById('notesText').value.trim();
+      
+      if (!notes) {
+        alert('Please enter some notes');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/admin/appointments/${currentAppointmentId}/notes`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ notes })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          showMessage('Notes saved successfully', 'success');
+          closeNotesModal();
+        } else {
+          showMessage('Failed to save notes', 'error');
+        }
+      } catch (error) {
+        console.error('Error saving notes:', error);
+        showMessage('An error occurred while saving notes', 'error');
+      }
+    }
+
+    // Show message function
+    function showMessage(message, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `fixed top-20 right-4 px-4 py-2 rounded-md text-white z-50 ${
+        type === 'success' ? 'bg-green-600' : 'bg-red-600'
+      }`;
+      messageDiv.textContent = message;
+      
+      document.body.appendChild(messageDiv);
+      
+      setTimeout(() => {
+        messageDiv.remove();
+      }, 3000);
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('notesModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeNotesModal();
+      }
+    });
+  </script>
+
+</body>

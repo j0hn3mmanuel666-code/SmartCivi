@@ -1,0 +1,377 @@
+{{> head }}
+<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+
+  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+      <div class="hidden md:flex space-x-4">
+        <a href="/browse" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Services</a>
+        <a href="/logout" class="text-white">Logout</a>
+      </div>
+      <button class="md:hidden hover:opacity-80">☰</button>
+    </div>
+  </nav>
+
+  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Payments & Receipts</h1>
+    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">View your payment history and download receipts.</p>
+    <div class="mt-3">
+      <a href="/browse" class="text-sm text-white underline">← Back to Services</a>
+    </div>
+  </section>
+
+  <main class="container mx-auto px-4 py-8">
+    
+    <!-- Payment Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      
+      <!-- Total Paid -->
+      <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-green-100 text-green-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Total Paid</p>
+            <p class="text-2xl font-bold text-gray-900">₱{{summary.totalPaid}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Payments -->
+      <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Pending Payments</p>
+            <p class="text-2xl font-bold text-gray-900">₱{{summary.totalPending}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Transactions -->
+      <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Total Transactions</p>
+            <p class="text-2xl font-bold text-gray-900">{{summary.totalTransactions}}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-4 mb-6 max-w-6xl mx-auto">
+      <div class="flex flex-wrap gap-2 justify-center">
+        <button id="filterAll" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-all">
+          All Transactions
+        </button>
+        <button id="filterPaid" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+          Paid
+        </button>
+        <button id="filterPending" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+          Pending
+        </button>
+        <button id="filterOnline" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+          Online Payments
+        </button>
+        <button id="filterOTC" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+          OTC Payments
+        </button>
+      </div>
+    </div>
+
+    <!-- Payments & Receipts List -->
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 max-w-6xl mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">Payment History</h2>
+        <div class="text-sm text-gray-600">
+          Total: <span id="totalCount">{{payments.length}}</span> transactions
+        </div>
+      </div>
+
+      {{#if payments}}
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Receipt #</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Request</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Document Type</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Amount</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Payment Method</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200" id="paymentsTableBody">
+              {{#each payments}}
+                <tr class="hover:bg-gray-50 payment-row" data-status="{{this.status}}" data-method="{{this.paymentMethod}}" data-payment-id="{{this.id}}">
+                  <td class="px-4 py-3 text-sm text-gray-900 font-mono">{{this.paymentReference}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-900">#{{this.id}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600 capitalize">{{this.documentType}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-900 font-semibold">₱{{this.paymentAmount}}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600 capitalize">
+                    {{#if this.paymentMethod}}
+                      {{this.paymentMethod}}
+                    {{else}}
+                      -
+                    {{/if}}
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                      {{#ifEq this.status 'paid'}}bg-green-100 text-green-800{{/ifEq}}
+                      {{#ifEq this.status 'payment_pending'}}bg-yellow-100 text-yellow-800{{/ifEq}}
+                      {{#ifEq this.status 'approved'}}bg-blue-100 text-blue-800{{/ifEq}}
+                      {{#ifEq this.status 'pending'}}bg-gray-100 text-gray-800{{/ifEq}}">
+                      {{#ifEq this.status 'paid'}}Paid{{/ifEq}}
+                      {{#ifEq this.status 'payment_pending'}}Pending{{/ifEq}}
+                      {{#ifEq this.status 'approved'}}Ready for Payment{{/ifEq}}
+                      {{#ifEq this.status 'pending'}}Not Ready{{/ifEq}}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{this.updatedAt}}</td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center space-x-2">
+                      {{#ifEq this.status 'paid'}}
+                        <button onclick="downloadReceipt({{this.id}})" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 transition-all">
+                          Download Receipt
+                        </button>
+                      {{/ifEq}}
+                      
+                      {{#ifEq this.status 'approved'}}
+                        <a href="/request/{{this.id}}/pay" class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-all">
+                          Pay Now
+                        </a>
+                      {{/ifEq}}
+                      
+                      {{#ifEq this.status 'payment_pending'}}
+                        <button onclick="viewPaymentDetails({{this.id}})" class="bg-yellow-600 text-white px-3 py-1 rounded text-xs hover:bg-yellow-700 transition-all">
+                          View Details
+                        </button>
+                      {{/ifEq}}
+                      
+                      <a href="/request/{{this.id}}" class="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700 transition-all">
+                        View Request
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      {{else}}
+        <div class="text-center py-12">
+          <div class="text-6xl text-gray-300 mb-4">💳</div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">No Payment History</h3>
+          <p class="text-gray-600 mb-6">You haven't made any payments yet.</p>
+          <a href="/browse" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-all">
+            Browse Services
+          </a>
+        </div>
+      {{/if}}
+
+    </div>
+  </main>
+
+  <!-- Payment Details Modal -->
+  <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Payment Details</h3>
+        <div id="paymentDetails" class="space-y-3">
+          <!-- Payment details will be loaded here -->
+        </div>
+        <div class="flex justify-end mt-4">
+          <button onclick="closePaymentModal()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Filter functionality
+    const filterButtons = {
+      filterAll: document.getElementById('filterAll'),
+      filterPaid: document.getElementById('filterPaid'),
+      filterPending: document.getElementById('filterPending'),
+      filterOnline: document.getElementById('filterOnline'),
+      filterOTC: document.getElementById('filterOTC')
+    };
+
+    const paymentRows = document.querySelectorAll('.payment-row');
+    const totalCountElement = document.getElementById('totalCount');
+
+    function setActiveFilter(activeButton) {
+      Object.values(filterButtons).forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-700');
+      });
+      activeButton.classList.remove('bg-gray-200', 'text-gray-700');
+      activeButton.classList.add('bg-blue-600', 'text-white');
+    }
+
+    function filterPayments(filterType) {
+      let visibleCount = 0;
+      
+      paymentRows.forEach(row => {
+        const status = row.getAttribute('data-status');
+        const method = row.getAttribute('data-method');
+        let show = false;
+
+        switch(filterType) {
+          case 'all':
+            show = true;
+            break;
+          case 'paid':
+            show = status === 'paid';
+            break;
+          case 'pending':
+            show = status === 'payment_pending' || status === 'approved';
+            break;
+          case 'online':
+            show = method === 'online';
+            break;
+          case 'otc':
+            show = method === 'otc' || method === 'bank';
+            break;
+        }
+
+        if (show) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      totalCountElement.textContent = visibleCount;
+    }
+
+    // Add event listeners
+    filterButtons.filterAll.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterAll);
+      filterPayments('all');
+    });
+
+    filterButtons.filterPaid.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterPaid);
+      filterPayments('paid');
+    });
+
+    filterButtons.filterPending.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterPending);
+      filterPayments('pending');
+    });
+
+    filterButtons.filterOnline.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterOnline);
+      filterPayments('online');
+    });
+
+    filterButtons.filterOTC.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterOTC);
+      filterPayments('otc');
+    });
+
+    // Download receipt function
+    async function downloadReceipt(requestId) {
+      try {
+        const response = await fetch(`/receipts/${requestId}/download`);
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `receipt-${requestId}.html`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          
+          showMessage('Receipt downloaded successfully!', 'success');
+        } else {
+          showMessage('Failed to download receipt', 'error');
+        }
+      } catch (error) {
+        console.error('Error downloading receipt:', error);
+        showMessage('An error occurred while downloading receipt', 'error');
+      }
+    }
+
+    // View payment details function
+    async function viewPaymentDetails(requestId) {
+      try {
+        const response = await fetch(`/payments/${requestId}/details`);
+        const data = await response.json();
+        
+        if (data.success) {
+          const detailsHtml = `
+            <div class="text-sm">
+              <p><strong>Request ID:</strong> #${data.payment.id}</p>
+              <p><strong>Document:</strong> ${data.payment.documentType} Certificate</p>
+              <p><strong>Amount:</strong> ₱${data.payment.paymentAmount}</p>
+              <p><strong>Payment Method:</strong> ${data.payment.paymentMethod || 'Not selected'}</p>
+              <p><strong>Reference:</strong> ${data.payment.paymentReference || 'Not generated'}</p>
+              <p><strong>Status:</strong> ${data.payment.status}</p>
+              ${data.payment.paymentMethod === 'otc' ? '<p class="mt-2 text-blue-600"><strong>Instructions:</strong> Pay at any authorized payment center using the reference number above.</p>' : ''}
+              ${data.payment.paymentMethod === 'bank' ? '<p class="mt-2 text-purple-600"><strong>Instructions:</strong> Transfer to our bank account using the reference number above.</p>' : ''}
+            </div>
+          `;
+          
+          document.getElementById('paymentDetails').innerHTML = detailsHtml;
+          document.getElementById('paymentModal').classList.remove('hidden');
+        } else {
+          showMessage('Failed to load payment details', 'error');
+        }
+      } catch (error) {
+        console.error('Error loading payment details:', error);
+        showMessage('An error occurred while loading payment details', 'error');
+      }
+    }
+
+    // Close payment modal
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.add('hidden');
+    }
+
+    // Show message function
+    function showMessage(message, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `fixed top-20 right-4 px-4 py-2 rounded-md text-white z-50 ${
+        type === 'success' ? 'bg-green-600' : 'bg-red-600'
+      }`;
+      messageDiv.textContent = message;
+      
+      document.body.appendChild(messageDiv);
+      
+      setTimeout(() => {
+        messageDiv.remove();
+      }, 3000);
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('paymentModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePaymentModal();
+      }
+    });
+  </script>
+
+</body>

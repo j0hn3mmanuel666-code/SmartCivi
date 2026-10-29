@@ -26,6 +26,9 @@
     
 import bcrypt from "bcrypt";
 import { User, sequelize } from "../models/userModel.js";
+import "../models/Request.js";
+import "../models/Attachment.js";
+import "../models/Appointment.js";
 await sequelize.sync();
 
 // Development helper: create or update the dev admin user

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="60" y="140" width="300" height="150" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="210.0" y="169" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">browser : Client</text>
+<polyline points="60,189 360,189" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="75" y="216" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Citizen session</text>
+<rect x="555" y="140" width="300" height="150" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="705.0" y="169" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">router : ExpressRouter</text>
+<polyline points="555,189 855,189" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="570" y="216" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">POST /request</text>
+<rect x="1030" y="140" width="300" height="150" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="1180.0" y="169" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">controller : HomeController</text>
+<polyline points="1030,189 1330,189" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1045" y="216" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">createRequest</text>
+<rect x="1030" y="510" width="300" height="150" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="1180.0" y="539" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">model : Request</text>
+<polyline points="1030,559 1330,559" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1045" y="586" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Sequelize model</text>
+<rect x="555" y="510" width="300" height="150" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="705.0" y="539" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">db : MySQL</text>
+<polyline points="555,559 855,559" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="570" y="586" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">civil_requests table</text>
+<polyline points="360,185 555,185" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="555,185 543.0,180.0 543.0,190.0" fill="#17332D"/>
+<text x="455" y="150" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">1  Submit form</text>
+<polyline points="555,250 360,250" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="360,250 372.0,255.0 372.0,245.0" fill="#17332D"/>
+<text x="454" y="313" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">7  Redirect to confirmation</text>
+<polyline points="855,185 1030,185" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1030,185 1018.0,180.0 1018.0,190.0" fill="#17332D"/>
+<text x="942" y="150" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">2  Dispatch</text>
+<polyline points="1030,250 855,250" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="855,250 867.0,255.0 867.0,245.0" fill="#17332D"/>
+<text x="943" y="313" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">6  Return redirect</text>
+<polyline points="1180,290 1180,510" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1180,510 1185.0,498.0 1175.0,498.0" fill="#17332D"/>
+<text x="1161" y="405" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">3  Validate; create(data)</text>
+<polyline points="1030,550 855,550" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="855,550 867.0,555.0 867.0,545.0" fill="#17332D"/>
+<text x="942" y="521" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">4  INSERT</text>
+<polyline points="855,630 1030,630" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1030,630 1018.0,625.0 1018.0,635.0" fill="#17332D"/>
+<text x="942" y="604" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">5  Row id</text>
+<text x="550" y="432" font-family="Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Existing route and controller links</text>
+</svg>

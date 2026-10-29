@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="60" y="260" width="260" height="165" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="190.0" y="289" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Citizen</text>
+<polyline points="60,309 320,309" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="75" y="336" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Account and request input</text>
+<text x="75" y="362" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Payment method selection</text>
+<ellipse cx="715.0" cy="345.0" rx="195.0" ry="155.0" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="715.0" y="321.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">0</text>
+<text x="715.0" y="346.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">SmartCivi Civil Registry</text>
+<text x="715.0" y="371.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Management System</text>
+<rect x="1090" y="260" width="260" height="165" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1220.0" y="289" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Administrator</text>
+<polyline points="1090,309 1350,309" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1105" y="336" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Review and status decisions</text>
+<text x="1105" y="362" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">User management input</text>
+<polyline points="320,285 535,285" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="535,285 523.0,280.0 523.0,290.0" fill="#17332D"/>
+<text x="416" y="245" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Account request and payment data</text>
+<polyline points="527,385 320,385" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="320,385 332.0,390.0 332.0,380.0" fill="#17332D"/>
+<text x="417" y="432" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Confirmation status and receipt</text>
+<polyline points="1090,285 895,285" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="895,285 907.0,290.0 907.0,280.0" fill="#17332D"/>
+<text x="1005" y="245" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Review and management data</text>
+<polyline points="903,385 1090,385" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1090,385 1078.0,380.0 1078.0,390.0" fill="#17332D"/>
+<text x="1000" y="432" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Request and account records</text>
+<text x="700" y="620" font-family="Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">External entities exchange data only through process 0</text>
+</svg>

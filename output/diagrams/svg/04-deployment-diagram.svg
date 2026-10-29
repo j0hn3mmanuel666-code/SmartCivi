@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="30" y="40" width="1340" height="680" rx="3" fill="#FFFFFF" stroke="#17332D" stroke-width="2"/>
+<text x="700" y="80" font-family="Arial,sans-serif" font-size="23" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;device&gt;&gt; Windows computer with Docker Desktop and Linux engine</text>
+<rect x="65" y="290" width="230" height="130" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="180.0" y="319" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;execution&gt;&gt; Browser</text>
+<polyline points="65,339 295,339" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="80" y="366" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">localhost:3000</text>
+<rect x="365" y="135" width="960" height="495" rx="3" fill="#FFFFFF" stroke="#17332D" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="845" y="169" font-family="Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;network&gt;&gt; smartcivi_default</text>
+<rect x="410" y="240" width="370" height="250" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="595.0" y="269" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;container&gt;&gt; app</text>
+<polyline points="410,289 780,289" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="425" y="316" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Name smartcivi-app-1</text>
+<text x="425" y="342" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Image smartcivi-app:local</text>
+<text x="425" y="368" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Node.js 24 / Express</text>
+<text x="425" y="394" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Container port 3000</text>
+<text x="425" y="420" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Health /api/health</text>
+<rect x="910" y="240" width="370" height="250" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1095.0" y="269" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;container&gt;&gt; db</text>
+<polyline points="910,289 1280,289" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="925" y="316" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Name smartcivi-db-1</text>
+<text x="925" y="342" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Image mysql:8.4</text>
+<text x="925" y="368" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Container port 3306</text>
+<text x="925" y="394" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Database smartCivi</text>
+<text x="925" y="420" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Authenticated SQL health check</text>
+<rect x="910" y="560" width="370" height="110" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="1095.0" y="589" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;volume&gt;&gt; mysql_data</text>
+<polyline points="910,609 1280,609" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="925" y="636" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Mounted at /var/lib/mysql</text>
+<polyline points="295,350 410,350" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="410,350 398.0,345.0 398.0,355.0" fill="#17332D"/>
+<text x="350" y="310" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">127.0.0.1:3000</text>
+<polyline points="780,345 910,345" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="910,345 898.0,340.0 898.0,350.0" fill="#17332D"/>
+<text x="845" y="310" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">db:3306</text>
+<polyline points="1095,490 1095,560" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1095,560 1100.0,548.0 1090.0,548.0" fill="#17332D"/>
+<text x="1210" y="525" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">read and write</text>
+<text x="610" y="550" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">app waits for db health before startup</text>
+<text x="610" y="585" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">restart policy unless-stopped</text>
+</svg>

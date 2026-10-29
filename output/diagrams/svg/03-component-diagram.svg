@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="40" y="280" width="245" height="125" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="162.5" y="309" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Browser</text>
+<polyline points="40,329 285,329" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="55" y="356" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Forms and page requests</text>
+<rect x="410" y="75" width="350" height="140" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="585.0" y="104" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Express entry point</text>
+<polyline points="410,124 760,124" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="425" y="151" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">index.js</text>
+<text x="425" y="177" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Sessions flash static assets</text>
+<rect x="410" y="300" width="350" height="140" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="585.0" y="329" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Request routing</text>
+<polyline points="410,349 760,349" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="425" y="376" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">routes/index.js</text>
+<text x="425" y="402" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">middleware/auth.js</text>
+<rect x="930" y="75" width="420" height="140" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1140.0" y="104" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Presentation</text>
+<polyline points="930,124 1350,124" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="945" y="151" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">views/*.xian and partials</text>
+<text x="945" y="177" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">public assets and hbs</text>
+<rect x="930" y="300" width="420" height="140" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="1140.0" y="329" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Controller modules</text>
+<polyline points="930,349 1350,349" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="945" y="376" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">authController.js</text>
+<text x="945" y="402" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">homeController.js</text>
+<rect x="410" y="565" width="350" height="140" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="585.0" y="594" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Persistence modules</text>
+<polyline points="410,614 760,614" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="425" y="641" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">models and models/db.js</text>
+<text x="425" y="667" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Sequelize and mysql2</text>
+<rect x="930" y="565" width="420" height="140" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1140.0" y="594" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">External library services</text>
+<polyline points="930,614 1350,614" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="945" y="641" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">bcrypt password hashing</text>
+<text x="945" y="667" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">MySQL database</text>
+<polyline points="285,340 410,340" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="410,340 398.0,335.0 398.0,345.0" fill="#17332D"/>
+<text x="342" y="316" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">HTTP</text>
+<polyline points="585,215 585,300" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="585,300 590.0,288.0 580.0,288.0" fill="#17332D"/>
+<text x="650" y="259" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">dispatch</text>
+<polyline points="760,370 930,370" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="930,370 918.0,365.0 918.0,375.0" fill="#17332D"/>
+<text x="845" y="344" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">calls</text>
+<polyline points="1140,300 1140,215" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1140,215 1135.0,227.0 1145.0,227.0" fill="#17332D"/>
+<text x="1210" y="260" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">renders</text>
+<polyline points="930,405 825,405 825,635 760,635" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="760,635 772.0,640.0 772.0,630.0" fill="#17332D"/>
+<text x="845" y="518" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">data access</text>
+<polyline points="760,665 930,665" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="930,665 918.0,660.0 918.0,670.0" fill="#17332D"/>
+<text x="845" y="638" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">SQL</text>
+<polyline points="1140,440 1140,565" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1140,565 1145.0,553.0 1135.0,553.0" fill="#17332D"/>
+<text x="1240" y="503" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">hash or compare</text>
+<polyline points="760,143 930,143" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="930,143 918.0,138.0 918.0,148.0" fill="#17332D"/>
+<text x="844" y="115" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">view engine</text>
+</svg>

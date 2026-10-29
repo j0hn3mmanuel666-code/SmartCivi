@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="170" y="70" width="1050" height="600" rx="3" fill="#FFFFFF" stroke="#17332D" stroke-width="2"/>
+<text x="695" y="111" font-family="Arial,sans-serif" font-size="24" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;structured classifier&gt;&gt; SmartCiviApplication</text>
+<rect x="160" y="250" width="20" height="35" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<rect x="1210" y="430" width="20" height="35" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="90" y="218" font-family="Arial,sans-serif" font-size="19" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">HTTP port</text>
+<text x="1294" y="408" font-family="Arial,sans-serif" font-size="19" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">SQL port</text>
+<rect x="235" y="225" width="260" height="180" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="365.0" y="254" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">router : ExpressRouter</text>
+<polyline points="235,274 495,274" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="250" y="301" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Route selection</text>
+<text x="250" y="327" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Session and role checks</text>
+<rect x="590" y="225" width="300" height="180" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="740.0" y="254" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">handler : Controllers</text>
+<polyline points="590,274 890,274" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="605" y="301" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Auth and request logic</text>
+<text x="605" y="327" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Page render invocation</text>
+<rect x="590" y="480" width="300" height="140" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="740.0" y="509" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">views : Handlebars</text>
+<polyline points="590,529 890,529" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="605" y="556" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Xian templates</text>
+<rect x="960" y="360" width="210" height="180" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="1065.0" y="389" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">store : Models</text>
+<polyline points="960,409 1170,409" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="975" y="436" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Sequelize</text>
+<text x="975" y="462" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">mysql2 connector</text>
+<polyline points="180,269 235,269" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="235,269 223.0,264.0 223.0,274.0" fill="#17332D"/>
+<polyline points="495,300 590,300" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="590,300 578.0,295.0 578.0,305.0" fill="#17332D"/>
+<text x="542" y="269" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">delegate</text>
+<polyline points="740,405 740,480" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="740,480 745.0,468.0 735.0,468.0" fill="#17332D"/>
+<text x="801" y="446" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">render</text>
+<polyline points="890,300 923,300 923,448 960,448" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="960,448 948.0,443.0 948.0,453.0" fill="#17332D"/>
+<text x="945" y="326" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">query</text>
+<polyline points="1170,448 1210,448" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1210,448 1198.0,443.0 1198.0,453.0" fill="#17332D"/>
+<text x="387" y="570" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">session : MemoryStore</text>
+<text x="387" y="607" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Process-local session state</text>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="60" y="165" width="370" height="300" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="245.0" y="194" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">citizen7 : User</text>
+<polyline points="60,214 430,214" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="75" y="241" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">id = 7</text>
+<text x="75" y="267" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">name = Example Citizen</text>
+<text x="75" y="293" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">email = citizen@example.invalid</text>
+<text x="75" y="319" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">password = bcrypt hash</text>
+<text x="75" y="345" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">role = user</text>
+<rect x="550" y="115" width="370" height="390" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="735.0" y="144" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">request42 : Request</text>
+<polyline points="550,164 920,164" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="565" y="191" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">id = 42</text>
+<text x="565" y="217" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fullName = Example Citizen</text>
+<text x="565" y="243" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">email = citizen@example.invalid</text>
+<text x="565" y="269" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">phone = example phone</text>
+<text x="565" y="295" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">documentType = birth</text>
+<text x="565" y="321" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">purpose = School enrollment</text>
+<text x="565" y="347" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">status = approved</text>
+<text x="565" y="373" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">paymentReference = null</text>
+<text x="565" y="399" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">paymentAmount = null</text>
+<rect x="1020" y="210" width="320" height="250" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="1180.0" y="239" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">attachment9 : Attachment</text>
+<polyline points="1020,259 1340,259" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1035" y="286" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">id = 9</text>
+<text x="1035" y="312" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">requestId = 42</text>
+<text x="1035" y="338" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fileName = supporting-id.pdf</text>
+<text x="1035" y="364" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fileType = application/pdf</text>
+<text x="1035" y="390" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fileSize = 204800</text>
+<text x="1035" y="416" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">uploadedBy = citizen</text>
+<polyline points="430,300 550,300" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="490" y="266" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">email match</text>
+<polyline points="920,330 1020,330" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="970" y="299" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">requestId</text>
+<text x="700" y="610" font-family="Arial,sans-serif" font-size="23" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Snapshot only: example instances do not represent live records</text>
+</svg>

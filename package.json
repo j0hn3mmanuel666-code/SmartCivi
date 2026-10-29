@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "xian-start": "node index.js",
-    "xian": "nodemon index.js",
+    "xian": "nodemon --ext js,mjs,cjs,json,xian index.js",
     "migrate": "node migrate.js",
     "create:model": "node create.js model",
     "create:controller": "node create.js controller"

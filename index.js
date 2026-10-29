@@ -33,6 +33,7 @@ import fs from 'fs';
 import hbs from "hbs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { sequelize } from "./models/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -108,6 +109,15 @@ fs.readdir(partialsDir, (err, files) => {
     if (a === b) return options.fn(this);
     return options.inverse(this);
   });
+});
+
+app.get('/api/health', async (_req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.json({ status: 'ok', service: 'smartcivi', database: 'connected' });
+  } catch {
+    res.status(503).json({ status: 'error', database: 'unavailable' });
+  }
 });
 
 app.use("/", router);

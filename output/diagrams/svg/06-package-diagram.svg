@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="70" y="75" width="350" height="165" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="245.0" y="104" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;package&gt;&gt; routes</text>
+<polyline points="70,124 420,124" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="85" y="151" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">index.js and route bindings</text>
+<rect x="510" y="75" width="380" height="165" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="700.0" y="104" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;package&gt;&gt; controllers</text>
+<polyline points="510,124 890,124" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="525" y="151" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Authentication and civil requests</text>
+<rect x="990" y="75" width="340" height="165" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1160.0" y="104" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;package&gt;&gt; middleware</text>
+<polyline points="990,124 1330,124" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1005" y="151" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Session and admin checks</text>
+<rect x="70" y="400" width="350" height="165" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="245.0" y="429" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;package&gt;&gt; views</text>
+<polyline points="70,449 420,449" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="85" y="476" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Xian templates and partials</text>
+<rect x="510" y="400" width="380" height="165" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="700.0" y="429" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;package&gt;&gt; models</text>
+<polyline points="510,449 890,449" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="525" y="476" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">User Request Appointment</text>
+<text x="525" y="502" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Attachment and database config</text>
+<rect x="990" y="400" width="340" height="165" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1160.0" y="429" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;package&gt;&gt; public</text>
+<polyline points="990,449 1330,449" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1005" y="476" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Browser styles and scripts</text>
+<polyline points="420,155 510,155" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="510,155 498.0,150.0 498.0,160.0" fill="#17332D"/>
+<text x="465" y="126" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">imports</text>
+<polyline points="245,240 245,290 1160,290 1160,240" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="1160,240 1155.0,252.0 1165.0,252.0" fill="#17332D"/>
+<text x="985" y="271" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">uses access middleware</text>
+<polyline points="700,240 700,400" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="700,400 705.0,388.0 695.0,388.0" fill="#17332D"/>
+<text x="760" y="375" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">imports</text>
+<polyline points="510,185 465,185 465,480 420,480" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="420,480 432.0,485.0 432.0,475.0" fill="#17332D"/>
+<text x="410" y="375" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">renders</text>
+<polyline points="245,400 245,340 1160,340 1160,400" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="1160,400 1165.0,388.0 1155.0,388.0" fill="#17332D"/>
+<text x="970" y="316" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">assets referenced by templates</text>
+<rect x="510" y="625" width="380" height="95" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="700.0" y="654" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Application composition root</text>
+<polyline points="510,674 890,674" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="525" y="701" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">index.js wires these packages</text>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="25" y="45" width="200" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="125.0" y="82.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Citizen browser</text>
+<polyline points="125,120 125,715" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<rect x="305" y="45" width="200" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="405.0" y="82.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Express router</text>
+<polyline points="405,120 405,715" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<rect x="600" y="45" width="200" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="700.0" y="82.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">homeController</text>
+<polyline points="700,120 700,715" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<rect x="910" y="45" width="200" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1010.0" y="82.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Request model</text>
+<polyline points="1010,120 1010,715" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<rect x="1180" y="45" width="200" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1280.0" y="82.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">MySQL</text>
+<polyline points="1280,120 1280,715" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="125,170 405,170" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="405,170 393.0,165.0 393.0,175.0" fill="#17332D"/>
+<text x="265.0" y="153" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">1  POST /request</text>
+<polyline points="405,240 700,240" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="700,240 688.0,235.0 688.0,245.0" fill="#17332D"/>
+<text x="552.5" y="223" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">2  createRequest(req,res)</text>
+<polyline points="700,295 795,295 795,330 700,330" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="700,330 712.0,335.0 712.0,325.0" fill="#17332D"/>
+<text x="855" y="282" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">3  Check session and fields</text>
+<polyline points="700,385 1010,385" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1010,385 998.0,380.0 998.0,390.0" fill="#17332D"/>
+<text x="855.0" y="368" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">4  Request.create(data)</text>
+<polyline points="1010,455 1280,455" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1280,455 1268.0,450.0 1268.0,460.0" fill="#17332D"/>
+<text x="1145.0" y="438" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">5  INSERT civil_requests</text>
+<polyline points="1280,525 1010,525" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="1010,525 1022.0,530.0 1022.0,520.0" fill="#17332D"/>
+<text x="1145.0" y="508" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">6  id and stored values</text>
+<polyline points="1010,595 700,595" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="700,595 712.0,600.0 712.0,590.0" fill="#17332D"/>
+<text x="855.0" y="578" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">7  New request instance</text>
+<polyline points="700,680 125,680" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="125,680 137.0,685.0 137.0,675.0" fill="#17332D"/>
+<text x="412.5" y="663" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">8  302 /request/{id}/confirmation</text>
+</svg>

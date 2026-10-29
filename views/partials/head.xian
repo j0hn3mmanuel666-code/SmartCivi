@@ -4,5 +4,86 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body[class~="from-pink-300"] {
+      background-color: #f3f6f2 !important;
+      background-image: linear-gradient(rgba(31, 83, 58, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 83, 58, .035) 1px, transparent 1px) !important;
+      background-size: 36px 36px !important;
+      color: #202923 !important;
+    }
+
+    body[class~="from-pink-300"] > nav {
+      border-bottom: 1px solid #dce4dc !important;
+      background: rgba(255, 255, 255, .96) !important;
+      box-shadow: none !important;
+      color: #20372b !important;
+      backdrop-filter: blur(12px);
+    }
+
+    body[class~="from-pink-300"] > nav a {
+      color: #536158 !important;
+    }
+
+    body[class~="from-pink-300"] > nav a[href="/logout"],
+    body[class~="from-pink-300"] > nav a[href="/browse"] {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 14px !important;
+      white-space: nowrap;
+      border: 0 !important;
+      border-radius: 6px !important;
+      background: #1f593e !important;
+      color: #fff !important;
+      box-shadow: none !important;
+    }
+
+    body[class~="from-pink-300"] .bg-gradient-to-r {
+      background-color: #1f593e !important;
+      background-image: none !important;
+    }
+
+    body[class~="from-pink-300"] h1,
+    body[class~="from-pink-300"] h2,
+    body[class~="from-pink-300"] h3 {
+      color: #20372b !important;
+      text-shadow: none !important;
+    }
+
+    body[class~="from-pink-300"] > section .text-white {
+      color: #536158 !important;
+    }
+
+    body[class~="from-pink-300"] .bg-blue-600,
+    body[class~="from-pink-300"] .bg-blue-700 {
+      background-color: #1f593e !important;
+    }
+
+    body[class~="from-pink-300"] .bg-blue-50 {
+      background-color: #e7f1e8 !important;
+    }
+
+    body[class~="from-pink-300"] .text-blue-600,
+    body[class~="from-pink-300"] .text-blue-700,
+    body[class~="from-pink-300"] .text-blue-800 {
+      color: #24724c !important;
+    }
+
+    body[class~="from-pink-300"] .bg-purple-600 {
+      background-color: #a85e24 !important;
+    }
+
+    body[class~="from-pink-300"] .bg-purple-50,
+    body[class~="from-pink-300"] .bg-purple-100 {
+      background-color: #fff0df !important;
+    }
+
+    body[class~="from-pink-300"] .text-purple-600,
+    body[class~="from-pink-300"] .text-purple-700,
+    body[class~="from-pink-300"] .text-purple-800 {
+      color: #a85e24 !important;
+    }
+  </style>
   <title>{{ title }} </title>
 </head>

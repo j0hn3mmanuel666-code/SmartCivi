@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="40" y="70" width="360" height="290" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="220.0" y="99" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">User</text>
+<polyline points="40,119 400,119" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="55" y="146" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">id : INTEGER PK</text>
+<text x="55" y="172" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">name : STRING</text>
+<text x="55" y="198" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">email : STRING UNIQUE</text>
+<text x="55" y="224" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">password : STRING bcrypt hash</text>
+<text x="55" y="250" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">role : STRING</text>
+<text x="55" y="276" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">createdAt updatedAt : DATE</text>
+<rect x="530" y="50" width="360" height="390" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="710.0" y="79" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Request</text>
+<polyline points="530,99 890,99" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="545" y="126" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">id : INTEGER PK</text>
+<text x="545" y="152" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fullName email phone : STRING</text>
+<text x="545" y="178" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">documentType : ENUM</text>
+<text x="545" y="204" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">purpose : TEXT</text>
+<text x="545" y="230" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">status : STRING</text>
+<text x="545" y="256" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">paymentMethod : STRING optional</text>
+<text x="545" y="282" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">paymentReference : STRING optional</text>
+<text x="545" y="308" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">paymentAmount : DECIMAL optional</text>
+<text x="545" y="334" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">createdAt updatedAt : DATE</text>
+<rect x="1010" y="70" width="350" height="330" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="1185.0" y="99" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Attachment</text>
+<polyline points="1010,119 1360,119" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1025" y="146" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">id : INTEGER PK</text>
+<text x="1025" y="172" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">requestId : INTEGER FK</text>
+<text x="1025" y="198" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fileName originalName : STRING</text>
+<text x="1025" y="224" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fileType filePath : STRING</text>
+<text x="1025" y="250" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fileSize : INTEGER</text>
+<text x="1025" y="276" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">description : TEXT optional</text>
+<text x="1025" y="302" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">uploadedBy : STRING</text>
+<text x="1025" y="328" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">createdAt updatedAt : DATE</text>
+<rect x="530" y="505" width="610" height="220" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="835.0" y="534" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Appointment</text>
+<polyline points="530,554 1140,554" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="545" y="581" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">id : INTEGER PK    requestId : INTEGER FK</text>
+<text x="545" y="607" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">fullName email phone region : STRING</text>
+<text x="545" y="633" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">documentType relationship givenName familyName : STRING</text>
+<text x="545" y="659" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">middleName fatherName motherName : STRING optional</text>
+<text x="545" y="685" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">birthdate : DATE optional    appointmentDate : DATE</text>
+<text x="545" y="711" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">status : ENUM    notes : TEXT optional</text>
+<polyline points="400,200 530,200" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="465" y="157" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">email match</text>
+<text x="414" y="222" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">0..1</text>
+<text x="509" y="222" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">0..*</text>
+<polyline points="890,230 1010,230" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="904" y="210" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">1</text>
+<text x="986" y="210" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">0..*</text>
+<text x="950" y="270" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">requestId</text>
+<polyline points="710,440 710,505" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="731" y="459" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">1</text>
+<text x="744" y="491" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">0..*</text>
+<text x="258" y="470" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Sequelize models expose</text>
+<text x="258" y="506" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">create  findAll  findByPk  update</text>
+<text x="258" y="542" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">All models have automatic</text>
+<text x="258" y="570" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">id and timestamp columns</text>
+</svg>

@@ -1,53 +1,48 @@
 {{> head }}
-<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 min-h-screen flex items-center justify-center">
+<body class="min-h-screen bg-[#f3f6f2] text-[#202923] antialiased" style="background-image: linear-gradient(rgba(31, 83, 58, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 83, 58, .035) 1px, transparent 1px); background-size: 36px 36px;">
+  <nav class="border-b border-[#dce4dc] bg-white">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+      <a href="/" class="flex items-center gap-3 text-lg font-bold tracking-tight text-[#20372b]"><span class="flex h-9 w-9 items-center justify-center rounded-md bg-[#1f593e] text-sm text-white">S</span>SmartCivi</a>
+      <a href="/browse" class="text-sm font-semibold text-[#24724c] hover:text-[#174630]">Explore services <span aria-hidden="true">&#8594;</span></a>
+    </div>
+  </nav>
 
-  <form 
-    class="bg-white bg-opacity-80 backdrop-blur-lg w-96 p-8 rounded-xl shadow-lg border border-gray-200"
-    method="POST" 
-    action="/register"
-  >
-    <h2 class="text-3xl font-extrabold text-center mb-6 text-blue-700 drop-shadow">Create Account</h2>
+  <main class="mx-auto grid max-w-6xl gap-6 px-5 py-8 sm:py-12 lg:grid-cols-[.9fr_1.1fr] lg:items-stretch">
+    <section class="flex min-h-64 flex-col justify-between rounded-lg bg-[#1f593e] p-7 text-white sm:p-9">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[.16em] text-[#e7b47f]">Citizen portal</p>
+        <h1 class="mt-8 max-w-md text-3xl font-bold leading-tight tracking-tight sm:text-4xl">A clearer path to civil registry services.</h1>
+        <p class="mt-4 max-w-md text-sm leading-6 text-white/75">Create an account to manage document requests, appointments, and updates from your local office.</p>
+      </div>
+      <p class="mt-10 border-t border-white/20 pt-4 text-xs font-medium uppercase tracking-widest text-white/60">SmartCivi <span class="mx-2 text-[#e7b47f]">/</span> Municipal Civil Registry</p>
+    </section>
 
-    {{#if error_msg}}
-      <div class="mb-4 text-red-700 bg-red-100 p-2 rounded">{{error_msg}}</div>
-    {{/if}}
+    <form class="rounded-lg border border-[#d8e1d9] bg-white p-6 shadow-sm sm:p-9" method="POST" action="/register">
+      <p class="text-xs font-bold uppercase tracking-[.16em] text-[#24724c]">Get started</p>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-[#202923]">Create your account</h2>
+      <p class="mt-2 text-sm text-[#657168]">Enter your details to set up your citizen portal access.</p>
 
-    <input 
-      type="text" 
-      name="name" 
-      placeholder="Full name" 
-      class="mb-4 w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
-      required 
-    />
+      {{#if error_msg}}
+        <div role="alert" class="mt-5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{error_msg}}</div>
+      {{/if}}
 
-    <input 
-      type="email" 
-      name="email" 
-      placeholder="Email" 
-      class="mb-4 w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
-      required 
-    />
+      <div class="mt-7 space-y-5">
+        <div>
+          <label for="name" class="mb-2 block text-sm font-semibold text-[#34473a]">Full name</label>
+          <input id="name" type="text" name="name" autocomplete="name" required class="min-h-12 w-full rounded-md border border-[#cbd7cd] bg-white px-3 text-sm outline-none transition focus:border-[#24724c] focus:ring-2 focus:ring-[#24724c]/20">
+        </div>
+        <div>
+          <label for="email" class="mb-2 block text-sm font-semibold text-[#34473a]">Email address</label>
+          <input id="email" type="email" name="email" autocomplete="email" required class="min-h-12 w-full rounded-md border border-[#cbd7cd] bg-white px-3 text-sm outline-none transition focus:border-[#24724c] focus:ring-2 focus:ring-[#24724c]/20">
+        </div>
+        <div>
+          <label for="password" class="mb-2 block text-sm font-semibold text-[#34473a]">Password</label>
+          <input id="password" type="password" name="password" autocomplete="new-password" required class="min-h-12 w-full rounded-md border border-[#cbd7cd] bg-white px-3 text-sm outline-none transition focus:border-[#24724c] focus:ring-2 focus:ring-[#24724c]/20">
+        </div>
+        <button type="submit" class="min-h-12 w-full rounded-md bg-[#1f593e] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#174630] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f593e]">Create account</button>
+      </div>
 
-    <input 
-      type="password" 
-      name="password" 
-      placeholder="Password" 
-      class="mb-4 w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
-      required 
-    />
-
-    <button 
-      type="submit" 
-      class="w-full bg-gradient-to-r from-blue-500 to-pink-500 text-white py-3 rounded-md font-semibold hover:opacity-90 transition-all"
-    >
-      Register
-    </button>
-
-    <a href="/login" class="block text-center text-blue-700 mt-4 hover:underline">
-      Already have an account? Log in
-    </a>
-  </form>
-
-
-
+      <p class="mt-6 border-t border-[#e5ebe5] pt-5 text-center text-sm text-[#657168]">Already registered? <a href="/login" class="font-semibold text-[#24724c] hover:text-[#174630]">Sign in</a></p>
+    </form>
+  </main>
 </body>

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<text x="330" y="65" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">t0</text>
+<text x="330" y="90" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Before sign in</text>
+<polyline points="330,130 330,675" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="510" y="65" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">t1</text>
+<text x="510" y="90" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Sign in</text>
+<polyline points="510,130 510,675" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="690" y="65" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">t2</text>
+<text x="690" y="90" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Submit</text>
+<polyline points="690,130 690,675" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="870" y="65" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">t3</text>
+<text x="870" y="90" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Admin approves</text>
+<polyline points="870,130 870,675" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="1050" y="65" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">t4</text>
+<text x="1050" y="90" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Online simulation</text>
+<polyline points="1050,130 1050,675" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="1230" y="65" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">t5</text>
+<text x="1230" y="90" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">App recreated</text>
+<polyline points="1230,130 1230,675" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="145" y="232" font-family="Arial,sans-serif" font-size="21" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Citizen session</text>
+<rect x="250" y="195" width="165" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="332.5" y="232.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">absent</text>
+<polyline points="415,232 430,232" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="430" y="195" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="512.5" y="232.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">present</text>
+<polyline points="595,232 610,232" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="610" y="195" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="692.5" y="232.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">present</text>
+<polyline points="775,232 790,232" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="790" y="195" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="872.5" y="232.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">present</text>
+<polyline points="955,232 970,232" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="970" y="195" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="1052.5" y="232.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">present</text>
+<polyline points="1135,232 1150,232" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="1150" y="195" width="165" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1232.5" y="232.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">absent</text>
+<text x="145" y="407" font-family="Arial,sans-serif" font-size="21" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Request status</text>
+<rect x="250" y="370" width="165" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="332.5" y="407.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">none</text>
+<polyline points="415,407 430,407" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="430" y="370" width="165" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="512.5" y="407.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">none</text>
+<polyline points="595,407 610,407" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="610" y="370" width="165" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="692.5" y="407.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">pending</text>
+<polyline points="775,407 790,407" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="790" y="370" width="165" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="872.5" y="407.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">approved</text>
+<polyline points="955,407 970,407" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="970" y="370" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="1052.5" y="407.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">paid</text>
+<polyline points="1135,407 1150,407" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="1150" y="370" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="1232.5" y="407.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">paid</text>
+<text x="145" y="582" font-family="Arial,sans-serif" font-size="21" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Persisted row</text>
+<rect x="250" y="545" width="165" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="332.5" y="582.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">absent</text>
+<polyline points="415,582 430,582" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="430" y="545" width="165" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="512.5" y="582.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">absent</text>
+<polyline points="595,582 610,582" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="610" y="545" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="692.5" y="582.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">exists</text>
+<polyline points="775,582 790,582" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="790" y="545" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="872.5" y="582.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">exists</text>
+<polyline points="955,582 970,582" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="970" y="545" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="1052.5" y="582.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">exists</text>
+<polyline points="1135,582 1150,582" fill="none" stroke="#17332D" stroke-width="2"/>
+<rect x="1150" y="545" width="165" height="75" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="1232.5" y="582.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">exists</text>
+<text x="790" y="735" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">t0 to t5 are ordered events, not equally spaced clock measurements</text>
+</svg>

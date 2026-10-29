@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<ellipse cx="680.0" cy="30.0" rx="10.0" ry="10.0" fill="#17332D" stroke="#17332D" stroke-width="2"/>
+<rect x="500" y="70" width="360" height="85" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="680.0" y="112.5" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">ref  Authenticate citizen</text>
+<rect x="500" y="205" width="360" height="85" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="680.0" y="247.5" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">ref  Submit civil request</text>
+<rect x="500" y="340" width="360" height="85" rx="3" fill="#E7F1EA" stroke="#17332D" stroke-width="2"/>
+<text x="680.0" y="382.5" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">ref  Administrator review</text>
+<polygon points="680.0,470 805,517.5 680.0,565 555,517.5" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="680.0" y="517.5" font-family="Arial,sans-serif" font-size="18" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Approved?</text>
+<rect x="70" y="480" width="310" height="85" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="225.0" y="522.5" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">ref  View rejected status</text>
+<rect x="930" y="480" width="390" height="85" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1125.0" y="509.5" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">ref  Record payment</text>
+<text x="1125.0" y="535.5" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">and view receipt</text>
+<ellipse cx="680.0" cy="690.0" rx="10.0" ry="10.0" fill="#17332D" stroke="#17332D" stroke-width="2"/>
+<ellipse cx="680.0" cy="690.0" rx="17.0" ry="17.0" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="680,40 680,70" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="680,70 685.0,58.0 675.0,58.0" fill="#17332D"/>
+<polyline points="680,155 680,205" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="680,205 685.0,193.0 675.0,193.0" fill="#17332D"/>
+<polyline points="680,290 680,340" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="680,340 685.0,328.0 675.0,328.0" fill="#17332D"/>
+<polyline points="680,425 680,470" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="680,470 685.0,458.0 675.0,458.0" fill="#17332D"/>
+<polyline points="555,518 380,518" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="380,518 392.0,523.0 392.0,513.0" fill="#17332D"/>
+<text x="470" y="490" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">no</text>
+<polyline points="805,518 930,518" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="930,518 918.0,513.0 918.0,523.0" fill="#17332D"/>
+<text x="865" y="490" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">yes</text>
+<polyline points="225,565 225,690 663,690" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="663,690 651.0,685.0 651.0,695.0" fill="#17332D"/>
+<polyline points="1125,565 1125,690 697,690" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="697,690 709.0,695.0 709.0,685.0" fill="#17332D"/>
+<text x="680" y="745" font-family="Arial,sans-serif" font-size="19" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">ref = interaction reference; payment branch is a prototype flow</text>
+</svg>

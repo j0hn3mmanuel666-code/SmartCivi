@@ -1,0 +1,146 @@
+[
+  {
+    "file": "01-system-architecture",
+    "title": "System Architecture",
+    "category": "Structural",
+    "core_selection": true,
+    "purpose": "Show the deployed application layers and their connections.",
+    "note": "The browser receives server-rendered Handlebars pages. React, Nginx and a cloud service are not part of this deployment."
+  },
+  {
+    "file": "02-class-diagram",
+    "title": "Class Diagram",
+    "category": "Structural",
+    "core_selection": false,
+    "purpose": "Describe the four database models and their actual relationships.",
+    "note": "User to Request is an email-based application association, not a database foreign key. Appointment and Attachment are defined models with incomplete feature wiring."
+  },
+  {
+    "file": "03-component-diagram",
+    "title": "Component Diagram",
+    "category": "Structural",
+    "core_selection": false,
+    "purpose": "Show software modules and library dependencies.",
+    "note": "Controllers contain both business logic and page rendering. This is one Express application rather than separate frontend and backend services."
+  },
+  {
+    "file": "04-deployment-diagram",
+    "title": "Deployment Diagram",
+    "category": "Structural",
+    "core_selection": false,
+    "purpose": "Map runtime artifacts to Docker containers, network and storage.",
+    "note": "The app is bound to the host loopback address. MySQL has no published host port. Database storage survives container recreation."
+  },
+  {
+    "file": "05-object-diagram",
+    "title": "Object Diagram",
+    "category": "Structural",
+    "core_selection": false,
+    "purpose": "Illustrate one possible data snapshot with object instances.",
+    "note": "All names, IDs and values on this page are fictional examples. A request owner is located by matching email; it has no userId column."
+  },
+  {
+    "file": "06-package-diagram",
+    "title": "Package Diagram",
+    "category": "Structural",
+    "core_selection": false,
+    "purpose": "Group repository modules into their existing folders.",
+    "note": "Arrows indicate source dependencies. The config folder includes a mock collection interface; the active relational connection is models/db.js."
+  },
+  {
+    "file": "07-composite-structure",
+    "title": "Composite Structure Diagram",
+    "category": "Structural",
+    "core_selection": false,
+    "purpose": "Expand the internal parts of the Express application classifier.",
+    "note": "Internal parts represent existing module responsibilities. The connection to MySQL is a required external interface, not an internal database copy."
+  },
+  {
+    "file": "08-profile-diagram",
+    "title": "Profile Diagram",
+    "category": "Structural",
+    "core_selection": false,
+    "purpose": "Demonstrate optional UML vocabulary for the civil registry domain.",
+    "note": "Proposed documentation profile only. SmartCivi does not implement or require a custom UML profile. Tagged values describe model elements, not runtime behavior."
+  },
+  {
+    "file": "09a-dfd-context",
+    "title": "Data Flow Diagram Context",
+    "category": "Behavioral",
+    "core_selection": false,
+    "purpose": "Define the system boundary and external data exchanges.",
+    "note": "Context-level DFD. Payment details stay inside SmartCivi in this prototype; no external payment gateway is connected."
+  },
+  {
+    "file": "09b-dfd-level-one",
+    "title": "Data Flow Diagram Level One",
+    "category": "Behavioral",
+    "core_selection": false,
+    "purpose": "Trace account, request, review and payment data to persistent stores.",
+    "note": "D1 and D2 are MySQL tables. Appointment and attachment stores are omitted here because these end-to-end flows are not fully connected in the controllers."
+  },
+  {
+    "file": "10-use-case-diagram",
+    "title": "Use Case Diagram",
+    "category": "Behavioral",
+    "core_selection": true,
+    "purpose": "Map external actors to the main system goals.",
+    "note": "Core use cases reflect existing account and request controllers. Appointment scheduling, uploads and external payment processing remain supplementary design goals."
+  },
+  {
+    "file": "11-activity-diagram",
+    "title": "Activity Diagram",
+    "category": "Behavioral",
+    "core_selection": false,
+    "purpose": "Follow the request submission workflow including validation and storage failures.",
+    "note": "This activity describes POST /request and the subsequent confirmation page. It does not claim that administrator review occurs during submission."
+  },
+  {
+    "file": "12-sequence-diagram",
+    "title": "Sequence Diagram",
+    "category": "Behavioral",
+    "core_selection": true,
+    "purpose": "Show chronological request submission from browser to MySQL and the confirmation redirect.",
+    "note": "Successful submission path. The browser subsequently follows the redirect with a separate GET, which reads the saved row and renders its confirmation page."
+  },
+  {
+    "file": "13-state-machine",
+    "title": "State Machine Diagram",
+    "category": "Behavioral",
+    "core_selection": false,
+    "purpose": "Model the normal request status lifecycle and payment branches.",
+    "note": "The lifecycle is descriptive. The current admin endpoint accepts arbitrary status strings and does not enforce every transition shown. Pending is the model default; submission writes lowercase pending."
+  },
+  {
+    "file": "14-communication-diagram",
+    "title": "Communication Diagram",
+    "category": "Behavioral",
+    "core_selection": false,
+    "purpose": "Show the collaboration links for a valid request submission using numbered messages.",
+    "note": "Message numbering expresses order. This is the same scenario as the sequence diagram, presented as a communication network."
+  },
+  {
+    "file": "15-interaction-overview",
+    "title": "Interaction Overview Diagram",
+    "category": "Behavioral",
+    "core_selection": false,
+    "purpose": "Coordinate major interactions across the request and payment journey.",
+    "note": "Each ref frame denotes a separate interaction, not an automatic background task. Rejection and administrator status changes are explicit decisions."
+  },
+  {
+    "file": "16-timing-diagram",
+    "title": "Timing Diagram",
+    "category": "Behavioral",
+    "core_selection": false,
+    "purpose": "Compare session, request and record state at ordered events.",
+    "note": "Logical event ordering only. No measured latency, deadline, real-time guarantee or external payment timing is implied. Session storage resets when the app process is recreated."
+  },
+  {
+    "file": "17-requirement-diagram",
+    "title": "Requirement Diagram",
+    "category": "Behavioral reference SysML",
+    "core_selection": false,
+    "purpose": "Trace system requirements to the components that satisfy them.",
+    "note": "SysML requirement diagrams are included because the assignment reference lists them. They are requirements traceability models rather than behavioral UML diagrams."
+  }
+]

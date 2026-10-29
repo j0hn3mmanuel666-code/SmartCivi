@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="290" y="40" width="820" height="675" rx="3" fill="#FFFFFF" stroke="#17332D" stroke-width="2"/>
+<text x="700" y="77" font-family="Arial,sans-serif" font-size="23" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">SmartCivi system boundary</text>
+<ellipse cx="110.0" cy="286.0" rx="16.0" ry="16.0" fill="#FFFFFF" stroke="#17332D" stroke-width="2"/>
+<polyline points="110,302 110,358" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="80,322 140,322" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="83,391 110,358 137,391" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="110" y="419" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Citizen</text>
+<ellipse cx="1280.0" cy="286.0" rx="16.0" ry="16.0" fill="#FFFFFF" stroke="#17332D" stroke-width="2"/>
+<polyline points="1280,302 1280,358" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="1250,322 1310,322" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="1253,391 1280,358 1307,391" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1280" y="419" font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Administrator</text>
+<ellipse cx="505.0" cy="163.0" rx="165.0" ry="43.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="505.0" y="163.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Register and sign in</text>
+<ellipse cx="505.0" cy="298.0" rx="165.0" ry="43.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="505.0" y="298.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Submit civil request</text>
+<ellipse cx="505.0" cy="433.0" rx="165.0" ry="43.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="505.0" y="433.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">View own requests</text>
+<ellipse cx="505.0" cy="568.0" rx="165.0" ry="43.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="505.0" y="556.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Record payment</text>
+<text x="505.0" y="581.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">and obtain receipt</text>
+<ellipse cx="900.0" cy="163.0" rx="160.0" ry="43.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="900.0" y="163.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Sign in as admin</text>
+<ellipse cx="900.0" cy="298.0" rx="160.0" ry="43.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="900.0" y="298.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Review requests</text>
+<ellipse cx="900.0" cy="433.0" rx="160.0" ry="43.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="900.0" y="433.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Update request status</text>
+<ellipse cx="900.0" cy="568.0" rx="160.0" ry="43.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="900.0" y="568.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Manage user accounts</text>
+<polyline points="145,335 250,335 250,163 340,163" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="145,335 250,335 250,298 340,298" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="145,335 250,335 250,433 340,433" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="145,335 250,335 250,568 340,568" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="1245,335 1150,335 1150,163 1060,163" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="1245,335 1150,335 1150,298 1060,298" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="1245,335 1150,335 1150,433 1060,433" fill="none" stroke="#17332D" stroke-width="2"/>
+<polyline points="1245,335 1150,335 1150,568 1060,568" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="700" y="665" font-family="Arial,sans-serif" font-size="19" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Payment is available only for an approved request</text>
+</svg>

@@ -1,75 +1,76 @@
 {{> head }}
-<body class="bg-gradient-to-br from-pink-400 via-white to-blue-400 min-h-screen">
-
-  <!-- Slim Dashboard Nav -->
-  <nav class="w-full sticky top-0 z-50 bg-white/5 backdrop-blur-sm text-white">
-    <div class="container mx-auto px-4 py-2 flex items-center justify-between">
-      <a href="/" class="text-sm font-semibold">SmartCivi</a>
-      <div class="flex items-center space-x-2">
-        <a href="/dashboard/requests" class="text-xs text-white/90 hover:text-white">My Requests</a>
-        <a href="/request" class="text-xs text-white/90 hover:text-white">New</a>
-        <a href="/logout" class="text-xs text-white/90 hover:text-white">Logout</a>
+<body class="min-h-screen bg-zinc-50 text-zinc-900 antialiased">
+  <nav class="sticky top-0 z-50 border-b border-zinc-200 bg-white">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-3 px-5 py-4">
+      <a href="/dashboard" class="text-lg font-bold tracking-tight text-zinc-900">SmartCivi<span class="text-emerald-700">.</span></a>
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
+        <a href="/dashboard" class="text-emerald-800">Overview</a>
+        <a href="/dashboard/my-requests" class="text-zinc-600 hover:text-zinc-900">My requests</a>
+        <a href="/my-appointments" class="text-zinc-600 hover:text-zinc-900">Appointments</a>
+        <a href="/browse" class="text-zinc-600 hover:text-zinc-900">Services</a>
+        <a href="/logout" class="border-l border-zinc-200 pl-5 text-zinc-600 hover:text-zinc-900">Sign out</a>
       </div>
     </div>
   </nav>
 
-  <main class="pt-16 container mx-auto px-4 max-w-xl">
-    <section class="mb-3">
-      <div class="flex items-center justify-between">
+  <main class="mx-auto max-w-7xl px-5 py-10 sm:py-14">
+    <section class="mb-10 flex flex-col gap-6 border-b border-zinc-200 pb-10 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-emerald-800">Citizen portal</p>
+        <h1 class="text-3xl font-bold tracking-tight text-zinc-950 sm:text-4xl">Welcome{{#if user.name}}, {{user.name}}{{/if}}</h1>
+        <p class="mt-3 max-w-2xl text-base text-zinc-600">Your civil service requests and appointments, all in one place.</p>
+      </div>
+      <a href="/request" class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-900">Start a request <span class="ml-3" aria-hidden="true">&#8594;</span></a>
+    </section>
+
+    <section aria-labelledby="services-heading">
+      <div class="mb-4 flex items-end justify-between gap-4">
         <div>
-          <div class="text-white text-lg font-semibold">Welcome{{#if user.name}}, {{user.name}}{{/if}}</div>
-          <div class="text-white/80 text-xs mt-1">Quick actions</div>
+          <h2 id="services-heading" class="text-xl font-semibold text-zinc-900">Your services</h2>
+          <p class="mt-1 text-sm text-zinc-600">Choose where you want to continue.</p>
         </div>
       </div>
-    </section>
-
-    <section class="bg-white bg-opacity-95 rounded-md shadow-sm">
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Feature</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-              <th class="px-4 py-2 w-20"></th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200 text-sm">
-            <tr>
-              <td class="px-4 py-3">Submit a Request</td>
-              <td class="px-4 py-3 text-gray-600">Apply for birth, marriage, or death certificates and other civil documents.</td>
-              <td class="px-4 py-3 text-right"><a href="/request" class="text-blue-600 hover:underline">Open</a></td>
-            </tr>
-
-            <tr>
-              <td class="px-4 py-3">Track Requests</td>
-              <td class="px-4 py-3 text-gray-600">View status and progress of your submitted requests.</td>
-              <td class="px-4 py-3 text-right"><a href="/dashboard/requests" class="text-blue-600 hover:underline">Open</a></td>
-            </tr>
-
-            <tr>
-              <td class="px-4 py-3">Profile</td>
-              <td class="px-4 py-3 text-gray-600">View or edit your account details and contact info.</td>
-              <td class="px-4 py-3 text-right"><a href="/dashboard/profile" class="text-blue-600 hover:underline">Open</a></td>
-            </tr>
-
-            <tr>
-              <td class="px-4 py-3">Help & Support</td>
-              <td class="px-4 py-3 text-gray-600">Find help articles or contact support for assistance.</td>
-              <td class="px-4 py-3 text-right"><a href="/help" class="text-blue-600 hover:underline">Open</a></td>
-            </tr>
-
-            <tr>
-              <td class="px-4 py-3">Sign out</td>
-              <td class="px-4 py-3 text-gray-600">Log out from your account securely.</td>
-              <td class="px-4 py-3 text-right"><a href="/logout" class="text-blue-600 hover:underline">Open</a></td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-2 xl:grid-cols-3">
+        <a href="/request" class="group min-h-52 bg-white p-6 transition-colors hover:bg-emerald-50/60">
+          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-800">01 / Apply</span>
+          <h3 class="mt-8 text-lg font-semibold text-zinc-900">Submit a request</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Apply for a civil registry document and provide the details needed for processing.</p>
+          <span class="mt-5 inline-block text-sm font-semibold text-emerald-800">Start application <span aria-hidden="true">&#8594;</span></span>
+        </a>
+        <a href="/dashboard/my-requests" class="group min-h-52 bg-white p-6 transition-colors hover:bg-emerald-50/60">
+          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-800">02 / Track</span>
+          <h3 class="mt-8 text-lg font-semibold text-zinc-900">My requests</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Review submitted applications and check their latest status.</p>
+          <span class="mt-5 inline-block text-sm font-semibold text-emerald-800">View requests <span aria-hidden="true">&#8594;</span></span>
+        </a>
+        <a href="/my-appointments" class="group min-h-52 bg-white p-6 transition-colors hover:bg-emerald-50/60">
+          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-800">03 / Visit</span>
+          <h3 class="mt-8 text-lg font-semibold text-zinc-900">Appointments</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">View appointment details, dates, and any updates from the office.</p>
+          <span class="mt-5 inline-block text-sm font-semibold text-emerald-800">View appointments <span aria-hidden="true">&#8594;</span></span>
+        </a>
+        <a href="/dashboard/profile" class="group min-h-44 bg-white p-6 transition-colors hover:bg-emerald-50/60">
+          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-800">04 / Account</span>
+          <h3 class="mt-5 text-lg font-semibold text-zinc-900">Profile</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Review your account information and contact details.</p>
+        </a>
+        <a href="/browse" class="group min-h-44 bg-white p-6 transition-colors hover:bg-emerald-50/60">
+          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-800">05 / Explore</span>
+          <h3 class="mt-5 text-lg font-semibold text-zinc-900">Available services</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Browse the services and offices available through SmartCivi.</p>
+        </a>
+        <a href="/help" class="group min-h-44 bg-white p-6 transition-colors hover:bg-emerald-50/60">
+          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-800">06 / Support</span>
+          <h3 class="mt-5 text-lg font-semibold text-zinc-900">Help and support</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Find assistance with requests, appointments, and your account.</p>
+        </a>
       </div>
     </section>
 
-    <footer class="mt-4 text-center text-white text-xs">
-      <p>Need more? Visit <a href="/browse" class="underline">Services</a></p>
+    <footer class="mt-10 flex flex-col gap-2 border-t border-zinc-200 pt-5 text-sm text-zinc-500 sm:flex-row sm:justify-between">
+      <span>SmartCivi Citizen Portal</span>
+      <a href="/help" class="font-medium text-emerald-800 hover:text-emerald-900">Get support <span aria-hidden="true">&#8594;</span></a>
     </footer>
   </main>
+</body>
 

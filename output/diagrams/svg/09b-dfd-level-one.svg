@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="35" y="300" width="190" height="120" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="130.0" y="329" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Citizen</text>
+<polyline points="35,349 225,349" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="50" y="376" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Input and results</text>
+<rect x="1175" y="300" width="190" height="120" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1270.0" y="329" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Administrator</text>
+<polyline points="1175,349 1365,349" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="1190" y="376" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Review decisions</text>
+<ellipse cx="475.0" cy="125.0" rx="150.0" ry="55.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="475.0" y="113.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">1.0</text>
+<text x="475.0" y="138.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Manage accounts</text>
+<ellipse cx="475.0" cy="360.0" rx="150.0" ry="65.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="475.0" y="348.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">2.0</text>
+<text x="475.0" y="373.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Submit and view requests</text>
+<ellipse cx="935.0" cy="360.0" rx="150.0" ry="65.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="935.0" y="348.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">3.0</text>
+<text x="935.0" y="373.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Review requests</text>
+<ellipse cx="475.0" cy="640.0" rx="150.0" ry="55.0" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="475.0" y="628.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">4.0</text>
+<text x="475.0" y="653.0" font-family="Arial,sans-serif" font-size="20" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Record payment</text>
+<rect x="800" y="65" width="290" height="110" rx="3" fill="#FFFFFF" stroke="#17332D" stroke-width="2"/>
+<polyline points="835,65 835,175" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="940" y="119" font-family="Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">D1  users</text>
+<rect x="800" y="570" width="290" height="130" rx="3" fill="#FFFFFF" stroke="#17332D" stroke-width="2"/>
+<polyline points="835,570 835,700" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="950" y="635" font-family="Arial,sans-serif" font-size="21" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">D2  civil_requests</text>
+<polyline points="225,315 265,315 265,125 325,125" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="325,125 313.0,120.0 313.0,130.0" fill="#17332D"/>
+<text x="197" y="202" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Credentials</text>
+<polyline points="625,125 800,125" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="800,125 788.0,120.0 788.0,130.0" fill="#17332D"/>
+<text x="712" y="95" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Account record</text>
+<polyline points="800,157 650,157 650,205 475,205 475,180" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="475,180 470.0,192.0 480.0,192.0" fill="#17332D"/>
+<text x="714" y="202" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Account data</text>
+<polyline points="349,155 290,155 290,260 205,260 205,300" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="205,300 210.0,288.0 200.0,288.0" fill="#17332D"/>
+<text x="183" y="240" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Account result</text>
+<polyline points="1270,300 1270,25 600,25 600,95" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="600,95 605.0,83.0 595.0,83.0" fill="#17332D"/>
+<text x="1000" y="8" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Admin account changes</text>
+<polyline points="580,164 580,240 1130,240 1130,315 1175,315" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1175,315 1163.0,310.0 1163.0,320.0" fill="#17332D"/>
+<text x="900" y="222" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Account records</text>
+<polyline points="225,350 325,350" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="325,350 313.0,345.0 313.0,355.0" fill="#17332D"/>
+<text x="275" y="322" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Form data</text>
+<polyline points="357,400 225,400" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="225,400 237.0,405.0 237.0,395.0" fill="#17332D"/>
+<text x="270" y="449" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Confirmation</text>
+<polyline points="1175,335 1073,335" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1073,335 1085.0,340.0 1085.0,330.0" fill="#17332D"/>
+<text x="1130" y="300" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Decision</text>
+<polyline points="1068,390 1175,390" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1175,390 1163.0,385.0 1163.0,395.0" fill="#17332D"/>
+<text x="1130" y="448" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Request list</text>
+<polyline points="935,425 935,570" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="935,570 940.0,558.0 930.0,558.0" fill="#17332D"/>
+<text x="1027" y="505" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Updated status</text>
+<polyline points="1045,570 1045,470 1025,470 1025,412" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="1025,412 1020.0,424.0 1030.0,424.0" fill="#17332D"/>
+<text x="1170" y="503" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Request data</text>
+<polyline points="625,360 710,360 710,590 800,590" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="800,590 788.0,585.0 788.0,595.0" fill="#17332D"/>
+<text x="711" y="477" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">New request</text>
+<polyline points="800,675 675,675 675,405 583,405" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="583,405 595.0,410.0 595.0,400.0" fill="#17332D"/>
+<text x="720" y="554" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Own requests</text>
+<polyline points="140,420 140,640 325,640" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="325,640 313.0,635.0 313.0,645.0" fill="#17332D"/>
+<text x="214" y="612" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Payment method</text>
+<polyline points="625,630 800,630" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="800,630 788.0,625.0 788.0,635.0" fill="#17332D"/>
+<text x="710" y="653" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Payment update</text>
+<polyline points="800,695 740,695 740,735 475,735 475,695" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="475,695 470.0,707.0 480.0,707.0" fill="#17332D"/>
+<text x="610" y="718" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Approved request</text>
+<polyline points="360,675 85,675 85,420" fill="none" stroke="#17332D" stroke-width="2"/>
+<polygon points="85,420 80.0,432.0 90.0,432.0" fill="#17332D"/>
+<text x="191" y="702" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">Payment result</text>
+</svg>

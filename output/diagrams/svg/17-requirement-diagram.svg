@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="50" y="65" width="380" height="145" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="240.0" y="94" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;requirement&gt;&gt; R1  Account access</text>
+<polyline points="50,114 430,114" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="65" y="141" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">The system shall register users</text>
+<text x="65" y="167" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">and authenticate passwords.</text>
+<rect x="50" y="290" width="380" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="240.0" y="327.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">Auth controller and bcrypt</text>
+<polyline points="240,290 240,210" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="240,210 235.0,222.0 245.0,222.0" fill="#17332D"/>
+<text x="325" y="254" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">&lt;&lt;satisfy&gt;&gt;</text>
+<rect x="510" y="65" width="380" height="145" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="700.0" y="94" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;requirement&gt;&gt; R2  Request submission</text>
+<polyline points="510,114 890,114" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="525" y="141" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">An authenticated citizen shall</text>
+<text x="525" y="167" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">submit a civil registry request.</text>
+<rect x="510" y="290" width="380" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="700.0" y="327.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">createRequest and Request</text>
+<polyline points="700,290 700,210" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="700,210 695.0,222.0 705.0,222.0" fill="#17332D"/>
+<text x="785" y="254" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">&lt;&lt;satisfy&gt;&gt;</text>
+<rect x="970" y="65" width="380" height="145" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="1160.0" y="94" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;requirement&gt;&gt; R3  Admin review</text>
+<polyline points="970,114 1350,114" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="985" y="141" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Only an administrator shall</text>
+<text x="985" y="167" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">change requests via admin routes.</text>
+<rect x="970" y="290" width="380" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1160.0" y="327.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">ensureAdmin and status action</text>
+<polyline points="1160,290 1160,210" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="1160,210 1155.0,222.0 1165.0,222.0" fill="#17332D"/>
+<text x="1245" y="254" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">&lt;&lt;satisfy&gt;&gt;</text>
+<rect x="50" y="425" width="380" height="145" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="240.0" y="454" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;requirement&gt;&gt; R4  Persistent records</text>
+<polyline points="50,474 430,474" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="65" y="501" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Database rows shall survive</text>
+<text x="65" y="527" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">container recreation.</text>
+<rect x="50" y="650" width="380" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="240.0" y="687.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">MySQL and named volume</text>
+<polyline points="240,650 240,570" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="240,570 235.0,582.0 245.0,582.0" fill="#17332D"/>
+<text x="325" y="614" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">&lt;&lt;satisfy&gt;&gt;</text>
+<rect x="510" y="425" width="380" height="145" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="700.0" y="454" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;requirement&gt;&gt; R5  Owner visibility</text>
+<polyline points="510,474 890,474" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="525" y="501" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">My Requests shall filter rows</text>
+<text x="525" y="527" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">by the signed-in email.</text>
+<rect x="510" y="650" width="380" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="700.0" y="687.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">myRequestsPage</text>
+<polyline points="700,650 700,570" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="700,570 695.0,582.0 705.0,582.0" fill="#17332D"/>
+<text x="785" y="614" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">&lt;&lt;satisfy&gt;&gt;</text>
+<rect x="970" y="425" width="380" height="145" rx="3" fill="#FBF1D9" stroke="#17332D" stroke-width="2"/>
+<text x="1160.0" y="454" font-family="Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">&lt;&lt;requirement&gt;&gt; R6  Payment prototype</text>
+<polyline points="970,474 1350,474" fill="none" stroke="#17332D" stroke-width="2"/>
+<text x="985" y="501" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">Payment handling shall require</text>
+<text x="985" y="527" font-family="Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start" dominant-baseline="middle" fill="#17332D">an approved owned request.</text>
+<rect x="970" y="650" width="380" height="75" rx="3" fill="#EDF3F8" stroke="#17332D" stroke-width="2"/>
+<text x="1160.0" y="687.5" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#17332D">processPayment</text>
+<polyline points="1160,650 1160,570" fill="none" stroke="#17332D" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="1160,570 1155.0,582.0 1165.0,582.0" fill="#17332D"/>
+<text x="1245" y="614" font-family="Arial,sans-serif" font-size="17" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="#66746E">&lt;&lt;satisfy&gt;&gt;</text>
+</svg>

@@ -69,10 +69,9 @@
                                     </span>
                                 </td>
                                 <td class="py-3 px-4 text-sm">
-                                    {{#if User}}
+                                    {{#if staff}}
                                         <div>
-                                            <p class="font-semibold text-gray-800">{{User.Profile.first_name}} {{User.Profile.last_name}}</p>
-                                            <p class="text-gray-500 text-xs">@{{User.username}}</p>
+                                            <p class="font-semibold text-gray-800">@{{staff.username}}</p>
                                         </div>
                                     {{else}}
                                         <span class="text-gray-500">System</span>

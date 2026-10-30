@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Op } from 'sequelize';
+import { Op, fn, col } from 'sequelize';
 import { StaffUser, Resident, Barangay } from '../models/index.js';
 
 export const showLoginPage = (req, res) => {
@@ -79,17 +79,17 @@ export const showDashboard = async (req, res) => {
 
     // Get top barangays by resident count
     const topBarangays = await Barangay.findAll({
-      attributes: {
-        include: [[
-          require('sequelize').fn('COUNT', require('sequelize').col('Residents.id')),
-          'resident_count'
-        ]]
-      },
+      attributes: [
+        'id',
+        'name',
+        [fn('COUNT', col('Residents.id')), 'resident_count']
+      ],
       include: [{ model: Resident, attributes: [] }],
       group: ['Barangay.id', 'Barangay.name'],
-      raw: true,
-      order: [[require('sequelize').fn('COUNT', require('sequelize').col('Residents.id')), 'DESC']],
-      limit: 5
+      order: [[fn('COUNT', col('Residents.id')), 'DESC']],
+      limit: 5,
+      subQuery: false,
+      raw: true
     });
 
     // Calculate statistics

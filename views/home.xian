@@ -1,0 +1,9 @@
+{{> head}}
+<body class="public-page">
+  <header class="public-header"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7.2L19 8.55v11.7H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 4v5h5M9 13h6M9 16.5h6"/></svg></span><span class="brand-copy"><strong>DocuTrack</strong><small>CIVIL DOCUMENTS</small></span></a><a class="staff-link" href="{{#if isStaff}}/dashboard{{else}}/login{{/if}}">{{#if isStaff}}Staff workspace →{{else}}Staff sign in →{{/if}}</a></header>
+  <main class="public-main">
+    <section class="public-hero"><span class="auth-kicker">CIVIL DOCUMENT PROCESSING</span><h1>Your civil document request, without the extra steps.</h1><p>Submit a request and check its progress securely using your tracking reference and contact phone. No applicant account or sign-in required.</p><div class="public-actions"><a class="button button-primary" href="/requests/new">Submit a request <span>→</span></a><a class="button button-light" href="/track">Track a request</a></div><div class="public-assurances"><span><i>01</i> Submit securely</span><span><i>02</i> Save your reference</span><span><i>03</i> Check your status</span></div></section>
+    <section class="public-help-card"><span class="help-icon">?</span><div><strong>Already submitted?</strong><p>Enter the reference number and contact phone you provided with your request to view its current status.</p><a href="/track">Go to request tracking →</a></div></section>
+  </main>
+  <footer class="public-footer">© 2026 DocuTrack · Civil Document Processing and Tracking System</footer>
+{{> footer }}

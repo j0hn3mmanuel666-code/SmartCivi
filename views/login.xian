@@ -1,0 +1,20 @@
+{{> head}}
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="auth-story">
+      <a class="brand auth-brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7.2L19 8.55v11.7H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 4v5h5M9 13h6M9 16.5h6"/></svg></span><span class="brand-copy"><strong>DocuTrack</strong><small>CIVIL DOCUMENTS</small></span></a>
+      <div class="auth-story-content"><span class="auth-kicker">STAFF AND ADMINISTRATION</span><h1>Every request.<br>In the right hands.</h1><p>Sign in to review civil document submissions, manage processing, and keep the records office moving.</p><div class="auth-story-note"><span>01</span><span>Review and process public applicant requests.</span></div><div class="auth-story-note"><span>02</span><span>Applicants submit and track without an account.</span></div></div>
+      <span class="auth-copyright">© 2026 DocuTrack · Civil Document Processing and Tracking System</span>
+    </section>
+    <section class="auth-main"><form class="auth-card" method="POST" action="/login">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      <span class="auth-kicker">STAFF ACCESS</span><h2>Sign in to DocuTrack</h2><p class="auth-intro">Staff and administrators only. Applicants do not need to sign in.</p>
+      {{#each error_msg}}<div class="notice notice-error">{{this}}</div>{{/each}}{{#each success_msg}}<div class="notice notice-success">{{this}}</div>{{/each}}
+      <label class="auth-label">Email address<input type="email" name="email" autocomplete="email" placeholder="you@example.com" required></label>
+      <label class="auth-label">Password<input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required></label>
+      <div class="auth-options"><span>Use the staff credentials provided by your administrator</span><a href="/forgot-password">Need help signing in?</a></div>
+      <button class="button button-primary auth-submit" type="submit">Sign in <span>→</span></button>
+      <p class="auth-switch">Need to submit a request? <a href="/requests/new">Continue without signing in</a></p>
+    </form></section>
+  </main>
+{{> footer }}

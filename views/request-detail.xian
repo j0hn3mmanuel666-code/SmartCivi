@@ -1,0 +1,25 @@
+{{> head}}
+<body>
+  <main class="form-page">
+    <header class="form-page-top"><a class="brand" href="/dashboard"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7.2L19 8.55v11.7H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 4v5h5M9 13h6M9 16.5h6"/></svg></span><span class="brand-copy"><strong>DocuTrack</strong><small>CIVIL DOCUMENTS</small></span></a><a class="form-back" href="/dashboard">← Back to workspace</a></header>
+    <div class="detail-grid">
+      <section class="form-card request-detail-card">
+        <p class="eyebrow"><span class="eyebrow-line"></span> REQUEST DETAILS</p>
+        <div class="detail-title-row"><div><h1>{{request.documentType}}</h1><p class="reference-id">{{request.referenceNo}} <span>·</span> Submitted {{request.displayDate}}</p></div><span class="status status-{{request.statusClass}}"><i></i>{{request.status}}</span></div>
+        {{#each success_msg}}<div class="notice notice-success">{{this}}</div>{{/each}}{{#each error_msg}}<div class="notice notice-error">{{this}}</div>{{/each}}
+        <div class="detail-facts"><div><span>Applicant</span><strong>{{request.applicantName}}</strong></div>{{#if request.certificateDate}}<div><span>{{request.certificateDateLabel}}</span><strong>{{request.certificateDate}}</strong></div>{{/if}}<div><span>Contact email</span><strong>{{request.contactEmail}}</strong></div><div><span>Phone number</span><strong>{{request.contactInfo}}</strong></div><div><span>Assigned staff</span><strong>{{#if request.assignedStaff}}{{request.assignedStaff.name}}{{else}}Awaiting assignment{{/if}}</strong></div></div>
+        <section class="detail-section"><h2>Purpose</h2><p>{{#if request.purpose}}{{request.purpose}}{{else}}No purpose was provided.{{/if}}</p></section>
+        {{#if request.record.resultPath}}<section class="release-card"><span class="activity-avatar activity-green">✓</span><div><strong>Your civil document is ready</strong><p>The records office has released the processed document.</p></div><a class="button button-primary" href="/requests/{{request.id}}/result">Download document</a></section>{{/if}}
+        {{#if canResubmit}}<section class="detail-section correction-section"><h2>Submit requested corrections</h2><p>Please review the staff remarks below, update the purpose if needed, and resubmit the request.</p><form method="POST" action="/requests/{{request.id}}/resubmit"><input type="hidden" name="_csrf" value="{{csrfToken}}"><label class="form-label">Updated purpose<textarea name="purpose" maxlength="5000" rows="4" required placeholder="Describe the corrected purpose."></textarea></label><button class="button button-primary" type="submit">Resubmit for review</button></form></section>{{/if}}
+        {{#if isStaff}}{{#if allowedStatuses}}<section class="detail-section review-section"><h2>Process this request</h2><form method="POST" action="/requests/{{request.id}}/status" enctype="multipart/form-data"><input type="hidden" name="_csrf" value="{{csrfToken}}"><label class="form-label">Next status<select name="status" id="nextStatus" required><option value="">Choose an action</option>{{#each allowedStatuses}}<option value="{{this}}">{{this}}</option>{{/each}}</select></label><label class="form-label">Remarks{{#if request.status}} <span class="optional-label">Required for corrections or rejection</span>{{/if}}<textarea name="remarks" maxlength="3000" rows="3" placeholder="Explain the review decision or next steps."></textarea></label><label class="form-label" id="releaseFileLabel" hidden>Processed document <span class="optional-label">PDF, JPG or PNG · up to 10 MB</span><input type="file" name="releaseFile" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"></label><button class="button button-primary" type="submit">Save status update</button></form></section>{{/if}}{{/if}}
+      </section>
+      <aside class="form-card history-card"><p class="eyebrow"><span class="eyebrow-line"></span> PROCESSING HISTORY</p><h2>Status timeline</h2><p class="history-intro">Every status change is recorded for the applicant and records office.</p><div class="timeline">{{#each request.history}}<article class="timeline-item"><span class="timeline-dot"></span><div><strong>{{status}}</strong><span>{{displayDate}} · {{#if changedBy}}{{changedBy.name}}{{else}}System{{/if}}</span>{{#if remarks}}<p>{{remarks}}</p>{{/if}}</div></article>{{else}}<p class="notification-empty">No status changes have been recorded.</p>{{/each}}</div></aside>
+    </div>
+  </main>
+  <script>
+    const statusSelect = document.getElementById("nextStatus");
+    if (statusSelect) statusSelect.addEventListener("change", () => {
+      document.getElementById("releaseFileLabel").hidden = statusSelect.value !== "Released";
+    });
+  </script>
+{{> footer }}

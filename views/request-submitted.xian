@@ -1,0 +1,8 @@
+{{> head}}
+<body class="public-page">
+  <header class="public-header"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7.2L19 8.55v11.7H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 4v5h5M9 13h6M9 16.5h6"/></svg></span><span class="brand-copy"><strong>DocuTrack</strong><small>CIVIL DOCUMENTS</small></span></a><a class="staff-link" href="/">← Back to home</a></header>
+  <main class="public-main public-narrow">
+    <section class="form-card submission-confirmation"><span class="confirmation-check">✓</span><p class="eyebrow"><span class="eyebrow-line"></span> REQUEST SUBMITTED</p><h1>Your request is in the queue.</h1><p>Save this tracking reference. You will need it and the contact phone you provided to check the request status.</p><div class="reference-copy"><span>YOUR TRACKING REFERENCE</span><strong>{{requestReference}}</strong></div><a class="button button-primary" href="/track?reference={{requestReference}}">Track this request <span>→</span></a><p class="tracking-privacy">This reference is not enough to view your request by itself. Request status also requires your contact phone.</p></section>
+  </main>
+  <footer class="public-footer">© 2026 DocuTrack · Civil Document Processing and Tracking System</footer>
+{{> footer }}

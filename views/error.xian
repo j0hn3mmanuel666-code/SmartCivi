@@ -1,0 +1,3 @@
+{{> head}}
+<body class="auth-page"><main class="error-page"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7.2L19 8.55v11.7H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 4v5h5M9 13h6M9 16.5h6"/></svg></span><span class="brand-copy"><strong>DocuTrack</strong><small>CIVIL DOCUMENTS</small></span></a><span class="error-code">{{status}}</span><h1>We couldn’t complete that request</h1><p>{{message}}</p><div class="error-actions"><a class="button button-primary" href="/">Return to DocuTrack</a><a class="button button-light" href="/login">Staff sign in</a></div></main>
+{{> footer }}

@@ -1,0 +1,55 @@
+{{> head}}
+<body>
+  <main class="form-page request-page">
+    <header class="form-page-top"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7.2L19 8.55v11.7H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 4v5h5M9 13h6M9 16.5h6"/></svg></span><span class="brand-copy"><strong>DocuTrack</strong><small>CIVIL DOCUMENTS</small></span></a><a class="button button-light form-track-link" href="/track">Track an existing request <span>→</span></a></header>
+    <div class="request-layout">
+    <section class="form-card request-form-card"><p class="eyebrow"><span class="eyebrow-line"></span> PUBLIC REQUEST FORM</p><h1>Submit a document request</h1><p class="form-intro">Tell us what document you need. No account is required, and you can check progress later with your tracking reference.</p>
+      {{#each error_msg}}<div class="notice notice-error">{{this}}</div>{{/each}}
+      <form method="POST" action="/requests">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        <label class="form-label">Document type <span class="request-field-hint">Choose the certificate you need</span><select name="documentType" id="documentType" required><option value="">Choose a civil document</option>{{#each categories}}<option value="{{name}}">{{name}}</option>{{/each}}</select></label>
+        <label class="form-label">Applicant name<input type="text" name="applicantName" autocomplete="name" minlength="2" maxlength="120" placeholder="Your full name" required></label>
+        <label class="form-label" id="certificateDateField" hidden><span id="certificateDateLabel">Certificate date</span> <span class="optional-label">Required for this certificate request</span><input type="date" name="certificateDate" id="certificateDate" max="{{today}}" disabled></label>
+        <div class="request-contact-grid">
+          <label class="form-label">Email address<input type="email" name="contactEmail" autocomplete="email" maxlength="190" placeholder="you@example.com" required></label>
+          <label class="form-label">Contact phone number <span class="request-field-hint">Used with your reference to verify status</span><input type="tel" name="contactInfo" autocomplete="tel" maxlength="80" placeholder="+63 9XX XXX XXXX" required></label>
+        </div>
+        <label class="form-label">Purpose <span class="request-field-hint">What do you need the document for?</span><textarea name="purpose" maxlength="5000" rows="4" placeholder="For example, school enrollment, employment, or personal records."></textarea></label>
+        <div class="form-actions"><a class="button button-light" href="/">Cancel</a><button class="button button-primary" type="submit">Submit request <span>→</span></button></div>
+      </form>
+    </section>
+    <aside class="request-aside">
+      <section class="request-aside-card">
+        <span class="request-aside-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.7-2.8 8-7 10-4.2-2-7-5.3-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <p class="eyebrow">BEFORE YOU BEGIN</p>
+        <h2>Have these details ready</h2>
+        <ul class="request-checklist">
+          <li><span>1</span><div><strong>Applicant information</strong><small>Use the full name shown on the record.</small></div></li>
+          <li><span>2</span><div><strong>Certificate date</strong><small>Birth, death, or marriage date when applicable.</small></div></li>
+          <li><span>3</span><div><strong>Contact details</strong><small>Keep access to your phone and email.</small></div></li>
+        </ul>
+      </section>
+      <section class="request-reference-note"><strong>Keep your reference safe</strong><p>After submitting, save your tracking reference. You will need it together with your contact phone to check your status.</p><a href="/track">Already have a request? Track it <span>→</span></a></section>
+    </aside>
+    </div>
+  </main>
+  <script>
+    document.getElementById("documentType").addEventListener("change", (event) => {
+      const option = event.target.selectedOptions[0];
+      const certificateDateField = document.getElementById("certificateDateField");
+      const certificateDateLabel = document.getElementById("certificateDateLabel");
+      const certificateDate = document.getElementById("certificateDate");
+      const dateLabels = {
+        "Birth Certificate": "Date of birth of person named on the certificate",
+        "Death Certificate": "Date of death of person named on the certificate",
+        "Marriage Certificate": "Date of marriage",
+      };
+      const dateLabel = dateLabels[option.value];
+      certificateDateLabel.textContent = dateLabel || "Certificate date";
+      certificateDateField.hidden = !dateLabel;
+      certificateDate.disabled = !dateLabel;
+      certificateDate.required = Boolean(dateLabel);
+      if (!dateLabel) certificateDate.value = "";
+    });
+  </script>
+{{> footer }}

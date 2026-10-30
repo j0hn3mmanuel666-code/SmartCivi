@@ -1,0 +1,16 @@
+{{> head}}
+<body>
+  <div class="app-shell">
+    {{> workspace-sidebar}}
+    <main class="main-area">
+      {{> workspace-topbar}}
+      <div class="page-content">
+        <section class="welcome-row report-welcome"><div><p class="eyebrow"><span class="eyebrow-line"></span> PROCESSING INSIGHTS</p><h1>Request reports</h1><p class="welcome-subtitle">A current summary of submitted requests and the civil records people need.</p></div><a class="button button-primary" href="/reports.csv">↓ &nbsp;Export CSV</a></section>
+        <section class="stat-grid report-stats"><article class="stat-card"><div class="stat-heading"><span>Total requests</span></div><div class="stat-value">{{report.total}}</div><div class="stat-foot"><span>All registered requests</span></div></article>{{#each statuses}}<article class="stat-card"><div class="stat-heading"><span>{{name}}</span></div><div class="stat-value">{{count}}</div><div class="stat-foot"><span>Current request status</span></div></article>{{/each}}</section>
+        <section class="admin-columns report-columns"><article class="panel admin-panel"><div class="panel-heading"><div><h2>Requests by document type</h2><p>Submitted requests grouped by requested record.</p></div></div><div class="report-breakdown">{{#each categories}}<div class="report-row"><span>{{name}}</span><strong>{{count}}</strong><div class="report-bar"><i style="width: {{percent}}%"></i></div></div>{{else}}<p class="notification-empty">No requests have been submitted yet.</p>{{/each}}</div></article><article class="panel admin-panel"><div class="panel-heading"><div><h2>Submission activity</h2><p>Monthly request volume.</p></div></div><div class="report-breakdown">{{#each months}}<div class="report-row"><span>{{name}}</span><strong>{{count}}</strong><div class="report-bar"><i style="width: {{percent}}%"></i></div></div>{{else}}<p class="notification-empty">No submission activity recorded yet.</p>{{/each}}</div></article></section>
+        <footer class="page-footer"><span>© 2026 DocuTrack · Civil Document Processing and Tracking System</span><span><span class="system-status"></span> MySQL-backed request reporting</span></footer>
+      </div>
+    </main>
+  </div>
+  <script src="/workspace.js" defer></script>
+{{> footer }}

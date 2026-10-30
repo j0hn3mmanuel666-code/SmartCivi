@@ -1,0 +1,16 @@
+<aside class="sidebar" id="sidebar">
+  <a class="brand" href="/dashboard"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7.2L19 8.55v11.7H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 4v5h5M9 13h6M9 16.5h6"/></svg></span><span class="brand-copy"><strong>DocuTrack</strong><small>CIVIL DOCUMENTS</small></span></a>
+  <div class="workspace-label">WORKSPACE</div>
+  <nav class="side-nav" aria-label="Main navigation">
+    <a class="nav-link {{#if isOverview}}active{{/if}}" href="/dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Overview</span></a>
+    <a class="nav-link {{#if isRequests}}active{{/if}}" href="/dashboard#requests"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.75h7l4 4v12.5h-11a1.5 1.5 0 0 1-1.5-1.5v-13a2 2 0 0 1 1.5-2Z"/><path d="M13.5 4v4.5H18M8 13h8M8 16.5h6"/></svg><span>{{#if isApplicant}}My requests{{else}}All requests{{/if}}</span><span class="nav-count">{{totalRequests}}</span></a>
+    {{#if isApplicant}}<a class="nav-link" href="/requests/new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Submit a request</span></a>{{/if}}
+    <a class="nav-link {{#if isActivity}}active{{/if}}" href="/activity"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18.5V12M10 18.5V6M16 18.5v-4M22 18.5V9"/></svg><span>Activity &amp; alerts</span>{{#if unreadCount}}<span class="nav-count nav-count-warm">{{unreadCount}}</span>{{/if}}</a>
+  </nav>
+  {{#if isStaff}}<div class="workspace-label tools-label">REPORTING</div><nav class="side-nav"><a class="nav-link {{#if isReports}}active{{/if}}" href="/reports"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.75h14v16.5H5z"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span>Reports</span></a></nav>{{/if}}
+  {{#if isAdmin}}<div class="workspace-label tools-label">ADMINISTRATION</div><nav class="side-nav"><a class="nav-link {{#if isAdminPage}}active{{/if}}" href="/admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3"/><path d="M5 20c0-3.3 2.7-6 7-6s7 2.7 7 6M19 5v6M16 8h6"/></svg><span>Users &amp; categories</span></a></nav>{{/if}}
+  <div class="sidebar-bottom">
+    <div class="help-card"><span class="help-icon">?</span><div><strong>Need a hand?</strong><span>Ask your records office</span></div></div>
+    <div class="account-card"><span class="avatar avatar-sidebar">{{userInitials}}</span><span class="account-details"><strong>{{currentUser.name}}</strong><small>{{currentUser.role}}</small></span><form method="POST" action="/logout"><input type="hidden" name="_csrf" value="{{csrfToken}}"><button class="logout-button" type="submit">Sign out</button></form></div>
+  </div>
+</aside>

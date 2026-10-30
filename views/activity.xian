@@ -1,0 +1,15 @@
+{{> head}}
+<body>
+  <div class="app-shell">
+    {{> workspace-sidebar}}
+    <main class="main-area">
+      {{> workspace-topbar}}
+      <div class="page-content">
+        <section class="welcome-row"><div><p class="eyebrow"><span class="eyebrow-line"></span> AUDIT HISTORY</p><h1>Activity &amp; alerts</h1><p class="welcome-subtitle">A chronological record of your request status changes and updates.</p></div></section>
+        <section class="panel activity-page-card"><div class="timeline activity-timeline">{{#each activities}}<article class="timeline-item"><span class="timeline-dot"></span><div><strong>{{status}} · {{documentType}}</strong><span>{{displayDate}} · Request {{referenceNo}}</span>{{#if remarks}}<p>{{remarks}}</p>{{/if}}</div><a href="/requests/{{requestId}}">Open request →</a></article>{{else}}<div class="notification-empty">There is no request history to display yet.</div>{{/each}}</div></section>
+        <footer class="page-footer"><span>© 2026 DocuTrack · Civil Document Processing and Tracking System</span><span><span class="system-status"></span> MySQL-backed request tracking</span></footer>
+      </div>
+    </main>
+  </div>
+  <script src="/workspace.js" defer></script>
+{{> footer }}

@@ -12,6 +12,10 @@ services:
       DB_USER: smartcivi
       DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:3000}
+      BACKUP_KEY: ${BACKUP_KEY:-}
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
@@ -23,6 +27,24 @@ services:
       timeout: 5s
       retries: 6
       start_period: 30s
+  backup:
+    image: smartcivi-app:local
+    profiles: [maintenance]
+    restart: unless-stopped
+    command: [node, scripts/backup.js, --watch]
+    environment:
+      DB_HOST: db
+      DB_NAME: smartCivi
+      DB_USER: smartcivi
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      BACKUP_KEY: ${BACKUP_KEY:-}
+      BACKUP_DIR: /app/backups
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+    volumes:
+      - backups:/app/backups
+    depends_on:
+      app:
+        condition: service_healthy
   db:
     image: mysql:8.4
     restart: unless-stopped
@@ -41,3 +63,4 @@ services:
       start_period: 30s
 volumes:
   mysql_data:
+  backups:

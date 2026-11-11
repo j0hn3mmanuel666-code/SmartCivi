@@ -29,6 +29,9 @@ import { Request } from "../models/Request.js";
 import { User } from "../models/User.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
+import { sequelize, Notice, RequestEvent, Resident, CivilRecord } from '../models/Platform.js';
+import { audit, notifyStaff, requestEvent } from '../services/platform.js';
+import { can, date, fail, integer, requestStatus, roles, text, paymentComplete } from '../services/platformRules.js';
 
 export const homePage = (req, res) => {
   res.render("home", { title: "SmartCivi" });
@@ -55,7 +58,7 @@ export const adminPage = async (req, res) => {
       paidRequests: requests.filter(r => r.status === 'paid').length,
       rejectedRequests: requests.filter(r => r.status === 'rejected').length,
       completedRequests: requests.filter(r => r.status === 'paid' || r.status === 'approved').length,
-      
+
       // Document type counts
       birthCount: requests.filter(r => r.documentType === 'birth').length,
       marriageCount: requests.filter(r => r.documentType === 'marriage').length,
@@ -131,7 +134,8 @@ export const createRequest = async (req, res) => {
       req.flash('error_msg', 'Please login to submit a request');
       return res.redirect('/login');
     }
-    const { fullName, email, phone, documentType, purpose } = req.body;
+    const { fullName, phone, documentType, purpose } = req.body;
+    const email = req.session.user.email;
 
     // Basic validation
     if (!fullName || !email || !phone || !documentType || !purpose) {
@@ -139,13 +143,25 @@ export const createRequest = async (req, res) => {
       return res.redirect('/request');
     }
 
-    const newReq = await Request.create({
+    if (!['birth', 'marriage', 'death'].includes(documentType)) fail('Choose a supported certificate type.');
+    text(fullName, 'Full name', true); text(phone, 'Phone', true, 40); text(purpose, 'Purpose', true, 3000);
+    let appointmentDate = null;
+    if (req.body.appointmentDate) {
+      appointmentDate = new Date(`${date(req.body.appointmentDate, 'Appointment date', true, false)}T08:00:00+08:00`);
+      if (!Number.isFinite(appointmentDate.getTime()) || appointmentDate < new Date()) fail('Choose a future appointment date.');
+    }
+    const newReq = await sequelize.transaction(async transaction => {
+      const created = await Request.create({
       fullName,
       email,
       phone,
       documentType,
       purpose,
-      status: 'pending'
+      status: 'pending', appointmentDate, appointmentStatus: appointmentDate ? 'scheduled' : null
+      }, { transaction });
+      await requestEvent(req, created, appointmentDate ? 'Appointment and document request submitted' : 'Document request submitted', transaction);
+      await notifyStaff('requests', 'New document request', `Request #${created.id} is awaiting review.`, `/admin/requests/${created.id}`, transaction);
+      return created;
     });
 
     req.flash('success_msg', 'Request submitted successfully');
@@ -186,8 +202,13 @@ export const adminRequestsPage = async (req, res) => {
 export const updateRequestStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
-    await Request.update({ status }, { where: { id } });
+    const status = requestStatus(req.body.status);
+    await sequelize.transaction(async transaction => {
+      const request = await Request.findByPk(integer(id, 'Request', 1), { transaction, lock: transaction.LOCK.UPDATE });
+      if (!request) fail('Request not found.', 404);
+      await request.update({ status, ...((status === 'paid' || request.status === 'paid') && !request.paidAt ? { paidAt: new Date() } : {}) }, { transaction });
+      await requestEvent(req, request, `Status changed to ${status}`, transaction);
+    });
     // If AJAX request, return JSON so client can update UI without redirect
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
       return res.json({ success: true, id, status });
@@ -197,7 +218,7 @@ export const updateRequestStatus = async (req, res) => {
   } catch (err) {
     console.error('Error updating request status:', err);
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
-      return res.status(500).json({ success: false, error: err.message });
+      return res.status(err.status || 500).json({ success: false, error: err.status ? err.message : 'Unable to update status.' });
     }
     req.flash('error_msg', 'Failed to update status');
     return res.redirect('/admin/requests');
@@ -208,7 +229,16 @@ export const assignRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const { assignee } = req.body;
-    await Request.update({ assignee }, { where: { id } });
+    text(assignee, 'Assignee', true);
+    const user = await User.findOne({ where: { [Op.or]: [{ name: assignee }, { email: assignee }] } });
+    if (!user || !can(user.role, 'requests')) fail('Choose an authorized registry staff member.');
+    await sequelize.transaction(async transaction => {
+      const request = await Request.findByPk(integer(id, 'Request', 1), { transaction, lock: transaction.LOCK.UPDATE });
+      if (!request) fail('Request not found.', 404);
+      await request.update({ assignee: user.name }, { transaction });
+      await requestEvent(req, request, 'Request assigned to registry staff', transaction);
+      await Notice.create({ userId: user.id, title: 'Request assigned to you', message: `Review request #${id}.`, url: `/admin/requests/${id}` }, { transaction });
+    });
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
       return res.json({ success: true, id, assignee });
     }
@@ -227,7 +257,12 @@ export const assignRequest = async (req, res) => {
 export const deleteRequestAdmin = async (req, res) => {
   try {
     const { id } = req.params;
-    await Request.destroy({ where: { id } });
+    await sequelize.transaction(async transaction => {
+      const request = await Request.findByPk(integer(id, 'Request', 1), { transaction, lock: transaction.LOCK.UPDATE });
+      if (!request) fail('Request not found.', 404);
+      await request.update({ status: 'rejected' }, { transaction });
+      await requestEvent(req, request, 'Request cancelled; history retained', transaction);
+    });
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
       return res.json({ success: true, id });
     }
@@ -266,11 +301,12 @@ export const searchBirthRecord = async (req, res) => {
   try {
     const requests = await Request.findAll({
       where: {
+        ...(!can(req.session.user.role, 'registry') ? { email: req.session.user.email } : {}),
         documentType: 'birth',
         fullName: fullname
       }
     });
-    res.render('records', { 
+    res.render('records', {
       title: "Birth Records Search Results",
       requests: requests.map(req => req.toJSON())
     });
@@ -285,6 +321,7 @@ export const searchMarriageRecord = async (req, res) => {
   try {
     const requests = await Request.findAll({
       where: {
+        ...(!can(req.session.user.role, 'registry') ? { email: req.session.user.email } : {}),
         documentType: 'marriage',
         fullName: {
           [Op.or]: [groom, bride]
@@ -306,6 +343,7 @@ export const searchDeathRecord = async (req, res) => {
   try {
     const requests = await Request.findAll({
       where: {
+        ...(!can(req.session.user.role, 'registry') ? { email: req.session.user.email } : {}),
         documentType: 'death',
         fullName: fullname
       }
@@ -325,7 +363,7 @@ export const reportsPage = (req, res) => {
   weekStart.setDate(today.getDate() - 7);
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-  res.render("reports", { 
+  res.render("reports", {
     title: "Generate Reports",
     todayDate: today.toISOString().split('T')[0],
     weekStartDate: weekStart.toISOString().split('T')[0],
@@ -335,7 +373,7 @@ export const reportsPage = (req, res) => {
 
 export const generateReport = async (req, res) => {
   const { reportType, startDate, endDate, format, statusFilter } = req.body;
-  
+
   try {
     // Build query conditions
     let whereConditions = {
@@ -423,9 +461,9 @@ export const generateReport = async (req, res) => {
 // Helper function to generate CSV report
 function generateCSVReport(res, data, reportType) {
   const headers = ['ID', 'Full Name', 'Email', 'Phone', 'Document Type', 'Purpose', 'Status', 'Created Date', 'Payment Amount', 'Payment Method'];
-  
+
   let csv = headers.join(',') + '\n';
-  
+
   data.forEach(row => {
     const csvRow = [
       row.id,
@@ -475,14 +513,14 @@ function generatePDFReport(res, data, summary, reportType) {
         <p>Generated on ${new Date().toLocaleDateString()}</p>
         <p>Report Type: ${reportType.toUpperCase()}</p>
       </div>
-      
+
       <div class="summary">
         <div><strong>${summary.total}</strong><br>Total Requests</div>
         <div><strong>${summary.pending}</strong><br>Pending</div>
         <div><strong>${summary.completed}</strong><br>Completed</div>
         <div><strong>₱${summary.revenue}</strong><br>Revenue</div>
       </div>
-      
+
       <table>
         <thead>
           <tr>
@@ -521,9 +559,9 @@ export const usersPage = async (req, res) => {
       attributes: ['id', 'name', 'email', 'role', 'createdAt', 'updatedAt'],
       order: [['createdAt', 'DESC']]
     });
-    
-    res.render("users", { 
-      title: "User Management", 
+
+    res.render("users", {
+      title: "User Management",
       users: users.map(user => {
         const userData = user.toJSON();
         // Format dates for display
@@ -540,8 +578,17 @@ export const usersPage = async (req, res) => {
 
 export const createOrUpdateUser = async (req, res) => {
   const { id, name, email, role, password } = req.body;
-  
+
   try {
+    if (!roles.includes(role)) fail('Choose a valid role.');
+    text(name, 'Name', true); text(email, 'Email', true);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail('Enter a valid email.');
+    if (id) {
+      const current = await User.findByPk(integer(id, 'User', 1));
+      if (!current) fail('User not found.', 404);
+      if (current.id === req.session.user.id && role !== 'admin') fail('You cannot remove your own administrator access.');
+      if (current.role === 'admin' && role !== 'admin' && await User.count({ where: { role: 'admin' } }) <= 1) fail('The last administrator cannot be demoted.');
+    } else if (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) fail('Use a password of 8–72 bytes.');
     if (id) {
       // Update existing user (no password change)
       await User.update({ name, email, role }, {
@@ -566,19 +613,20 @@ export const createOrUpdateUser = async (req, res) => {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      await User.create({ 
-        name, 
-        email, 
-        password: hashedPassword, 
-        role 
+      await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        role
       });
       req.flash('success_msg', 'User created successfully');
     }
-    
+
+    await audit(req, id ? 'user.updated' : 'user.created', 'account', id || null, `Role set to ${role}`);
     res.redirect("/admin/users");
   } catch (error) {
     console.error("Error managing user:", error);
-    
+
     // Handle specific database errors
     if (error.name === 'SequelizeUniqueConstraintError') {
       req.flash('error_msg', 'Email already exists');
@@ -587,14 +635,14 @@ export const createOrUpdateUser = async (req, res) => {
     } else {
       req.flash('error_msg', 'Failed to manage user');
     }
-    
+
     res.redirect("/admin/users");
   }
 };
 
 export const deleteUser = async (req, res) => {
   const { id } = req.params;
-  
+
   try {
     // Check if user exists
     const user = await User.findByPk(id);
@@ -606,15 +654,17 @@ export const deleteUser = async (req, res) => {
     if (user.role === 'admin') {
       const adminCount = await User.count({ where: { role: 'admin' } });
       if (adminCount <= 1) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Cannot delete the last admin user' 
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot delete the last admin user'
         });
       }
     }
 
+    if (Number(id) === req.session.user.id) return res.status(400).json({ success: false, message: 'You cannot delete your own account.' });
     await User.destroy({ where: { id } });
-    
+    await audit(req, 'user.deleted', 'account', id, 'Account removed');
+
     res.json({ success: true, message: 'User deleted successfully' });
   } catch (error) {
     console.error("Error deleting user:", error);
@@ -634,7 +684,7 @@ export const userActionsPage = (req, res) => {
 
 export const statusPage = async (req, res) => {
   if (!req.session.user) return res.redirect("/login");
-  
+
   try {
     const requests = await Request.findAll({
       where: {
@@ -691,34 +741,35 @@ export const profilePage = (req, res) => {
 
 export const requestDetailsPage = async (req, res) => {
   const { id } = req.params;
-  
+
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     const request = await Request.findByPk(id);
     if (!request) {
-      return res.render('requestDetails', { 
-        title: 'Request Details', 
-        request: null 
+      return res.render('requestDetails', {
+        title: 'Request Details',
+        request: null
       });
     }
 
     // Security check: Users can only view their own requests (unless admin)
-    const isAdmin = req.session.user.role === 'admin';
+    const isAdmin = can(req.session.user.role, 'requests');
     const isOwner = request.email === req.session.user.email;
-    
+
     if (!isAdmin && !isOwner) {
-      return res.render('requestDetails', { 
-        title: 'Request Details', 
-        request: null 
+      return res.render('requestDetails', {
+        title: 'Request Details',
+        request: null
       });
     }
 
-    res.render('requestDetails', { 
-      title: 'Request Details', 
+    res.render('requestDetails', {
+      title: 'Request Details',
       request: request.toJSON(),
-      user: req.session.user 
+      events: (await RequestEvent.findAll({ where: { requestId: request.id }, order: [['id', 'ASC']] })).map(event => ({ ...event.toJSON(), when: new Date(event.createdAt).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) })),
+      user: req.session.user
     });
   } catch (err) {
     console.error('Error loading request details:', err);
@@ -751,29 +802,29 @@ export const adminRequestEditorPage = async (req, res) => {
 
 export const paymentsPage = async (req, res) => {
   const { id } = req.params;
-  
+
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     const request = await Request.findByPk(id);
     if (!request) {
-      return res.render('payments', { 
-        title: 'Payment', 
+      return res.render('payments', {
+        title: 'Payment',
         request: null,
-        requestId: id 
+        requestId: id
       });
     }
 
     // Security check: Users can only pay for their own requests (unless admin)
-    const isAdmin = req.session.user.role === 'admin';
+    const isAdmin = can(req.session.user.role, 'requests');
     const isOwner = request.email === req.session.user.email;
-    
+
     if (!isAdmin && !isOwner) {
-      return res.render('payments', { 
-        title: 'Payment', 
+      return res.render('payments', {
+        title: 'Payment',
         request: null,
-        requestId: id 
+        requestId: id
       });
     }
 
@@ -792,12 +843,12 @@ export const paymentsPage = async (req, res) => {
 
     const paymentAmount = paymentAmounts[request.documentType] || 155.00;
 
-    res.render('payments', { 
-      title: 'Payment', 
+    res.render('payments', {
+      title: 'Payment',
       request: request.toJSON(),
       requestId: id,
       paymentAmount: paymentAmount.toFixed(2),
-      user: req.session.user 
+      user: req.session.user
     });
   } catch (err) {
     console.error('Error loading payment page:', err);
@@ -807,10 +858,10 @@ export const paymentsPage = async (req, res) => {
 export const processPayment = async (req, res) => {
   const { id } = req.params;
   const { paymentMethod } = req.body;
-  
+
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     const request = await Request.findByPk(id);
     if (!request) {
@@ -819,9 +870,9 @@ export const processPayment = async (req, res) => {
     }
 
     // Security check
-    const isAdmin = req.session.user.role === 'admin';
+    const isAdmin = can(req.session.user.role, 'requests');
     const isOwner = request.email === req.session.user.email;
-    
+
     if (!isAdmin && !isOwner) {
       req.flash('error_msg', 'Unauthorized access');
       return res.redirect('/status');
@@ -849,37 +900,37 @@ export const processPayment = async (req, res) => {
       case 'online':
         // In a real app, you'd integrate with payment gateway here
         // For demo, we'll simulate successful payment
-        await Request.update({ 
+        await Request.update({
           status: 'paid',
           paymentMethod: 'online',
           paymentReference: paymentReference,
           paymentAmount: paymentAmount
         }, { where: { id } });
-        
+
         req.flash('success_msg', 'Payment successful! Your document will be processed for release.');
         return res.redirect(`/request/${id}`);
 
       case 'otc':
         // Generate OTC reference
-        await Request.update({ 
+        await Request.update({
           status: 'payment_pending',
           paymentMethod: 'otc',
           paymentReference: paymentReference,
           paymentAmount: paymentAmount
         }, { where: { id } });
-        
+
         req.flash('success_msg', `Payment reference generated: ${paymentReference}. Please pay at any authorized payment center.`);
         return res.redirect(`/request/${id}`);
 
       case 'bank':
         // Bank transfer instructions
-        await Request.update({ 
+        await Request.update({
           status: 'payment_pending',
           paymentMethod: 'bank',
           paymentReference: paymentReference,
           paymentAmount: paymentAmount
         }, { where: { id } });
-        
+
         req.flash('success_msg', `Bank transfer reference: ${paymentReference}. Please transfer the amount and send proof of payment.`);
         return res.redirect(`/request/${id}`);
 
@@ -899,7 +950,7 @@ export const processPayment = async (req, res) => {
 export const paymentsReceiptsPage = async (req, res) => {
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     // Get all requests for the current user with payment information
     const requests = await Request.findAll({
@@ -908,9 +959,9 @@ export const paymentsReceiptsPage = async (req, res) => {
     });
 
     // Filter requests that have payment information or are ready for payment
-    const paymentsData = requests.filter(req => 
-      req.status === 'approved' || 
-      req.status === 'payment_pending' || 
+    const paymentsData = requests.filter(req =>
+      req.status === 'approved' ||
+      req.status === 'payment_pending' ||
       req.status === 'paid' ||
       req.paymentAmount
     );
@@ -918,7 +969,7 @@ export const paymentsReceiptsPage = async (req, res) => {
     // Calculate summary statistics
     const summary = {
       totalPaid: paymentsData
-        .filter(r => r.status === 'paid' && r.paymentAmount)
+        .filter(r => paymentComplete(r) && r.paymentAmount)
         .reduce((sum, r) => sum + parseFloat(r.paymentAmount || 0), 0)
         .toFixed(2),
       totalPending: paymentsData
@@ -951,10 +1002,10 @@ export const paymentsReceiptsPage = async (req, res) => {
 // Download Receipt Controller
 export const downloadReceipt = async (req, res) => {
   const { id } = req.params;
-  
+
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     const request = await Request.findByPk(id);
     if (!request) {
@@ -962,15 +1013,15 @@ export const downloadReceipt = async (req, res) => {
     }
 
     // Security check
-    const isAdmin = req.session.user.role === 'admin';
+    const isAdmin = can(req.session.user.role, 'requests');
     const isOwner = request.email === req.session.user.email;
-    
+
     if (!isAdmin && !isOwner) {
       return res.status(403).json({ success: false, message: 'Unauthorized access' });
     }
 
     // Check if request is paid
-    if (request.status !== 'paid') {
+    if (!paymentComplete(request)) {
       return res.status(400).json({ success: false, message: 'Receipt not available. Payment not completed.' });
     }
 
@@ -990,10 +1041,10 @@ export const downloadReceipt = async (req, res) => {
 // Payment Details Controller
 export const getPaymentDetails = async (req, res) => {
   const { id } = req.params;
-  
+
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     const request = await Request.findByPk(id);
     if (!request) {
@@ -1001,9 +1052,9 @@ export const getPaymentDetails = async (req, res) => {
     }
 
     // Security check
-    const isAdmin = req.session.user.role === 'admin';
+    const isAdmin = can(req.session.user.role, 'requests');
     const isOwner = request.email === req.session.user.email;
-    
+
     if (!isAdmin && !isOwner) {
       return res.status(403).json({ success: false, message: 'Unauthorized access' });
     }
@@ -1027,9 +1078,14 @@ export const getPaymentDetails = async (req, res) => {
 };
 
 // Helper function to generate receipt
+function safeDocumentValues(request) {
+  const data = request.toJSON ? request.toJSON() : request;
+  return Object.fromEntries(Object.entries(data).map(([key, value]) => [key, typeof value === 'string' ? value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character])) : value]));
+}
 function generateReceipt(request) {
+  request = safeDocumentValues(request);
   const today = new Date().toLocaleDateString();
-  
+
   return `
     <!DOCTYPE html>
     <html>
@@ -1049,62 +1105,62 @@ function generateReceipt(request) {
     <body>
       <div class="header">
         <div class="logo">SmartCivi</div>
-        <div>Official Payment Receipt</div>
+        <div>Payment Record</div>
         <div>Civil Registry Management System</div>
       </div>
-      
+
       <div class="receipt">
         <h3>Payment Receipt</h3>
-        
+
         <div class="row">
           <span><strong>Receipt No:</strong></span>
           <span>${request.paymentReference}</span>
         </div>
-        
+
         <div class="row">
           <span><strong>Request ID:</strong></span>
           <span>#${request.id}</span>
         </div>
-        
+
         <div class="row">
           <span><strong>Customer Name:</strong></span>
           <span>${request.fullName}</span>
         </div>
-        
+
         <div class="row">
           <span><strong>Email:</strong></span>
           <span>${request.email}</span>
         </div>
-        
+
         <div class="row">
           <span><strong>Document Type:</strong></span>
           <span>${request.documentType.charAt(0).toUpperCase() + request.documentType.slice(1)} Certificate</span>
         </div>
-        
+
         <div class="row">
           <span><strong>Payment Method:</strong></span>
           <span>${request.paymentMethod ? request.paymentMethod.toUpperCase() : 'Online'}</span>
         </div>
-        
+
         <div class="row">
           <span><strong>Payment Date:</strong></span>
           <span>${new Date(request.updatedAt).toLocaleDateString()}</span>
         </div>
-        
+
         <div class="row total">
           <span><strong>Amount Paid:</strong></span>
           <span><strong>₱${request.paymentAmount}</strong></span>
         </div>
-        
+
         <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
           <p><strong>Status:</strong> Payment Completed</p>
-          <p><strong>Note:</strong> This receipt serves as proof of payment for your civil registry document request. Please keep this for your records.</p>
+          <p><strong>Note:</strong> Online payments in this application are simulated. This generated record does not verify that funds were transferred. Confirm payment with the LGU office.</p>
         </div>
       </div>
-      
+
       <div class="footer">
         <p>Generated on ${today}</p>
-        <p>SmartCivi Civil Registry System | Official Receipt</p>
+        <p>SmartCivi | Payment Record</p>
         <p>For inquiries, please contact our office during business hours.</p>
       </div>
     </body>
@@ -1113,37 +1169,37 @@ function generateReceipt(request) {
 }
 export const attachmentsPage = async (req, res) => {
   const { id } = req.params;
-  
+
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     const request = await Request.findByPk(id);
     if (!request) {
-      return res.render('attachments', { 
-        title: 'Attachments', 
+      return res.render('attachments', {
+        title: 'Attachments',
         request: null,
-        requestId: id 
+        requestId: id
       });
     }
 
     // Security check: Users can only view attachments for their own requests (unless admin)
-    const isAdmin = req.session.user.role === 'admin';
+    const isAdmin = can(req.session.user.role, 'requests');
     const isOwner = request.email === req.session.user.email;
-    
+
     if (!isAdmin && !isOwner) {
-      return res.render('attachments', { 
-        title: 'Attachments', 
+      return res.render('attachments', {
+        title: 'Attachments',
         request: null,
-        requestId: id 
+        requestId: id
       });
     }
 
-    res.render('attachments', { 
-      title: 'Attachments', 
+    res.render('attachments', {
+      title: 'Attachments',
       request: request.toJSON(),
       requestId: id,
-      user: req.session.user 
+      user: req.session.user
     });
   } catch (err) {
     console.error('Error loading attachments page:', err);
@@ -1153,10 +1209,10 @@ export const attachmentsPage = async (req, res) => {
 
 export const downloadDocument = async (req, res) => {
   const { id } = req.params;
-  
+
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     const request = await Request.findByPk(id);
     if (!request) {
@@ -1165,16 +1221,16 @@ export const downloadDocument = async (req, res) => {
     }
 
     // Security check
-    const isAdmin = req.session.user.role === 'admin';
+    const isAdmin = can(req.session.user.role, 'requests');
     const isOwner = request.email === req.session.user.email;
-    
+
     if (!isAdmin && !isOwner) {
       req.flash('error_msg', 'Unauthorized access');
       return res.redirect('/status');
     }
 
     // Check if request is paid (only paid requests can download documents)
-    if (request.status !== 'paid') {
+    if (!paymentComplete(request) || !['paid', 'completed', 'released'].includes(request.status)) {
       req.flash('error_msg', 'Document not ready for download. Payment required.');
       return res.redirect(`/request/${id}`);
     }
@@ -1195,8 +1251,9 @@ export const downloadDocument = async (req, res) => {
 
 // Helper function to generate certificate
 function generateCertificate(request) {
+  request = safeDocumentValues(request);
   const today = new Date().toLocaleDateString();
-  
+
   return `
     <!DOCTYPE html>
     <html>
@@ -1220,12 +1277,12 @@ function generateCertificate(request) {
         <div>Civil Registry Management System</div>
         <div>Republic of the Philippines</div>
       </div>
-      
+
       <div class="certificate">
         <div class="title" style="text-align: center;">
           CERTIFICATE OF ${request.documentType.toUpperCase()}
         </div>
-        
+
         <div class="content">
           <p><strong>Certificate No:</strong> ${request.paymentReference || `CERT-${request.id}`}</p>
           <p><strong>Full Name:</strong> ${request.fullName}</p>
@@ -1236,11 +1293,11 @@ function generateCertificate(request) {
           <p><strong>Payment Reference:</strong> ${request.paymentReference}</p>
           <p><strong>Amount Paid:</strong> ₱${request.paymentAmount}</p>
         </div>
-        
+
         <div style="margin-top: 40px;">
-          <p>This certificate is issued in accordance with the Civil Registry Law and is valid for official use.</p>
+          <p>Preview generated from request details. Official issuance requires registry verification and authorized office release.</p>
         </div>
-        
+
         <div class="signature">
           <div style="float: right; text-align: center;">
             <div style="border-top: 1px solid #000; width: 200px; margin-bottom: 5px;"></div>
@@ -1250,7 +1307,7 @@ function generateCertificate(request) {
           <div style="clear: both;"></div>
         </div>
       </div>
-      
+
       <div class="footer">
         <small>Generated on ${today} | SmartCivi Civil Registry System</small>
       </div>
@@ -1308,21 +1365,21 @@ export const officesPage = (req, res) => {
     }
   ];
 
-  res.render('offices', { 
-    title: 'Local Offices', 
-    offices: offices 
+  res.render('offices', {
+    title: 'Local Offices',
+    offices: offices
   });
 };
 
 // Appointment Management Controllers
 export const myAppointmentsPage = async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     // Get all requests for the current user that are appointments
     const appointments = await Request.findAll({
-      where: { 
-        email: req.session.user.email 
+      where: {
+        email: req.session.user.email
       },
       order: [['createdAt', 'DESC']]
     });
@@ -1332,7 +1389,7 @@ export const myAppointmentsPage = async (req, res) => {
       const data = appointment.toJSON();
       data.createdAt = new Date(data.createdAt).toLocaleDateString();
       data.updatedAt = new Date(data.updatedAt).toLocaleDateString();
-      
+
       // Add status styling
       data.statusClass = {
         'pending': 'bg-yellow-100 text-yellow-800',
@@ -1341,7 +1398,7 @@ export const myAppointmentsPage = async (req, res) => {
         'paid': 'bg-purple-100 text-purple-800',
         'rejected': 'bg-red-100 text-red-800'
       }[data.status] || 'bg-gray-100 text-gray-800';
-      
+
       return data;
     });
 
@@ -1370,7 +1427,7 @@ export const adminAppointmentsPage = async (req, res) => {
       const data = appointment.toJSON();
       data.createdAt = new Date(data.createdAt).toLocaleDateString();
       data.updatedAt = new Date(data.updatedAt).toLocaleDateString();
-      
+
       // Add status styling
       data.statusClass = {
         'pending': 'bg-yellow-100 text-yellow-800',
@@ -1379,7 +1436,7 @@ export const adminAppointmentsPage = async (req, res) => {
         'paid': 'bg-purple-100 text-purple-800',
         'rejected': 'bg-red-100 text-red-800'
       }[data.status] || 'bg-gray-100 text-gray-800';
-      
+
       return data;
     });
 
@@ -1398,23 +1455,23 @@ export const adminAppointmentsPage = async (req, res) => {
 export const updateAppointmentStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-  
+
   try {
     await Request.update({ status }, { where: { id } });
-    
+
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
       return res.json({ success: true, id, status });
     }
-    
+
     req.flash('success_msg', 'Appointment status updated successfully');
     res.redirect('/admin/appointments');
   } catch (err) {
     console.error('Error updating appointment status:', err);
-    
+
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
       return res.status(500).json({ success: false, error: err.message });
     }
-    
+
     req.flash('error_msg', 'Failed to update appointment status');
     res.redirect('/admin/appointments');
   }
@@ -1423,7 +1480,7 @@ export const updateAppointmentStatus = async (req, res) => {
 export const addAppointmentNotes = async (req, res) => {
   const { id } = req.params;
   const { notes } = req.body;
-  
+
   try {
     await Request.update({ notes }, { where: { id } });
     res.json({ success: true, id, notes });
@@ -1436,14 +1493,14 @@ export const addAppointmentNotes = async (req, res) => {
 export const requestAppointmentReschedule = async (req, res) => {
   const { id } = req.params;
   const { rescheduleReason } = req.body;
-  
+
   try {
     // Add reschedule request to the appointment
-    await Request.update({ 
+    await Request.update({
       rescheduleReason,
-      rescheduleRequested: true 
+      rescheduleRequested: true
     }, { where: { id } });
-    
+
     req.flash('success_msg', 'Reschedule request submitted successfully');
     res.redirect('/my-appointments');
   } catch (err) {
@@ -1456,10 +1513,10 @@ export const requestAppointmentReschedule = async (req, res) => {
 // Request Confirmation Page Controller
 export const requestConfirmationPage = async (req, res) => {
   const { id } = req.params;
-  
+
   // Require authentication
   if (!req.session.user) return res.redirect('/login');
-  
+
   try {
     const request = await Request.findByPk(id);
     if (!request) {
@@ -1468,9 +1525,9 @@ export const requestConfirmationPage = async (req, res) => {
     }
 
     // Security check: Users can only view their own request confirmations (unless admin)
-    const isAdmin = req.session.user.role === 'admin';
+    const isAdmin = can(req.session.user.role, 'requests');
     const isOwner = request.email === req.session.user.email;
-    
+
     if (!isAdmin && !isOwner) {
       req.flash('error_msg', 'Unauthorized access');
       return res.redirect('/browse');
@@ -1492,8 +1549,8 @@ export const requestConfirmationPage = async (req, res) => {
       ]
     };
 
-    res.render('requestConfirmation', { 
-      title: 'Request Confirmation', 
+    res.render('requestConfirmation', {
+      title: 'Request Confirmation',
       request: request.toJSON(),
       user: req.session.user,
       processingInfo: processingInfo,

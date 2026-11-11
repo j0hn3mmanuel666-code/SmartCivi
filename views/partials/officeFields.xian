@@ -1,0 +1,9 @@
+<div class="form-grid">
+{{#each fields}}
+<label {{#if isTextarea}}class="wide"{{/if}}><span>{{label}}{{#if required}} <span aria-label="required">*</span>{{/if}}</span>
+{{#if isSelect}}<select name="{{key}}" {{#if required}}required{{/if}}>{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+{{else}}{{#if isTextarea}}<textarea name="{{key}}" maxlength="3000">{{value}}</textarea>
+{{else}}<input name="{{key}}" type="{{type}}" value="{{value}}" {{#if required}}required{{/if}} {{#ifEq type 'number'}}min="0" max="2147483647" step="1"{{else}}maxlength="255"{{/ifEq}}>{{/if}}{{/if}}
+</label>
+{{/each}}
+</div>

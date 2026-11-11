@@ -3,6 +3,7 @@
 
   <form id="submitRequestForm" method="POST" action="/request" class="bg-white bg-opacity-90 backdrop-blur-lg w-full max-w-3xl p-6 rounded-xl shadow-lg border border-gray-200">
     <h2 class="text-2xl font-extrabold text-center mb-4 text-blue-700">Submit a Request</h2>
+    <label class="text-sm font-medium" for="documentType">Certificate type</label><select id="documentType" name="documentType" required class="mb-4"><option value="birth">Birth certificate</option><option value="marriage">Marriage certificate</option><option value="death">Death certificate</option></select>
 
     {{#if success_msg}}
       <div class="mb-3 text-green-800 bg-green-100 p-2 rounded">{{success_msg}}</div>

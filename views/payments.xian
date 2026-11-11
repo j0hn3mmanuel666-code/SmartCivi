@@ -21,6 +21,7 @@
   </section>
 
   <main class="container mx-auto px-4 py-8">
+    <p class="notice mx-auto max-w-4xl" role="note">Payment demonstration: online payment is simulated. No payment gateway is connected and no funds are transferred. Confirm current fees and payment instructions with the Bansud LGU office.</p>
     <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 max-w-4xl mx-auto">
       
       {{#if request}}

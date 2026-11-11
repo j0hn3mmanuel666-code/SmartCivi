@@ -45,9 +45,9 @@
                 {{#ifEq request.status 'payment_pending'}}
                   <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full">Payment Pending</span>
                 {{/ifEq}}
-                {{#ifEq request.status 'paid'}}
+                {{#ifPaid request}}
                   <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">Paid</span>
-                {{/ifEq}}
+                {{/ifPaid}}
                 {{#ifEq request.status 'rejected'}}
                   <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full">Rejected</span>
                 {{/ifEq}}
@@ -142,10 +142,10 @@
                 {{/ifEq}}
               {{/if}}
             {{/ifEq}}
-            {{#ifEq request.status 'paid'}}
+            {{#ifPaid request}}
               <p class="text-purple-700 font-medium">Payment received! Your document is being prepared.</p>
               <p class="text-sm text-gray-600">You will be notified when your document is ready for pickup or delivery.</p>
-            {{/ifEq}}
+            {{/ifPaid}}
             {{#ifEq request.status 'rejected'}}
               <p class="text-red-700 font-medium">Unfortunately, your request has been rejected.</p>
               <p class="text-sm text-gray-600">Please contact our office for more information or to resubmit with corrections.</p>
@@ -180,6 +180,7 @@
           </a>
         </div>
 
+        {{#if events}}<section class="mt-8 border-t border-gray-200 pt-6"><h2 class="text-xl font-semibold mb-4">Processing history</h2><ol class="timeline">{{#each events}}<li><strong>{{status}}</strong> · {{detail}}<small>{{when}}</small></li>{{/each}}</ol></section>{{/if}}
       {{else}}
         <!-- Request Not Found -->
         <div class="text-center py-12">

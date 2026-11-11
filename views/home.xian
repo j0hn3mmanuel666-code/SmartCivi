@@ -20,8 +20,8 @@
     <div class="absolute inset-0 bg-[#102a1e]/65" aria-hidden="true"></div>
     <div class="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-20 sm:pb-20">
       <p class="mb-5 text-xs font-bold uppercase tracking-[.18em] text-[#e7b47f]">Municipal civil registry <span class="mx-2 text-white/50">/</span> SmartCivi</p>
-      <h1 class="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-6xl">Civil services, made clearer.</h1>
-      <p class="mt-5 max-w-2xl text-base leading-7 text-white/80 sm:text-lg">Submit document requests, follow their progress, and connect with your local registry office in one place.</p>
+      <h1 class="max-w-4xl text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl">{{systemTitle}}</h1>
+      <p class="mt-5 max-w-2xl text-base leading-7 text-white/80 sm:text-lg">{{officeName}}. Submit document requests, book appointments and follow their progress. Authorized personnel manage civil records and operational resources in one place.</p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a href="/browse" class="inline-flex min-h-12 items-center rounded-md bg-[#e9a15b] px-5 py-3 text-sm font-bold text-[#20372b] transition hover:bg-[#f0b87f]">Explore services <span class="ml-3" aria-hidden="true">&#8594;</span></a>
         <a href="/login" class="inline-flex min-h-12 items-center rounded-md border border-white/50 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">Sign in to your account</a>
@@ -35,7 +35,7 @@
       <p class="mb-4 text-xs font-bold uppercase tracking-[.16em] text-[#24724c]">About SmartCivi</p>
       <h2 class="mb-6 text-3xl font-bold tracking-tight text-[#202923] sm:text-4xl">A simpler way to access civil registry services.</h2>
       <p class="text-base leading-7 text-[#5d6a60] sm:text-lg">
-        SmartCivi is a cutting-edge digital civil registry platform designed to revolutionize how municipalities manage and process citizen records such as birth, marriage, and death certificates. Our system combines efficiency, security, and user-friendly design to provide seamless access to essential civil services for both residents and municipal officers.
+        SmartCivi connects civil registry management and resource planning for local government offices. Residents can request birth, marriage and death certificates, while authorized Bansud LGU personnel maintain resident profiles, process documents and coordinate personnel, supplies and equipment.
       </p>
     </div>
   </section>

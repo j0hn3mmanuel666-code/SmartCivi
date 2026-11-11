@@ -1,0 +1,18 @@
+<a href="#main" class="skip-link">Skip to content</a>
+<header class="office-header">
+  <div class="office-brand">
+    <a class="brand-link" href="{{#if isStaff}}/admin{{else}}/dashboard{{/if}}"><span class="brand-mark" aria-hidden="true">S</span><span>SmartCivi<span class="brand-context">{{officeName}}</span></span></a>
+    <div class="account">{{user.name}}<br><span>{{user.role}}</span><a href="/logout">Sign out</a></div>
+  </div>
+  <nav class="office-nav" aria-label="{{#if isStaff}}Office{{else}}Citizen{{/if}} navigation">
+    {{#unless isStaff}}<a href="/dashboard">Dashboard</a><a href="/dashboard/my-requests">My requests</a><a href="/my-appointments">Appointments</a><a href="/payments">Payments</a><a href="/dashboard/profile">My profile</a>{{/unless}}
+    {{#if isStaff}}<a href="/admin">Overview</a>{{/if}}
+    {{#if canResidents}}<a href="/admin/residents">Residents</a>{{/if}}
+    {{#if canRegistry}}<a href="/admin/registry">Civil registry</a>{{/if}}
+    {{#if canRequests}}<a href="/admin/requests">Requests</a><a href="/admin/appointments">Appointments</a>{{/if}}
+    {{#if canResources}}<a href="/admin/resources">Resources</a>{{/if}}
+    {{#if canReports}}<a href="/admin/reports">Reports</a>{{/if}}
+    {{#if isAdmin}}<a href="/admin/users">Users</a><a href="/admin/audit">Audit history</a><a href="/admin/operations">Operations</a><a href="/admin/integrations">Integrations</a>{{/if}}
+    <a href="/dashboard/notifications">Notifications</a><a href="/browse">Citizen services</a>
+  </nav>
+</header>

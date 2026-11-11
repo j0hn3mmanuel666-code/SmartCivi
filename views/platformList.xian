@@ -1,0 +1,11 @@
+{{> head}}<body class="office">{{> staffNav}}
+<main id="main" class="office-main">{{> officeFlash}}
+<header class="page-heading"><div><h1>{{title}}</h1><p>{{description}}</p></div>{{#if newUrl}}<a class="button" href="{{newUrl}}">Add {{singular}}</a>{{/if}}</header>
+<section class="panel" aria-label="{{title}} list">
+<form action="{{base}}" method="get" class="toolbar"><label><span>Search</span><input name="q" value="{{q}}" placeholder="Search records" maxlength="100"></label>{{#if filterLabel}}<label><span>Filter by {{filterLabel}}</span><input name="filter" value="{{filter}}" placeholder="All {{filterLabel}}" maxlength="100"></label>{{#if newUrl}}<label class="check"><input type="checkbox" name="archived" value="1" {{#if archived}}checked{{/if}}> Archived only</label>{{/if}}{{/if}}<button class="button" type="submit">Search</button><a class="button secondary" href="{{base}}">Reset</a></form>
+<p class="small muted">{{count}} matching records{{#if archived}} · Archived records{{/if}}</p>
+{{#if rows}}<div class="table-wrap"><table class="office-table"><thead><tr>{{#each columns}}<th scope="col">{{this}}</th>{{/each}}<th scope="col">Actions</th></tr></thead><tbody>{{#each rows}}<tr>{{#each cells}}<td>{{this}}</td>{{/each}}<td>{{#if url}}<a href="{{url}}">Open</a>{{/if}}{{#if registerUrl}}<br><a href="{{registerUrl}}">Register civil record</a>{{/if}}</td></tr>{{/each}}</tbody></table></div>
+{{else}}<div class="empty"><h2>No records to show</h2><p>{{#if q}}Try a different search or reset your filters.{{else}}Records will appear here as your office adds them.{{/if}}</p>{{#if newUrl}}<a class="button" href="{{newUrl}}">Add {{singular}}</a>{{/if}}</div>{{/if}}
+<div class="pagination"><span class="small muted">Page {{page}} of {{pages}}</span><div class="record-links">{{#if previous}}<a class="button secondary" href="{{previous}}">Previous</a>{{/if}}{{#if next}}<a class="button secondary" href="{{next}}">Next</a>{{/if}}</div></div>
+</section></main>{{> officeFooter}}</body></html>
+

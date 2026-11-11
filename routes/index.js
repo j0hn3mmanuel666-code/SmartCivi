@@ -1,7 +1,7 @@
 
   /*
     MIT License
-    
+
     Copyright (c) 2025 Christian I. Cabrera || XianFire Framework
     Mindoro State University - Philippines
 
@@ -23,11 +23,11 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     */
-    
+
 import express from "express";
-import { 
-  adminPage, adminPanelPage, homePage, requestPage, toolPage, 
-  adminRequestsPage, 
+import {
+  adminPage, adminPanelPage, homePage, requestPage, toolPage,
+  adminRequestsPage,
   recordsPage,
   searchBirthRecord,
   searchMarriageRecord,
@@ -71,15 +71,23 @@ import {
   requestConfirmationPage
 } from "../controllers/homeController.js";
 import { browsePage } from "../controllers/homeController.js";
-import { 
-  loginPage, registerPage, forgotPasswordPage, 
-  dashboardPage, loginUser, registerUser, logoutUser 
+import {
+  loginPage, registerPage, forgotPasswordPage,
+  dashboardPage, loginUser, registerUser, logoutUser
 } from "../controllers/authController.js";
 import { setupAdmin } from "../controllers/authController.js";
 import { ensureAdmin } from "../middleware/auth.js";
 import { updateRequestStatus, assignRequest, deleteRequestAdmin } from "../controllers/homeController.js";
 
 const router = express.Router();
+import { requireFeature, ownRequest } from '../middleware/platformSecurity.js';
+router.use('/admin', (req, res, next) => {
+  const feature = req.path.startsWith('/users') ? 'users' : req.path.startsWith('/requests') || req.path.startsWith('/appointments') ? 'requests' : req.path.startsWith('/reports') || req.path.startsWith('/analytics') ? 'reports' : 'operations';
+  return requireFeature(feature)(req, res, next);
+});
+router.use(['/request/:id', '/payments/:id', '/receipts/:id', '/appointments/:id'], (req, res, next) => /^\d+$/.test(req.params.id) ? ownRequest(req, res, next) : next());
+router.use('/records', (req, res, next) => req.session.user ? next() : res.redirect('/login'));
+router.use('/reports', requireFeature('requests'));
 
 // Home and main pages
 router.get("/", homePage);
@@ -116,9 +124,9 @@ router.get('/dashboard/my-requests', myRequestsPage);
 
 // Appointments
 router.get('/my-appointments', myAppointmentsPage);
-router.get('/admin/appointments', ensureAdmin, adminAppointmentsPage);
-router.post('/admin/appointments/:id/status', ensureAdmin, updateAppointmentStatus);
-router.post('/admin/appointments/:id/notes', ensureAdmin, addAppointmentNotes);
+router.get('/admin/appointments', requireFeature('requests'), adminAppointmentsPage);
+router.post('/admin/appointments/:id/status', requireFeature('requests'), updateAppointmentStatus);
+router.post('/admin/appointments/:id/notes', requireFeature('requests'), addAppointmentNotes);
 router.post('/appointments/:id/reschedule', requestAppointmentReschedule);
 
 // Admin request editor and print/export
@@ -155,12 +163,12 @@ router.get("/dashboard/requests", requestDash);
 router.get("/logout", logoutUser);
 
 // New admin request page route
-router.get("/admin/requests", ensureAdmin, adminRequestsPage);
+router.get("/admin/requests", requireFeature('requests'), adminRequestsPage);
 
 // Admin request action routes
-router.post('/admin/requests/:id/status', ensureAdmin, updateRequestStatus);
-router.post('/admin/requests/:id/assign', ensureAdmin, assignRequest);
-router.post('/admin/requests/:id/delete', ensureAdmin, deleteRequestAdmin);
+router.post('/admin/requests/:id/status', requireFeature('requests'), updateRequestStatus);
+router.post('/admin/requests/:id/assign', requireFeature('requests'), assignRequest);
+router.post('/admin/requests/:id/delete', requireFeature('requests'), deleteRequestAdmin);
 
 // Admin users management
 router.get('/admin/users', ensureAdmin, usersPage);
@@ -189,8 +197,3 @@ router.get("/status", statusPage);
 
 
 export default router;
-
-
-
-
-

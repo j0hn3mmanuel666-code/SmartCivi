@@ -119,7 +119,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200" id="paymentsTableBody">
               {{#each payments}}
-                <tr class="hover:bg-gray-50 payment-row" data-status="{{this.status}}" data-method="{{this.paymentMethod}}" data-payment-id="{{this.id}}">
+                <tr class="hover:bg-gray-50 payment-row" data-status="{{#ifPaid this}}paid{{else}}{{this.status}}{{/ifPaid}}" data-method="{{this.paymentMethod}}" data-payment-id="{{this.id}}">
                   <td class="px-4 py-3 text-sm text-gray-900 font-mono">{{this.paymentReference}}</td>
                   <td class="px-4 py-3 text-sm text-gray-900">#{{this.id}}</td>
                   <td class="px-4 py-3 text-sm text-gray-600 capitalize">{{this.documentType}}</td>
@@ -133,11 +133,11 @@
                   </td>
                   <td class="px-4 py-3">
                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                      {{#ifEq this.status 'paid'}}bg-green-100 text-green-800{{/ifEq}}
+                      {{#ifPaid this}}bg-green-100 text-green-800{{/ifPaid}}
                       {{#ifEq this.status 'payment_pending'}}bg-yellow-100 text-yellow-800{{/ifEq}}
                       {{#ifEq this.status 'approved'}}bg-blue-100 text-blue-800{{/ifEq}}
                       {{#ifEq this.status 'pending'}}bg-gray-100 text-gray-800{{/ifEq}}">
-                      {{#ifEq this.status 'paid'}}Paid{{/ifEq}}
+                      {{#ifPaid this}}Paid{{/ifPaid}}
                       {{#ifEq this.status 'payment_pending'}}Pending{{/ifEq}}
                       {{#ifEq this.status 'approved'}}Ready for Payment{{/ifEq}}
                       {{#ifEq this.status 'pending'}}Not Ready{{/ifEq}}
@@ -146,11 +146,11 @@
                   <td class="px-4 py-3 text-sm text-gray-600">{{this.updatedAt}}</td>
                   <td class="px-4 py-3">
                     <div class="flex items-center space-x-2">
-                      {{#ifEq this.status 'paid'}}
+                      {{#ifPaid this}}
                         <button onclick="downloadReceipt({{this.id}})" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 transition-all">
                           Download Receipt
                         </button>
-                      {{/ifEq}}
+                      {{/ifPaid}}
                       
                       {{#ifEq this.status 'approved'}}
                         <a href="/request/{{this.id}}/pay" class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-all">
@@ -238,7 +238,7 @@
             show = true;
             break;
           case 'paid':
-            show = status === 'paid';
+            show = ['paid', 'completed', 'released'].includes(status);
             break;
           case 'pending':
             show = status === 'payment_pending' || status === 'approved';

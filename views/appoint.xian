@@ -61,8 +61,8 @@
         <option value="birth">Birth Certificate</option>
         <option value="marriage">Marriage Certificate</option>
         <option value="death">Death Certificate</option>
-        <option value="id">ID / Clearance</option>
-        <option value="other">Other</option>
+
+
       </select>
 
       <label class="text-xs text-gray-700">Relationship to person on certificate</label>
@@ -71,7 +71,7 @@
         <option value="parent">Parent</option>
         <option value="spouse">Spouse</option>
         <option value="child">Child</option>
-        <option value="other">Other</option>
+
       </select>
 
       <div class="grid grid-cols-3 gap-2">
@@ -201,7 +201,7 @@
           const btn = document.createElement('button');
           btn.type='button';
           btn.className='p-2 rounded border text-sm bg-white';
-          const iso = d.toISOString().slice(0,10);
+            const iso = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
           btn.textContent = d.toLocaleDateString();
           btn.dataset.date = iso;
           btn.addEventListener('click', ()=>{
@@ -256,6 +256,6 @@
     })();
   </script>
 
-  
+
 
 </body>

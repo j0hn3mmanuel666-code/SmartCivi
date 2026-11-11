@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{csrf}}">
+  <link rel="stylesheet" href="/platform.css">
+  <script src="/platform.js" defer></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body[class~="from-pink-300"] {
@@ -85,5 +88,5 @@
       color: #a85e24 !important;
     }
   </style>
-  <title>{{ title }} </title>
+  <title>{{#if title}}{{title}} | {{/if}}{{systemTitle}}</title>
 </head>

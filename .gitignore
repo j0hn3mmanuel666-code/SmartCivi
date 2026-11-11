@@ -5,4 +5,6 @@ node_modules/
 npm-debug.log*
 .DS_Store
 tmp/
+backups/
+*.scbackup
 output/diagrams/qa/

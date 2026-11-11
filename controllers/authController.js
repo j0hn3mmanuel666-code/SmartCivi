@@ -29,7 +29,10 @@ import { User, sequelize } from "../models/userModel.js";
 import "../models/Request.js";
 import "../models/Attachment.js";
 import "../models/Appointment.js";
-await sequelize.sync();
+import { initializePlatform } from '../models/Platform.js';
+import { audit } from '../services/platform.js';
+import { can } from '../services/platformRules.js';
+await initializePlatform();
 
 // Development helper: create or update the dev admin user
 export const setupAdmin = async (req, res) => {
@@ -99,20 +102,24 @@ export const loginUser = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
     if (!user) {
+      await audit(req, 'login.failed', 'account', null, 'Invalid credentials');
       req.flash('error_msg', 'User not found');
       return res.redirect('/login');
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
+      await audit(req, 'login.failed', 'account', user.id, 'Invalid credentials');
       req.flash('error_msg', 'Incorrect password');
       return res.redirect('/login');
     }
 
+    await new Promise((resolve, reject) => req.session.regenerate(error => error ? reject(error) : resolve()));
     req.session.userId = user.id;
     req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role };
     // Redirect admin users to the admin panel, others to browse
-    if (user.role === 'admin') {
+    await audit(req, 'login.success', 'account', user.id, 'Signed in');
+    if (can(user.role, 'overview')) {
       return res.redirect('/admin');
     }
     return res.redirect('/browse');
@@ -127,10 +134,15 @@ export const registerUser = async (req, res) => {
   try {
     console.log("Registration attempt:", { ...req.body, password: '[REDACTED]' });
     
-    const { name, email, password } = req.body;
+    const { name, password } = req.body;
+    const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
     if (!name || !email || !password) {
       console.log("Missing required fields");
       req.flash('error_msg', 'All fields are required');
+      return res.redirect('/register');
+    }
+    if (typeof name !== 'string' || typeof password !== 'string' || name.trim().length > 255 || password.length < 8 || Buffer.byteLength(password) > 72) {
+      req.flash('error_msg', 'Use a name under 256 characters and a password of 8–72 bytes.');
       return res.redirect('/register');
     }
     
@@ -155,6 +167,7 @@ export const registerUser = async (req, res) => {
     
     console.log("User created successfully:", { id: user.id, name: user.name, email: user.email });
     
+    await new Promise((resolve, reject) => req.session.regenerate(error => error ? reject(error) : resolve()));
     req.session.userId = user.id;
     req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role || 'user' };
     // After successful registration, send the user to the services browsing page

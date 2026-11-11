@@ -1,16 +1,7 @@
 {{> head }}
-<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+<body class="office legacy-workspace bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
 
-  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
-    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
-      <div class="hidden md:flex space-x-4">
-        <a href="/browse" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Services</a>
-        <a href="/logout" class="text-white">Logout</a>
-      </div>
-      <button class="md:hidden hover:opacity-80">☰</button>
-    </div>
-  </nav>
+  {{> staffNav}}
 
   <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
     <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Payments & Receipts</h1>
@@ -20,7 +11,7 @@
     </div>
   </section>
 
-  <main class="container mx-auto px-4 py-8">
+  <main id="main" class="container mx-auto px-4 py-8">
     
     <!-- Payment Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

@@ -1,4 +1,4 @@
-{{> head}}<body class="office">{{> staffNav}}
+{{> head officeStyles=true}}<body class="office">{{> staffNav}}
 <main id="main" class="office-main">{{> officeFlash}}
 <header class="page-heading"><div><h1>{{title}}</h1><p>{{description}}</p></div>{{#if newUrl}}<a class="button" href="{{newUrl}}">Add {{singular}}</a>{{/if}}</header>
 <section class="panel" aria-label="{{title}} list">

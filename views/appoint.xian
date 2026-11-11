@@ -1,8 +1,10 @@
 {{> head }}
-<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 min-h-screen flex items-center justify-center">
+<body class="office form-portal">
+{{> staffNav}}
+<main id="main" class="request-form-main">
 
   <form id="multiRequestForm" method="POST" action="/request" class="bg-white bg-opacity-90 backdrop-blur-lg w-full max-w-2xl p-6 rounded-xl shadow-lg border border-gray-200">
-    <h2 class="text-2xl font-extrabold text-center mb-4 text-blue-700">Set an Appointment</h2>
+    <h1 class="text-2xl font-extrabold text-center mb-4 text-blue-700">Set an Appointment</h1>
 
     {{#if success_msg}}
       <div class="mb-3 text-green-800 bg-green-100 p-2 rounded">{{success_msg}}</div>
@@ -19,7 +21,7 @@
 
     <!-- STEP 1: Region & Personal Info -->
     <section data-step="1" class="step">
-      <label class="text-xs text-gray-700">Region</label>
+      <label for="region" class="text-xs text-gray-700">Region</label>
       <select id="region" name="region" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
         <option value="">-- Select Region --</option>
         <option>Region I</option>
@@ -39,13 +41,13 @@
         <option>NCR</option>
       </select>
 
-      <label class="text-xs text-gray-700">Your full name</label>
+      <label for="fullName" class="text-xs text-gray-700">Your full name</label>
       <input type="text" id="fullName" name="fullName" value="{{#if user}}{{user.name}}{{/if}}" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
 
-      <label class="text-xs text-gray-700">Email</label>
+      <label for="email" class="text-xs text-gray-700">Email</label>
       <input type="email" id="email" name="email" value="{{#if user}}{{user.email}}{{/if}}" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
 
-      <label class="text-xs text-gray-700">Phone</label>
+      <label for="phone" class="text-xs text-gray-700">Phone</label>
       <input type="tel" id="phone" name="phone" placeholder="0917xxxxxxx" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
 
       <div class="flex items-center justify-between mt-4">
@@ -56,7 +58,7 @@
 
     <!-- STEP 2: Certificate Details -->
     <section data-step="2" class="step hidden">
-      <label class="text-xs text-gray-700">Certificate Type</label>
+      <label for="certificateType" class="text-xs text-gray-700">Certificate Type</label>
       <select id="certificateType" name="documentType" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
         <option value="birth">Birth Certificate</option>
         <option value="marriage">Marriage Certificate</option>
@@ -65,7 +67,7 @@
 
       </select>
 
-      <label class="text-xs text-gray-700">Relationship to person on certificate</label>
+      <label for="relationship" class="text-xs text-gray-700">Relationship to person on certificate</label>
       <select id="relationship" name="relationship" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
         <option value="self">Self</option>
         <option value="parent">Parent</option>
@@ -76,30 +78,30 @@
 
       <div class="grid grid-cols-3 gap-2">
         <div>
-          <label class="text-xs text-gray-700">Given / First name</label>
+          <label for="givenName" class="text-xs text-gray-700">Given / First name</label>
           <input type="text" id="givenName" name="givenName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label class="text-xs text-gray-700">Middle name</label>
+          <label for="middleName" class="text-xs text-gray-700">Middle name</label>
           <input type="text" id="middleName" name="middleName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label class="text-xs text-gray-700">Family / Last name</label>
+          <label for="familyName" class="text-xs text-gray-700">Family / Last name</label>
           <input type="text" id="familyName" name="familyName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
       </div>
 
       <div class="grid grid-cols-3 gap-2 mt-2">
         <div>
-          <label class="text-xs text-gray-700">Birthdate</label>
+          <label for="birthdate" class="text-xs text-gray-700">Birthdate</label>
           <input type="date" id="birthdate" name="birthdate" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label class="text-xs text-gray-700">Father's full name</label>
+          <label for="fatherName" class="text-xs text-gray-700">Father's full name</label>
           <input type="text" id="fatherName" name="fatherName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label class="text-xs text-gray-700">Mother's full name</label>
+          <label for="motherName" class="text-xs text-gray-700">Mother's full name</label>
           <input type="text" id="motherName" name="motherName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
       </div>
@@ -138,6 +140,7 @@
     </section>
 
   </form>
+</main>
 
   <script>
     (function(){

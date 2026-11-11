@@ -1,18 +1,18 @@
 <a href="#main" class="skip-link">Skip to content</a>
-<header class="office-header">
-  <div class="office-brand">
-    <a class="brand-link" href="{{#if isStaff}}/admin{{else}}/dashboard{{/if}}"><span class="brand-mark" aria-hidden="true">S</span><span>SmartCivi<span class="brand-context">{{officeName}}</span></span></a>
-    <div class="account">{{user.name}}<br><span>{{user.role}}</span><a href="/logout">Sign out</a></div>
+<div class="workspace-backdrop" data-sidebar-close hidden aria-hidden="true"></div>
+<aside id="workspace-navigation" class="workspace-sidebar" aria-label="Workspace navigation">
+  <div class="sidebar-brand"><a class="brand-link" href="{{#if isStaff}}/admin{{else}}/dashboard{{/if}}"><span class="brand-mark" aria-hidden="true">S</span><span>SmartCivi<small>Municipal services</small></span></a><button type="button" class="sidebar-close icon-button" data-sidebar-close aria-label="Close navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="sidebar-profile"><span class="workspace-avatar">{{> navIcon icon="user"}}</span><div><strong title="{{user.name}}">{{user.name}}</strong><small>{{> roleLabel}}</small></div></div>
+  <nav class="office-nav sidebar-navigation" aria-label="{{#if isStaff}}Office{{else}}Citizen{{/if}} navigation">{{> officeNavLinks}}</nav>
+  <div class="sidebar-footer"><p>Municipality of Bansud<br>Oriental Mindoro</p><a href="/logout">{{> navIcon icon="logout"}}Sign out</a></div>
+</aside>
+<header class="office-header workspace-header">
+  <div class="workspace-header-inner">
+    <button type="button" class="icon-button workspace-menu-toggle" data-sidebar-toggle aria-label="Open navigation" aria-controls="workspace-navigation" aria-expanded="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <details class="mobile-menu"><summary>Menu</summary><nav class="office-nav mobile-navigation" aria-label="Mobile navigation">{{> officeNavLinks}}</nav></details>
+    <a class="workspace-mobile-brand" href="{{#if isStaff}}/admin{{else}}/dashboard{{/if}}">SmartCivi</a>
+    <span class="workspace-context">{{#if isStaff}}LGU workspace{{else}}Citizen workspace{{/if}}</span>
+    <form class="workspace-search" method="get" action="{{#if canResidents}}/admin/residents{{else}}{{#if canResources}}/admin/resources{{else}}/dashboard/my-requests{{/if}}{{/if}}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" name="q" aria-label="{{#if canResidents}}Search residents{{else}}{{#if canResources}}Search resources{{else}}Search your requests{{/if}}{{/if}}" placeholder="{{#if canResidents}}Find a resident{{else}}{{#if canResources}}Find a resource{{else}}Find a request{{/if}}{{/if}}" maxlength="100"></form>
+    <div class="workspace-header-actions"><a class="icon-button" href="/dashboard/notifications" aria-label="Notifications">{{> navIcon icon="bell"}}</a><a class="workspace-account" href="/dashboard/profile"><span class="workspace-avatar">{{> navIcon icon="user"}}</span><span>{{user.name}}</span></a></div>
   </div>
-  <nav class="office-nav" aria-label="{{#if isStaff}}Office{{else}}Citizen{{/if}} navigation">
-    {{#unless isStaff}}<a href="/dashboard">Dashboard</a><a href="/dashboard/my-requests">My requests</a><a href="/my-appointments">Appointments</a><a href="/payments">Payments</a><a href="/dashboard/profile">My profile</a>{{/unless}}
-    {{#if isStaff}}<a href="/admin">Overview</a>{{/if}}
-    {{#if canResidents}}<a href="/admin/residents">Residents</a>{{/if}}
-    {{#if canRegistry}}<a href="/admin/registry">Civil registry</a>{{/if}}
-    {{#if canRequests}}<a href="/admin/requests">Requests</a><a href="/admin/appointments">Appointments</a>{{/if}}
-    {{#if canResources}}<a href="/admin/resources">Resources</a>{{/if}}
-    {{#if canReports}}<a href="/admin/reports">Reports</a>{{/if}}
-    {{#if isAdmin}}<a href="/admin/users">Users</a><a href="/admin/audit">Audit history</a><a href="/admin/operations">Operations</a><a href="/admin/integrations">Integrations</a>{{/if}}
-    <a href="/dashboard/notifications">Notifications</a><a href="/browse">Citizen services</a>
-  </nav>
 </header>

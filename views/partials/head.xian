@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{csrf}}">
   <link rel="stylesheet" href="/platform.css">
+  <link rel="stylesheet" href="/workspace.css">
   <script src="/platform.js" defer></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  {{#unless officeStyles}}<script src="https://cdn.tailwindcss.com"></script>
   <style>
     body[class~="from-pink-300"] {
       background-color: #f3f6f2 !important;
-      background-image: linear-gradient(rgba(31, 83, 58, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 83, 58, .035) 1px, transparent 1px) !important;
+      background-image: none !important;
       background-size: 36px 36px !important;
       color: #202923 !important;
     }
@@ -87,6 +88,6 @@
     body[class~="from-pink-300"] .text-purple-800 {
       color: #a85e24 !important;
     }
-  </style>
+  </style>{{/unless}}
   <title>{{#if title}}{{title}} | {{/if}}{{systemTitle}}</title>
 </head>

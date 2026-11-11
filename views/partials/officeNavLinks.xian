@@ -1,0 +1,19 @@
+<div class="nav-group-label">Workspace</div>
+{{#unless isStaff}}
+<a href="/dashboard">{{> navIcon icon="home"}}<span>Dashboard</span></a>
+<a href="/dashboard/my-requests">{{> navIcon icon="requests"}}<span>My requests</span></a>
+<a href="/my-appointments">{{> navIcon icon="calendar"}}<span>Appointments</span></a>
+<a href="/payments">{{> navIcon icon="payment"}}<span>Payments and records</span></a>
+{{/unless}}
+{{#if isStaff}}<a href="/admin">{{> navIcon icon="home"}}<span>Overview</span></a>{{/if}}
+{{#if canResidents}}<a href="/admin/residents">{{> navIcon icon="people"}}<span>Residents</span></a>{{/if}}
+{{#if canRegistry}}<a href="/admin/registry">{{> navIcon icon="record"}}<span>Civil registry</span></a>{{/if}}
+{{#if canRequests}}<a href="/admin/requests">{{> navIcon icon="requests"}}<span>Document requests</span></a><a href="/admin/appointments">{{> navIcon icon="calendar"}}<span>Appointments</span></a>{{/if}}
+{{#if canResources}}<a href="/admin/resources">{{> navIcon icon="box"}}<span>Resources</span></a>{{/if}}
+{{#if canReports}}<a href="/admin/reports">{{> navIcon icon="chart"}}<span>Reports and analytics</span></a>{{/if}}
+{{#if isAdmin}}<div class="nav-group-label">Administration</div><a href="/admin/users">{{> navIcon icon="people"}}<span>User management</span></a><a href="/admin/audit">{{> navIcon icon="audit"}}<span>Audit history</span></a><a href="/admin/operations">{{> navIcon icon="settings"}}<span>System operations</span></a><a href="/admin/integrations">{{> navIcon icon="link"}}<span>Integrations</span></a>{{/if}}
+<div class="nav-group-label">Account and services</div>
+<a href="/dashboard/notifications">{{> navIcon icon="bell"}}<span>Notifications</span></a>
+<a href="/dashboard/profile">{{> navIcon icon="user"}}<span>My profile</span></a>
+<a href="/browse">{{> navIcon icon="portal"}}<span>Citizen services</span></a>
+<a href="/help">{{> navIcon icon="help"}}<span>Help and guidance</span></a>

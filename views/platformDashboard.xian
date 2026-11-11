@@ -1,4 +1,4 @@
-{{> head}}<body class="office">{{> staffNav}}<main id="main" class="office-main">{{> officeFlash}}
+{{> head officeStyles=true}}<body class="office">{{> staffNav}}<main id="main" class="office-main">{{> officeFlash}}
 <header class="page-heading"><div><h1>Office overview</h1><p>Welcome, {{user.name}}. Manage the records, requests and resources available to your role.</p></div>{{#if canRegistry}}<a class="button" href="/admin/residents">Register a civil record</a>{{else}}{{#if canResources}}<a class="button" href="/admin/resources/new">Add resource</a>{{/if}}{{/if}}</header>
 <div class="stats-strip">{{#each stats}}<a href="{{url}}"><strong>{{value}}</strong><span>{{label}}</span></a>{{/each}}</div>
 <div class="dashboard-columns"><div>

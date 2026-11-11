@@ -83,6 +83,19 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
     assert.ok(await Audit.count());
   });
   await t.test('normal HTML forms receive CSRF tokens and current roles are refreshed', async () => {
+    const overview = await admin.get('/admin');
+    assert.equal(overview.html.includes('cdn.tailwindcss.com'), false, 'Native office screens do not need the browser CSS compiler');
+    assert.match(overview.html, /id="workspace-navigation"/);
+    assert.match(overview.html, /data-sidebar-toggle/);
+    const dashboard = await citizen.get('/dashboard');
+    assert.equal(dashboard.html.includes('cdn.tailwindcss.com'), false);
+    assert.match(dashboard.html, /href="\/request\/submit"/);
+    for (const path of ['/browse', '/offices']) {
+      const page = await citizen.get(path);
+      assert.match(page.html, /id="workspace-navigation"/, `${path} shares the signed-in sidebar`);
+      assert.match(page.html, /data-sidebar-toggle/);
+      assert.equal(/<body[^>]*style="background-image/.test(page.html), false);
+    }
     const page = await admin.get('/admin/residents/new');
     assert.match(page.html, /name="_csrf" value="[a-f0-9]{64}"/);
     await users.registrar.update({ role: 'user' });

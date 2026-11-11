@@ -38,13 +38,13 @@ button:disabled{opacity:.55;cursor:wait}
 .toolbar label{flex:1;min-width:160px;max-width:360px}
 .toolbar .check{display:flex;align-items:center;gap:8px;flex:0 0 auto;min-width:0;padding:10px 0}
 .field-label,label:not(.check)>span{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
-input:not([type=checkbox]):not([type=hidden]),select,textarea{display:block;width:100%;border:1px solid #b7c5b9;border-radius:5px;padding:10px 11px;background:white;color:var(--ink);min-height:43px}
+input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea{display:block;width:100%;border:1px solid #b7c5b9;border-radius:5px;padding:10px 11px;background:white;color:var(--ink);min-height:43px}
 textarea{min-height:100px;resize:vertical}
 input::placeholder{color:#657168}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px;max-width:940px}
 .form-grid .wide{grid-column:1/-1}
 .actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:26px}
-.table-wrap{overflow-x:auto}
+.table-wrap{overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin;scrollbar-color:#8ba394 #eef3ee;border-radius:6px}
 table.office-table{width:100%;border-collapse:collapse;text-align:left;font-size:14px;font-variant-numeric:tabular-nums}
 table.office-table th{font-size:12px;font-weight:650;color:var(--muted);background:#f3f6f2}
 table.office-table td,table.office-table th{padding:13px 15px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -107,3 +107,162 @@ table.office-table td,table.office-table th{padding:12px 10px}
 .office-table{font-size:11px!important}
 }
 
+/* Shared navigation and native office layouts. */
+.office{--control-height:44px;min-height:100vh}
+.office h1,.office h2,.office h3{font-family:inherit}
+.office-header{position:sticky;top:0;z-index:40}
+.office-brand{padding:14px 28px;min-height:80px}
+.office-tools{display:flex;align-items:center;gap:18px;min-width:0}
+.account{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:18px}
+.account-name{grid-column:1;display:block;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--ink)}
+.account-role{grid-column:1;font-size:12px}
+.account a{grid-column:2;grid-row:1/3;display:flex;align-items:center;min-height:44px;margin:0;padding:8px 0}
+.desktop-navigation{align-items:center;flex-wrap:nowrap;padding-bottom:10px;gap:2px}
+.office-nav a,.nav-more>summary{min-height:40px;display:flex;align-items:center;padding:8px 11px;font-size:13px;font-weight:500;white-space:nowrap}
+.office-nav a[aria-current=page]{background:#e4eee5;color:var(--deep);font-weight:700}
+.nav-more{position:relative}
+.nav-more>summary,.mobile-menu>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:7px;color:var(--muted);border-radius:5px}
+.nav-more>summary::-webkit-details-marker,.mobile-menu>summary::-webkit-details-marker{display:none}
+.nav-more>summary:hover,.nav-more[open]>summary{background:#e4eee5;color:var(--deep)}
+.office-nav svg,.mobile-menu svg,.button svg,.task-list svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nav-dropdown{position:absolute;top:calc(100% + 7px);right:0;min-width:200px;padding:7px;background:white;border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 24px rgba(23,59,43,.12);z-index:45}
+.nav-dropdown a{border-radius:5px;min-height:44px}
+.nav-more:has([aria-current=page])>summary{font-weight:700;color:var(--forest)}
+.mobile-menu{display:none}
+.office-main{padding-top:32px}
+.office .page-heading{align-items:center}
+.office .page-heading h1{font-size:clamp(26px,2.3vw,34px);margin-bottom:10px}
+.office .page-heading p{font-size:14px;line-height:1.65}
+.office .panel{padding:24px;border-radius:12px}
+.office .panel h2{font-weight:650;line-height:1.35}
+.office input,.office select,.office textarea{font-size:15px;line-height:1.4;min-width:0}
+.office input[type=checkbox],.office input[type=radio]{width:18px;height:18px;min-height:18px;flex-shrink:0}
+.office input:focus-visible,.office select:focus-visible,.office textarea:focus-visible{outline:2px solid var(--forest);outline-offset:2px;border-color:var(--forest)}
+.office input:user-invalid,.office select:user-invalid,.office textarea:user-invalid{border-color:#a33429}
+.office fieldset{min-width:0}
+.office .form-grid{width:100%;max-width:1000px;gap:22px 28px}
+.office .button{min-height:44px;line-height:1.4}
+.office .toolbar{gap:12px;align-items:end}
+.office .toolbar .check{min-height:44px;margin-bottom:0;padding:10px 4px}
+.office .toolbar input,.office .toolbar select{min-height:44px}
+.office .office-table th{letter-spacing:.015em;font-weight:650;white-space:nowrap}
+.office .office-table tbody tr:hover{background:#f8faf7}
+.office .office-table td{line-height:1.6}
+.office .office-table a{display:inline-block;padding-block:3px}
+.table-scroll-hint{color:var(--muted);font-size:12px;margin:0 0 8px}
+.table-scroll-hint[hidden]{display:none}
+.table-wrap:focus-visible{outline:2px solid var(--forest);outline-offset:4px}
+.office .empty{padding:40px 16px}
+.office .empty h2{margin-bottom:10px}
+.office .empty .button{margin-top:10px}
+.office .stats-strip{border-radius:12px;padding:4px 12px}
+.office .stats-strip a{padding:20px}
+.office .stats-strip a:hover{background:#214c39;border-radius:8px}
+.office .pagination{font-variant-numeric:tabular-nums}
+.office .flash{line-height:1.6}
+.office .dashboard-columns{gap:24px}
+.office-footer{font-size:12px;line-height:1.7}
+.citizen-workspace{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,1fr);gap:28px;align-items:start}
+.request-spotlight{background:var(--deep);color:white;border-radius:12px;padding:36px;min-height:270px;display:flex;flex-direction:column;justify-content:center}
+.request-spotlight h2{font-size:28px;line-height:1.25;font-weight:650;letter-spacing:-.025em;margin:0 0 16px}
+.request-spotlight p{color:#d2e3d6;font-size:15px;line-height:1.7;max-width:55ch;margin:0}
+.request-spotlight .actions{margin-top:28px;gap:18px}
+.request-spotlight .button{background:#e9a15b;color:#20372b;border-color:#e9a15b}
+.request-spotlight .button:hover{background:#f0b87f}
+.spotlight-link{color:white;font-size:14px;font-weight:600;text-decoration-thickness:1px}
+.office .task-panel{margin:0;grid-column:2;grid-row:1/3;padding:24px}
+.task-list a{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:20px 0;border-top:1px solid var(--line);text-decoration:none;color:var(--forest)}
+.task-list a>span{min-width:0}
+.task-list strong{display:block;color:var(--ink);font-size:16px;font-weight:650;margin-bottom:5px}
+.task-list a span span{display:block;color:var(--muted);font-size:14px;line-height:1.6}
+.task-list a:hover strong{color:var(--forest);text-decoration:underline;text-underline-offset:4px}
+.processing-guide{grid-column:1;padding:2px 0}
+.processing-guide h2,.support-strip h2{font-size:19px;line-height:1.4;font-weight:650;margin:0 0 16px}
+.service-steps{margin:0;padding-left:20px}
+.service-steps li{padding:0 0 18px 8px;color:var(--forest)}
+.service-steps strong{display:block;color:var(--ink);font-size:14px;font-weight:650}
+.service-steps span{display:block;color:var(--muted);font-size:14px;margin-top:5px}
+.support-strip{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid var(--line);padding-top:28px}
+.support-strip h2{margin-bottom:8px}
+.support-strip p{color:var(--muted);font-size:14px;max-width:65ch;margin:0}
+@media(max-width:1100px){.desktop-navigation{gap:0}.office-nav a,.nav-more>summary{padding-inline:8px;font-size:12px}.citizen-workspace{gap:24px}}
+@media(max-width:900px){
+  .desktop-navigation{display:none}
+  .mobile-menu{display:block}
+  .mobile-menu>summary{min-height:44px;padding:8px 10px;border:1px solid var(--line);color:var(--forest);font-size:13px;font-weight:650}
+  .mobile-menu[open]>summary{background:#e4eee5}
+  .mobile-navigation{position:absolute;top:100%;left:0;right:0;max-height:calc(100dvh - 90px);overflow-y:auto;display:flex;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:2px;padding:12px 20px 18px;border-bottom:1px solid var(--line);background:white;box-shadow:0 14px 20px rgba(23,59,43,.08);margin:0}
+  .mobile-navigation a,.mobile-navigation .nav-more>summary{min-height:44px;padding:10px 12px;font-size:14px}
+  .mobile-navigation .nav-more{width:100%}
+  .mobile-navigation .nav-dropdown{position:static;box-shadow:none;border:0;border-radius:0;padding:2px 0 2px 14px}
+  .office-tools{gap:12px}
+  .account-role{display:none}
+  .account{display:block}
+  .account-name{display:none}
+  .account a{display:flex;margin:0;font-size:13px}
+  .office-brand{padding:12px 20px;min-height:80px}
+}
+@media(max-width:720px){
+  .office-brand{padding:12px 16px;gap:10px}
+  .brand-link{gap:9px;font-size:20px}
+  .brand-mark{width:34px;height:34px;font-size:16px;flex-shrink:0}
+  .brand-context{max-width:135px;font-size:10px;line-height:1.5}
+  .office-tools{gap:10px}
+  .mobile-menu>summary{gap:5px;padding-inline:8px}
+  .mobile-menu svg{width:16px}
+  .office-main{padding-top:26px}
+  .office .page-heading{align-items:stretch;gap:18px}
+  .office .page-heading .button{align-self:flex-start}
+  .office .panel{padding:20px 16px}
+  .office .panel h2{font-size:18px}
+  .office .form-grid{gap:20px}
+  .office .toolbar{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}
+  .office .toolbar label{grid-column:1/-1;min-width:0;max-width:none}
+  .office .toolbar .check{grid-column:1/-1}
+  .office .toolbar>.button{width:100%}
+  .office input,.office select,.office textarea{font-size:16px}
+  .office .actions{gap:10px}
+  .office .stats-strip a{min-width:130px;padding:16px 12px}
+  .citizen-workspace{grid-template-columns:minmax(0,1fr);gap:26px}
+  .request-spotlight{padding:26px 22px;min-height:0}
+  .request-spotlight h2{font-size:26px}
+  .request-spotlight .button{white-space:normal;text-align:left}
+  .request-spotlight .actions{align-items:flex-start;flex-direction:column;gap:18px}
+  .office .task-panel{grid-column:1;grid-row:auto;padding:22px}
+  .processing-guide{grid-column:1}
+  .task-list a{padding:18px 0}
+  .support-strip{flex-direction:column;align-items:flex-start;gap:18px;padding-top:24px}
+  .table-scroll-hint{font-size:12px}
+}
+@media(prefers-reduced-motion:no-preference){.button,.office-nav a,.task-list strong{transition:background-color .15s ease,color .15s ease}}
+@media print{.table-scroll-hint,.request-spotlight .actions,.support-strip{display:none!important}.office-header{position:static}.citizen-workspace{display:block}.request-spotlight{background:white;color:black;padding:0}.request-spotlight p{color:black}}
+/* Bring retained citizen workflows into the shared shell. */
+.legacy-workspace>section:first-of-type{height:auto;min-height:0;padding:30px 24px 24px;max-width:1320px;margin-inline:auto;align-items:flex-start;text-align:left}
+.legacy-workspace>section:first-of-type h1{font-size:32px;line-height:1.25;letter-spacing:-.025em}
+.legacy-workspace>section:first-of-type p{font-size:14px;line-height:1.6}
+.legacy-workspace>section:first-of-type a{color:var(--forest)!important}
+.legacy-workspace>main{max-width:1320px;margin-inline:auto;padding-top:0;padding-bottom:56px}
+.legacy-workspace table{font-variant-numeric:tabular-nums}
+.legacy-workspace .overflow-x-auto{scrollbar-width:thin;scrollbar-color:#8ba394 #eef3ee}
+.legacy-workspace button,.legacy-workspace a[class*=rounded]{min-height:44px}
+.request-form-main{width:100%;max-width:850px;margin:auto;padding:32px 24px 56px}
+.request-form-main>form{width:100%;max-width:none;background:white;box-shadow:none!important;backdrop-filter:none;border:1px solid var(--line);border-radius:12px;padding:30px}
+.request-form-main h2{font-weight:700;font-size:26px;color:var(--deep)}
+.request-form-main label{font-size:13px;line-height:1.5}
+.request-form-main input,.request-form-main select{min-height:44px}
+.request-form-main input[type=checkbox],.request-form-main input[type=radio]{min-height:18px;display:inline-block;width:18px}
+.request-form-main button{min-height:44px}
+.request-form-main #datesGrid button{font-variant-numeric:tabular-nums}
+@media(max-width:720px){.legacy-workspace>section:first-of-type{padding:26px 16px 20px}.legacy-workspace>section:first-of-type h1{font-size:27px}.legacy-workspace>main{padding-inline:16px}.legacy-workspace table{min-width:580px}.request-form-main{padding:24px 16px 40px}.request-form-main>form{padding:22px 16px}.request-form-main .grid-cols-4{grid-template-columns:repeat(2,minmax(0,1fr))}.request-form-main #stepIndicator{flex-shrink:0}.request-form-main div:has(>#stepIndicator)>div:last-child{display:none}}
+/* Accessible refinements for the retained form and payment screens. */
+body.office.legacy-workspace>section:first-of-type h1{color:var(--deep)!important;filter:none!important;text-shadow:none!important;font-weight:700}
+.legacy-workspace .shadow-md{box-shadow:none!important;border:1px solid var(--line);border-radius:12px}
+.legacy-workspace .text-center.py-12{padding-top:32px;padding-bottom:32px}
+.legacy-workspace .text-6xl{display:none}
+.request-form-main h1{font-size:26px;font-weight:700;line-height:1.3;color:var(--deep);margin-bottom:22px}
+.form-portal .bg-blue-600,.form-portal .bg-blue-700{background-color:var(--forest)!important}
+.form-portal .bg-blue-600:hover,.form-portal .bg-blue-700:hover{background-color:var(--deep)!important}
+.form-portal .text-blue-700{color:var(--forest)!important}
+.form-portal .border-blue-600{border-color:var(--forest)!important}
+.form-portal .bg-blue-50{background-color:#e4eee5!important}
+@media print{.legacy-workspace>section:first-of-type{padding:0}.request-form-main{max-width:none;padding:0}}

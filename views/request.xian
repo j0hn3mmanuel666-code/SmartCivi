@@ -1,8 +1,10 @@
 {{> head }}
-<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 min-h-screen flex items-center justify-center">
+<body class="office form-portal">
+{{> staffNav}}
+<main id="main" class="request-form-main">
 
   <form id="submitRequestForm" method="POST" action="/request" class="bg-white bg-opacity-90 backdrop-blur-lg w-full max-w-3xl p-6 rounded-xl shadow-lg border border-gray-200">
-    <h2 class="text-2xl font-extrabold text-center mb-4 text-blue-700">Submit a Request</h2>
+    <h1 class="text-2xl font-extrabold text-center mb-4 text-blue-700">Submit a Request</h1>
     <label class="text-sm font-medium" for="documentType">Certificate type</label><select id="documentType" name="documentType" required class="mb-4"><option value="birth">Birth certificate</option><option value="marriage">Marriage certificate</option><option value="death">Death certificate</option></select>
 
     {{#if success_msg}}
@@ -21,7 +23,7 @@
     <section data-step="1" class="step">
       <div class="grid grid-cols-2 gap-2">
         <div>
-          <label class="text-xs text-gray-700">Gender</label>
+          <label for="gender" class="text-xs text-gray-700">Gender</label>
           <select id="gender" name="gender" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
             <option value="">-- Select Gender --</option>
             <option value="male">Male</option>
@@ -30,37 +32,37 @@
           </select>
         </div>
         <div>
-          <label class="text-xs text-gray-700">Birthdate</label>
+          <label for="birthdate" class="text-xs text-gray-700">Birthdate</label>
           <input type="date" id="birthdate" name="birthdate" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
       </div>
 
       <div class="grid grid-cols-4 gap-2">
         <div>
-          <label class="text-xs text-gray-700">First name</label>
+          <label for="firstName" class="text-xs text-gray-700">First name</label>
           <input type="text" id="firstName" name="firstName" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label class="text-xs text-gray-700">Second name</label>
+          <label for="secondName" class="text-xs text-gray-700">Second name</label>
           <input type="text" id="secondName" name="secondName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label class="text-xs text-gray-700">Middle name</label>
+          <label for="middleName" class="text-xs text-gray-700">Middle name</label>
           <input type="text" id="middleName" name="middleName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label class="text-xs text-gray-700">Last name</label>
+          <label for="lastName" class="text-xs text-gray-700">Last name</label>
           <input type="text" id="lastName" name="lastName" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
       </div>
 
-      <label class="text-xs text-gray-700">Email</label>
+      <label for="email" class="text-xs text-gray-700">Email</label>
       <input type="email" id="email" name="email" value="{{#if user}}{{user.email}}{{/if}}" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
 
-      <label class="text-xs text-gray-700">Mobile / Phone</label>
+      <label for="phone" class="text-xs text-gray-700">Mobile / Phone</label>
       <input type="tel" id="phone" name="phone" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
 
-      <label class="text-xs text-gray-700">ID to present upon delivery</label>
+      <label for="presentId" class="text-xs text-gray-700">ID to present upon delivery</label>
       <select id="presentId" name="presentId" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
         <option value="">-- Select ID --</option>
         <option>Passport</option>
@@ -90,7 +92,7 @@
         <label for="noFatherName" class="text-xs text-gray-700">There is no Father's Name in the Certificate of Live Birth</label>
       </div>
 
-      <label class="text-xs text-gray-700 mt-3">Father's Full Name</label>
+      <label for="fatherName" class="text-xs text-gray-700 mt-3">Father's Full Name</label>
       <input type="text" id="fatherName" name="fatherName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
 
       <div class="flex items-center justify-between mt-4">
@@ -102,7 +104,7 @@
     <!-- STEP 3: Mother (use maiden name) -->
     <section data-step="3" class="step hidden">
       <p class="text-xs text-gray-700 mb-2">Use your mother's maiden name as it appears on the certificate.</p>
-      <label class="text-xs text-gray-700">Mother's Full Name (maiden)</label>
+      <label for="motherName" class="text-xs text-gray-700">Mother's Full Name (maiden)</label>
       <input type="text" id="motherName" name="motherName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
 
       <div class="flex items-center justify-between mt-4">
@@ -115,15 +117,15 @@
     <section data-step="4" class="step hidden">
       <div class="grid grid-cols-3 gap-2">
         <div>
-          <label class="text-xs text-gray-700">Birth Country</label>
+          <label for="birthCountry" class="text-xs text-gray-700">Birth Country</label>
           <select id="birthCountry" name="birthCountry" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300"></select>
         </div>
         <div>
-          <label class="text-xs text-gray-700">Birth Province</label>
+          <label for="birthProvince" class="text-xs text-gray-700">Birth Province</label>
           <select id="birthProvince" name="birthProvince" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300"></select>
         </div>
         <div>
-          <label class="text-xs text-gray-700">Birth Municipality / City</label>
+          <label for="birthMunicipality" class="text-xs text-gray-700">Birth Municipality / City</label>
           <select id="birthMunicipality" name="birthMunicipality" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300"></select>
         </div>
       </div>
@@ -136,7 +138,7 @@
 
     <!-- STEP 5: Purpose -->
     <section data-step="5" class="step hidden">
-      <label class="text-xs text-gray-700">Purpose of Request</label>
+      <label for="purposeSelect" class="text-xs text-gray-700">Purpose of Request</label>
       <select id="purposeSelect" name="purposeSelect" required class="mb-3 mt-1 w-full p-2 rounded border border-gray-300">
         <option value="">-- Select Purpose --</option>
         <option value="passport">Passport / Travel</option>
@@ -152,7 +154,7 @@
       </select>
 
       <div id="passportCountryWrap" class="hidden">
-        <label class="text-xs text-gray-700">Select a country</label>
+        <label for="passportCountry" class="text-xs text-gray-700">Select a country</label>
         <input type="text" id="passportCountry" name="passportCountry" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
       </div>
 
@@ -173,38 +175,38 @@
       <div id="deliveryAddress" class="hidden">
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-xs text-gray-700">Province</label>
+            <label for="delProvince" class="text-xs text-gray-700">Province</label>
             <input type="text" id="delProvince" name="delProvince" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
           </div>
           <div>
-            <label class="text-xs text-gray-700">Municipality / City</label>
+            <label for="delMunicipality" class="text-xs text-gray-700">Municipality / City</label>
             <input type="text" id="delMunicipality" name="delMunicipality" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-xs text-gray-700">Barangay</label>
+            <label for="delBarangay" class="text-xs text-gray-700">Barangay</label>
             <input type="text" id="delBarangay" name="delBarangay" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
           </div>
           <div>
-            <label class="text-xs text-gray-700">House No / Street / Subdivision / Building</label>
+            <label for="delStreet" class="text-xs text-gray-700">House No / Street / Subdivision / Building</label>
             <input type="text" id="delStreet" name="delStreet" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-xs text-gray-700">Zipcode</label>
+            <label for="delZip" class="text-xs text-gray-700">Zipcode</label>
             <input type="text" id="delZip" name="delZip" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
           </div>
           <div>
-            <label class="text-xs text-gray-700">Mobile (for courier)</label>
+            <label for="delMobile" class="text-xs text-gray-700">Mobile (for courier)</label>
             <input type="tel" id="delMobile" name="delMobile" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
           </div>
         </div>
 
-        <label class="text-xs text-gray-700">Email</label>
+        <label for="delEmail" class="text-xs text-gray-700">Email</label>
         <input type="email" id="delEmail" name="delEmail" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
       </div>
 
@@ -221,11 +223,11 @@
 
       <div class="grid grid-cols-2 gap-2 mb-3">
         <div>
-          <label class="text-xs text-gray-700">Number of copies (1 copy = 300)</label>
+          <label for="copies" class="text-xs text-gray-700">Number of copies (1 copy = 300)</label>
           <input type="number" id="copies" name="copies" min="1" value="1" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label class="text-xs text-gray-700">Total (PHP)</label>
+          <label for="totalCost" class="text-xs text-gray-700">Total (PHP)</label>
           <input type="text" id="totalCost" readonly value="300" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300 bg-gray-50" />
         </div>
       </div>
@@ -239,14 +241,14 @@
       </div>
 
       <div id="authorizedWrap" class="hidden">
-        <label class="text-xs text-gray-700">Authorized Person's Full Name</label>
+        <label for="authName" class="text-xs text-gray-700">Authorized Person's Full Name</label>
         <input type="text" id="authName" name="authName" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
-        <label class="text-xs text-gray-700">Authorized Person's Mobile</label>
+        <label for="authMobile" class="text-xs text-gray-700">Authorized Person's Mobile</label>
         <input type="tel" id="authMobile" name="authMobile" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
       </div>
 
       <div class="mb-3">
-        <label class="text-xs text-gray-700">Reminder (optional)</label>
+        <label for="reminder" class="text-xs text-gray-700">Reminder (optional)</label>
         <textarea id="reminder" name="reminder" rows="2" class="w-full p-2 rounded border border-gray-300"></textarea>
       </div>
 
@@ -260,6 +262,7 @@
     </section>
 
   </form>
+</main>
 
   <script>
     (function(){

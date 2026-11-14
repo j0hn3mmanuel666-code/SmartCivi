@@ -25,7 +25,7 @@
     
 import express from "express";
 import path from "path";
-import { randomBytes } from "node:crypto";
+import { sessionSecret as loadSessionSecret } from './services/sessionSecret.js';
 import session from "express-session";
 import flash from "connect-flash";
 import router from "./routes/index.js";
@@ -43,7 +43,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const sessionSecret = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
+const sessionSecret = loadSessionSecret(path.join(__dirname, '.local'));
 if (process.env.TRUST_PROXY === 'true') app.set('trust proxy', 1);
 
 app.use(express.json());

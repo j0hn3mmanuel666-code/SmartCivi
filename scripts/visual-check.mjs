@@ -24,6 +24,25 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(origin + '/login');
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 950 });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Login overflow ${width}`);
+    assert.equal(await page.locator('script[src*="tailwindcss"]').count(), 0);
+    await page.screenshot({ path: `tmp/auth-${width}.png`, fullPage: true });
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.locator('[name=password]').fill('Visibility check');
+  await page.getByRole('button', { name: 'Show password', exact: true }).click();
+  assert.equal(await page.locator('[name=password]').getAttribute('type'), 'text');
+  assert.equal(await page.locator('[name=password]').inputValue(), 'Visibility check');
+  await page.getByRole('button', { name: 'Hide password', exact: true }).click();
+  assert.equal(await page.locator('[name=password]').getAttribute('type'), 'password');
+  await page.locator('[name=email]').fill(email);
+  await page.locator('[name=password]').fill('Incorrect-local-test-password');
+  await Promise.all([page.waitForResponse(response => response.url().endsWith('/login') && response.request().method() === 'POST'), page.locator('button[type=submit]').click()]);
+  await page.getByRole('alert').waitFor({ state: 'visible' });
+  assert.match(await page.getByRole('alert').innerText(), /password/i);
+  await page.screenshot({ path: 'tmp/auth-error.png', fullPage: true });
   await page.locator('input[name=email]').fill(email);
   await page.locator('input[name=password]').fill(password);
   await Promise.all([page.waitForURL(origin + '/admin'), page.locator('button[type=submit]').click()]);

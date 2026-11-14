@@ -28,3 +28,7 @@ Forms retain names, required fields, server validation and CSRF behavior. Tables
 Automated unit/HTTP checks cover permissions and the rendered shell. scripts/visual-check.mjs covers office screens at 1440/1024/768/390px, citizen desktop/mobile screens, drawer open/close/focus/backdrop/resize behavior, templates, form submission and appointment dates. Screenshots under ignored tmp/visual-check are local QA fixtures, not real resident records.
 
 The hamburger also controls desktop sidebar visibility. The desktop preference persists across pages using local storage; mobile opening stays temporary and independent. Signed-in Services, the office directory and confirmation pages use this same shared shell.
+
+## Sign-in page
+
+The login page uses local styles and Inter, a plain neutral background, an open service introduction and a compact white form. On phones, the form appears first. Labels, autocomplete, CSRF fields, account links and authentication endpoints remain in place. An accessible show/hide password control changes only local field visibility. Browser checks cover desktop/tablet/phone layout, password visibility, failed-login alerts and successful sign-in.

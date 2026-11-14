@@ -13,6 +13,7 @@ export class DatabaseSessionStore extends session.Store {
 export async function platformSecurity(req, res, next) {
   try {
     res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin', 'X-Frame-Options': 'DENY' });
+    res.set('Cache-Control', 'no-store');
     if (req.session.user) {
       const user = await User.findByPk(req.session.user.id, { attributes: ['id', 'name', 'email', 'role'] });
       if (!user) { req.session.user = null; req.session.userId = null; }
@@ -30,7 +31,13 @@ export async function platformSecurity(req, res, next) {
     };
     if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
       const token = req.get('X-CSRF-Token') || req.body?._csrf;
-      if (typeof token !== 'string' || Buffer.byteLength(token) !== Buffer.byteLength(req.session.csrf) || !timingSafeEqual(Buffer.from(token), Buffer.from(req.session.csrf))) return res.status(403).send('Your session token is missing or expired. Reload the page and try again.');
+      if (typeof token !== 'string' || Buffer.byteLength(token) !== Buffer.byteLength(req.session.csrf) || !timingSafeEqual(Buffer.from(token), Buffer.from(req.session.csrf))) {
+        if (req.method === 'POST' && req.path === '/login') {
+          req.flash('error_msg', 'Your sign-in page expired. Please enter your details again.');
+          return res.redirect(303, '/login');
+        }
+        return res.status(403).send('Your session token is missing or expired. Reload the page and try again.');
+      }
     }
     next();
   } catch (error) { next(error); }

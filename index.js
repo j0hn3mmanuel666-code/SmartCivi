@@ -37,6 +37,7 @@ import { sequelize } from "./models/db.js";
 import platformRouter from './routes/platform.js';
 import { DatabaseSessionStore, platformSecurity } from './middleware/platformSecurity.js';
 import { paymentComplete } from './services/platformRules.js';
+import { authConfiguration } from './services/authProviders.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -85,6 +86,9 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash("error_msg");
   // expose user to templates
   res.locals.user = req.session && req.session.user ? req.session.user : null;
+  const auth = authConfiguration();
+  res.locals.googleReady = auth.googleReady;
+  res.locals.mailReady = auth.mailReady || Boolean(req.app.locals.mailTransport);
   next();
 });
 

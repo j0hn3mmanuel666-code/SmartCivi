@@ -80,6 +80,12 @@ import { ensureAdmin } from "../middleware/auth.js";
 import { updateRequestStatus, assignRequest, deleteRequestAdmin } from "../controllers/homeController.js";
 
 const router = express.Router();
+import { verificationPage, verifyEmail, resendVerification, startGoogle, finishGoogle, limitAuth } from '../controllers/providerAuthController.js';
+router.get('/verify-email', verificationPage);
+router.post('/verify-email', limitAuth, verifyEmail);
+router.post('/verify-email/resend', limitAuth, resendVerification);
+router.post('/auth/google', limitAuth, startGoogle);
+router.get('/auth/google/callback', finishGoogle);
 import { requireFeature, ownRequest } from '../middleware/platformSecurity.js';
 router.use('/admin', (req, res, next) => {
   const feature = req.path.startsWith('/users') ? 'users' : req.path.startsWith('/requests') || req.path.startsWith('/appointments') ? 'requests' : req.path.startsWith('/reports') || req.path.startsWith('/analytics') ? 'reports' : 'operations';
@@ -154,9 +160,9 @@ router.get('/api', apiDocsPage);
 
 // Auth routes
 router.get("/login", loginPage);
-router.post("/login", loginUser);
+router.post("/login", limitAuth, loginUser);
 router.get("/register", registerPage);
-router.post("/register", registerUser);
+router.post("/register", limitAuth, registerUser);
 router.get("/forgot-password", forgotPasswordPage);
 router.get("/dashboard", dashboardPage);
 router.get("/dashboard/requests", requestDash);

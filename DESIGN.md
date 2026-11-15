@@ -32,3 +32,5 @@ The hamburger also controls desktop sidebar visibility. The desktop preference p
 ## Sign-in page
 
 The login page uses local styles and Inter, a plain neutral background, an open service introduction and a compact white form. On phones, the form appears first. Labels, autocomplete, CSRF fields, account links and authentication endpoints remain in place. An accessible show/hide password control changes only local field visibility. Browser checks cover desktop/tablet/phone layout, password visibility, failed-login alerts and successful sign-in.
+
+Registration now shares that layout. Google sign-in appears before the email form; unavailable providers are disabled with a short explanation. New email accounts continue to a matching verification screen with a resend action. Email links show an explicit confirmation button before consuming the token. Existing accounts connect Google from My profile. The authentication browser check at scripts/auth-visual-check.mjs covers desktop/tablet/phone layouts, registration, email confirmation, sign-in and provider-unavailable states using simulated providers. Provider setup is documented in docs/AUTH_SETUP.md.

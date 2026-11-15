@@ -1,0 +1,2 @@
+{{#each error_msg}}<div class="auth-alert" role="alert">{{this}}</div>{{/each}}
+{{#each success_msg}}<div class="auth-alert auth-alert-success" role="status">{{this}}</div>{{/each}}

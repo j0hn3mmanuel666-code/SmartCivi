@@ -47,6 +47,12 @@ export const User = sequelize.define("User", {
       len: [6, 100]
     }
   },
+  emailVerifiedAt: { type: DataTypes.DATE },
+  emailVerificationRequired: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+  googleSubject: { type: DataTypes.STRING, unique: true },
+  verificationTokenHash: { type: DataTypes.STRING(64) },
+  verificationExpiresAt: { type: DataTypes.DATE },
+  verificationSentAt: { type: DataTypes.DATE },
   role: {
     type: DataTypes.STRING,
     allowNull: false,

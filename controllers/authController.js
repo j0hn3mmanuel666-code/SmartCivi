@@ -31,7 +31,9 @@ import "../models/Attachment.js";
 import "../models/Appointment.js";
 import { initializePlatform } from '../models/Platform.js';
 import { audit } from '../services/platform.js';
-import { can } from '../services/platformRules.js';
+import { signIn } from '../services/accountAccess.js';
+import { authConfiguration } from '../services/authProviders.js';
+import { issueVerification } from './providerAuthController.js';
 await initializePlatform();
 
 // Development helper: create or update the dev admin user
@@ -99,7 +101,8 @@ export const dashboardPage = (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const password = typeof req.body.password === 'string' ? req.body.password : '';
     const user = await User.findOne({ where: { email } });
     if (!user) {
       await audit(req, 'login.failed', 'account', null, 'Invalid credentials');
@@ -114,15 +117,12 @@ export const loginUser = async (req, res) => {
       return res.redirect('/login');
     }
 
-    await new Promise((resolve, reject) => req.session.regenerate(error => error ? reject(error) : resolve()));
-    req.session.userId = user.id;
-    req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role };
-    // Redirect admin users to the admin panel, others to browse
-    await audit(req, 'login.success', 'account', user.id, 'Signed in');
-    if (can(user.role, 'overview')) {
-      return res.redirect('/admin');
+    if (user.emailVerificationRequired && !user.emailVerifiedAt) {
+      req.session.pendingEmail = user.email;
+      req.flash('error_msg', 'Please verify your email address before signing in.');
+      return res.redirect('/verify-email');
     }
-    return res.redirect('/browse');
+    return await signIn(req, res, user);
   } catch (err) {
     console.error('Login error:', err);
     req.flash('error_msg', 'Login failed. Please try again.');
@@ -132,50 +132,32 @@ export const loginUser = async (req, res) => {
 
 export const registerUser = async (req, res) => {
   try {
-    console.log("Registration attempt:", { ...req.body, password: '[REDACTED]' });
-    
     const { name, password } = req.body;
     const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
-    if (!name || !email || !password) {
-      console.log("Missing required fields");
-      req.flash('error_msg', 'All fields are required');
+    if (typeof name !== 'string' || !name.trim() || name.trim().length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255 || typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) {
+      req.flash('error_msg', 'Enter your full name, a valid email and a password of at least 8 characters (up to 72 bytes).');
       return res.redirect('/register');
     }
-    if (typeof name !== 'string' || typeof password !== 'string' || name.trim().length > 255 || password.length < 8 || Buffer.byteLength(password) > 72) {
-      req.flash('error_msg', 'Use a name under 256 characters and a password of 8–72 bytes.');
+    if (!authConfiguration().mailReady && !req.app.locals.mailTransport) {
+      req.flash('error_msg', 'Email registration is temporarily unavailable. Please contact the office or use Google if available.');
       return res.redirect('/register');
     }
-    
-    // Check if user already exists
-    console.log("Checking for existing user with email:", email);
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      console.log("User already exists");
-      req.flash('error_msg', 'Email already registered');
-      return res.redirect('/register');
+    if (await User.findOne({ where: { email } })) {
+      req.flash('error_msg', 'This email is already registered. Sign in or request another verification email.');
+      return res.redirect('/login');
     }
-
-    console.log("Hashing password...");
-    const hashed = await bcrypt.hash(password, 10);
-    
-    console.log("Creating new user...");
-    const user = await User.create({ 
-      name, 
-      email, 
-      password: hashed 
-    });
-    
-    console.log("User created successfully:", { id: user.id, name: user.name, email: user.email });
-    
-    await new Promise((resolve, reject) => req.session.regenerate(error => error ? reject(error) : resolve()));
-    req.session.userId = user.id;
-    req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role || 'user' };
-    // After successful registration, send the user to the services browsing page
-    res.redirect("/browse");
-  } catch (error) {
-    console.error("Registration error:", error);
-    req.flash('error_msg', 'Registration failed: ' + error.message);
-    res.redirect('/register');
+    const user = await User.create({ name: name.trim(), email, password: await bcrypt.hash(password, 10), role: 'user', emailVerificationRequired: true });
+    req.session.pendingEmail = user.email;
+    try {
+      await issueVerification(user, req.app.locals.mailTransport);
+      req.flash('success_msg', 'Check your inbox for a verification link before signing in.');
+    } catch {
+      req.flash('error_msg', 'Your account is waiting for verification, but we could not send the email. Please request another email later.');
+    }
+    return res.redirect('/verify-email');
+  } catch {
+    req.flash('error_msg', 'Registration could not be completed. Please try signing in or request a verification email.');
+    return res.redirect('/register');
   }
 };
 

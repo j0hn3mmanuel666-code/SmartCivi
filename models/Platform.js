@@ -36,6 +36,10 @@ export async function initializePlatform() {
   // Creates missing tables only; never drops or rewrites existing records.
   await sequelize.sync();
   const qi = sequelize.getQueryInterface();
+  const userColumns = await qi.describeTable('users');
+  for (const name of ['emailVerifiedAt', 'emailVerificationRequired', 'googleSubject', 'verificationTokenHash', 'verificationExpiresAt', 'verificationSentAt']) {
+    if (!userColumns[name]) await qi.addColumn('users', name, User.rawAttributes[name]);
+  }
   const columns = await qi.describeTable('civil_requests');
   for (const name of ['residentId', 'recordId', 'assignee', 'notes', 'appointmentDate', 'appointmentStatus', 'rescheduleReason', 'rescheduleRequested', 'paidAt']) {
     if (!columns[name]) await qi.addColumn('civil_requests', name, Request.rawAttributes[name]);

@@ -4,7 +4,7 @@
 <header class="auth-header"><div class="auth-header-inner"><a class="brand-link" href="/"><span class="brand-mark" aria-hidden="true">S</span><span>SmartCivi<small>Municipality of Bansud</small></span></a><a class="auth-services-link" href="/browse">Explore services<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></div></header>
 <main id="main" class="auth-layout">
   <section class="auth-intro" aria-labelledby="auth-intro-title">
-    <h2 id="auth-intro-title">Your civil services,<br>in one place.</h2>
+    <h2 id="auth-intro-title">Your civil services, <br>in one place.</h2>
     <p>Connect with your local civil registry office. Request documents, arrange a visit and follow your progress from one account.</p>
     <ul class="auth-features"><li>{{> navIcon icon="record"}}<span><strong>Request civil documents</strong><span>Birth, marriage and death certificates.</span></span></li><li>{{> navIcon icon="audit"}}<span><strong>Track your requests</strong><span>View processing history and service updates.</span></span></li><li>{{> navIcon icon="calendar"}}<span><strong>Manage appointments</strong><span>Check your schedule and updates from the office.</span></span></li></ul>
     <p class="auth-office">Municipal Civil Registry<br>Bansud, Oriental Mindoro</p>
@@ -14,12 +14,14 @@
     <p class="auth-description">Welcome back. Enter your account details to continue.</p>
     {{#each error_msg}}<div class="auth-alert" role="alert">{{this}}</div>{{/each}}
     {{#each success_msg}}<div class="auth-alert auth-alert-success" role="status">{{this}}</div>{{/each}}
+    {{> googleSignIn}}
     <form method="post" action="/login" class="auth-form">
       <div class="auth-field"><label for="email">Email address</label><input id="email" type="email" name="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="you@example.com" required></div>
       <div class="auth-field"><div class="auth-label-row"><label for="password">Password</label><a href="/forgot-password">Forgot password?</a></div><div class="auth-password"><input id="password" type="password" name="password" autocomplete="current-password" required><button type="button" class="auth-password-toggle" data-password-toggle aria-controls="password" aria-pressed="false" aria-label="Show password" hidden>Show</button></div></div>
       <button class="auth-submit" type="submit">Sign in<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
     </form>
     <p class="auth-register">New to SmartCivi? <a href="/register">Create an account</a></p>
+    <p class="auth-provider-note"><a href="/verify-email">Resend verification email</a></p>
     <p class="auth-access-note">{{> navIcon icon="user"}}For citizens and authorized LGU personnel.</p>
   </section>
 </main>

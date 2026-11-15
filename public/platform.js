@@ -1,4 +1,31 @@
 (() => {
+  const backLink = document.querySelector('[data-page-back]');
+  if (backLink) {
+    const safePage = value => {
+      try {
+        const url = new URL(value);
+        if (url.origin !== location.origin || url.pathname + url.search === location.pathname + location.search || /^\/(?:login|register|logout|verify-email|setup-admin)(?:\/|$)/.test(url.pathname) || url.pathname.startsWith('/auth/')) return null;
+        return url;
+      } catch { return null; }
+    };
+    let previous = null;
+    if (window.navigation?.entries) {
+      const entries = window.navigation.entries();
+      const current = window.navigation.currentEntry;
+      const entry = entries.find(item => item.index === current.index - 1);
+      previous = safePage(entry?.url);
+    } else if (performance.getEntriesByType('navigation')[0]?.type !== 'back_forward') {
+      previous = safePage(document.referrer);
+    }
+    if (previous && history.length > 1) {
+      backLink.href = previous.href;
+      backLink.addEventListener('click', event => {
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        history.back();
+      });
+    }
+  }
   document.querySelectorAll('[data-password-toggle]').forEach(button => {
     const field = document.getElementById(button.getAttribute('aria-controls'));
     if (!field) return;
@@ -76,7 +103,7 @@
       sidebar.setAttribute('aria-modal', 'true');
       sidebarToggle.setAttribute('aria-expanded', 'true');
       sidebarToggle.setAttribute('aria-label', 'Close navigation');
-      backgroundState = [...document.querySelectorAll('body > header, body > main, body > footer, body > section')].map(element => [element, element.inert]);
+      backgroundState = [...document.querySelectorAll('body > header, body > nav, body > main, body > footer, body > section')].map(element => [element, element.inert]);
       backgroundState.forEach(([element]) => { element.inert = true; });
       sidebar.querySelector('[data-sidebar-close]').focus();
     };

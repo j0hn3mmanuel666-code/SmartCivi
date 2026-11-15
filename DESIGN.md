@@ -29,6 +29,8 @@ Automated unit/HTTP checks cover permissions and the rendered shell. scripts/vis
 
 The hamburger also controls desktop sidebar visibility. The desktop preference persists across pages using local storage; mobile opening stays temporary and independent. Signed-in Services, the office directory and confirmation pages use this same shared shell.
 
+Pages with main content include a compact Back link above the page title. It uses browser history for a previous SmartCivi page, excluding sign-in, sign-out and verification routes. Direct visits fall back to the current role's dashboard, or Home when signed out. The link works without JavaScript, is hidden when printing, and becomes inert with the background while the mobile navigation drawer is open.
+
 ## Sign-in page
 
 The login page uses local styles and Inter, a plain neutral background, an open service introduction and a compact white form. On phones, the form appears first. Labels, autocomplete, CSRF fields, account links and authentication endpoints remain in place. An accessible show/hide password control changes only local field visibility. Browser checks cover desktop/tablet/phone layout, password visibility, failed-login alerts and successful sign-in.

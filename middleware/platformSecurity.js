@@ -25,6 +25,12 @@ export async function platformSecurity(req, res, next) {
     const send = res.send;
     res.send = function(body) {
       if (typeof body === 'string' && (this.getHeader('Content-Type')?.includes('text/html') || /^\s*<!doctype html>/i.test(body))) {
+        if (req.path !== '/' && !body.includes('data-page-back')) {
+          const dashboard = req.session.user ? (can(req.session.user.role, 'overview') ? '/admin' : '/dashboard') : '/';
+          const fallback = req.path === dashboard ? '/browse' : dashboard;
+          const back = `<nav class="page-back-navigation" aria-label="Page navigation"><a class="page-back-link" href="${fallback}" data-page-back><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 5-7 7 7 7M5 12h14"/></svg><span>Back</span></a></nav>`;
+          body = body.replace(/<main\b/i, `${back}<main`);
+        }
         body = body.replace(/<form\b[^>]*>/gi, form => `${form}<input type="hidden" name="_csrf" value="${req.session.csrf}">`);
       }
       return send.call(this, body);

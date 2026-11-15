@@ -40,6 +40,11 @@ try {
   await page.getByLabel('Password', { exact: true }).fill('Local-verification-test-123');
   await Promise.all([page.waitForURL(origin + '/browse'), page.getByRole('button', { name: 'Sign in', exact: true }).click()]);
   await page.goto(origin + '/dashboard/profile');
+  await page.getByLabel('Full name', { exact: true }).fill('Updated Citizen Name');
+  await Promise.all([page.waitForResponse(response => response.url().endsWith('/dashboard/profile') && response.request().method() === 'POST'), page.getByRole('button', { name: 'Save name', exact: true }).click()]);
+  await page.getByText('Your name has been updated.', { exact: true }).waitFor();
+  assert.equal(await page.locator('.sidebar-profile strong').innerText(), 'Updated Citizen Name');
+  assert.equal((await User.findOne({ where: { email } })).name, 'Updated Citizen Name');
   assert.equal(await page.getByRole('button', { name: 'Connect Google account' }).count(), 1);
   await page.goto(origin + '/logout');
   Object.assign(process.env, { GOOGLE_CLIENT_ID: '', GOOGLE_CLIENT_SECRET: '', SMTP_HOST: '' }); delete app.locals.mailTransport;

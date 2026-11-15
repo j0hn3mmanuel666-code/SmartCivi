@@ -221,10 +221,24 @@ router.post('/reports/generate', requireFeature('reports'), (req, res) => {
 router.get('/admin/records', requireFeature('registry'), (req, res) => res.redirect('/admin/registry'));
 router.get('/admin/records/new', requireFeature('registry'), (req, res) => res.redirect('/admin/registry/new'));
 router.get('/admin/audit', requireFeature('audit'), run(async (req, res) => {
-  const page = pagination(req.query);
-  const where = req.query.q ? { action: { [Op.like]: `%${text(req.query.q, 'Search', false, 100)}%` } } : {};
-  const result = await Audit.findAndCountAll({ where, ...page, order: [['id', 'DESC']] });
-  res.render('platformList', { title: 'Audit history', description: 'Accountability for sign-ins, record changes, exports and resource movements. Times are shown in Philippine time.', columns: ['Time', 'Actor', 'Action', 'Entity', 'Reference', 'Detail'], rows: result.rows.map(row => ({ cells: [displayDate(row.createdAt), row.actorName, row.action, row.entity, row.entityId, row.detail] })), count: result.count, q: req.query.q, page: page.page, pages: Math.max(1, Math.ceil(result.count / page.limit)), base: '/admin/audit', next: result.count > page.offset + page.limit ? `/admin/audit?page=${page.page + 1}&q=${encodeURIComponent(req.query.q || '')}` : null, previous: page.page > 1 ? `/admin/audit?page=${page.page - 1}&q=${encodeURIComponent(req.query.q || '')}` : null });
+  const requested = pagination(req.query);
+  const limit = [10, 25, 50].includes(Number(req.query.limit)) ? Number(req.query.limit) : 10;
+  const q = text(req.query.q, 'Search', false, 100) || '';
+  const where = q ? { action: { [Op.like]: `%${q.replace(/[\\%_]/g, '\\$&')}%` } } : {};
+  const count = await Audit.count({ where });
+  const pages = Math.max(1, Math.ceil(count / limit)), page = Math.min(requested.page, pages);
+  const offset = (page - 1) * limit;
+  const rows = await Audit.findAll({ where, limit, offset, order: [['id', 'DESC']] });
+  const link = number => `/admin/audit?${new URLSearchParams({ q, limit: String(limit), page: String(number) })}`;
+  const firstNumber = Math.max(1, Math.min(page - 2, pages - 4));
+  const auditPagination = {
+    summary: count ? `Showing ${offset + 1}–${Math.min(offset + limit, count)} of ${count} entries` : 'No audit entries found',
+    page, pages,
+    previous: page > 1 ? link(page - 1) : null,
+    next: page < pages ? link(page + 1) : null,
+    numbers: Array.from({ length: Math.min(5, pages) }, (_, index) => ({ number: firstNumber + index, current: firstNumber + index === page, url: link(firstNumber + index) })),
+  };
+  res.render('platformList', { title: 'Audit history', description: 'Accountability for sign-ins, record changes, exports and resource movements. Times are shown in Philippine time.', columns: ['Time', 'Actor', 'Action', 'Entity', 'Reference', 'Detail'], rows: rows.map(row => ({ cells: [displayDate(row.createdAt), row.actorName, row.action, row.entity, row.entityId, row.detail] })), count, q, page, pages, limit, auditPagination, base: '/admin/audit' });
 }));
 router.get('/dashboard/notifications', run(async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
@@ -241,6 +255,29 @@ router.get('/dashboard/my-requests', run(async (req, res) => {
   res.render('platformList', { title: 'My requests', base: '/dashboard/my-requests', q, description: 'Follow the progress of your document requests. Only requests submitted with your account are shown.', columns: ['Request', 'Document', 'Status', 'Submitted'], rows: result.rows.map(row => ({ cells: [`#${row.id}`, row.documentType, row.status, displayDate(row.createdAt)], url: `/request/${row.id}` })), count: result.count, page: page.page, pages: Math.max(1, Math.ceil(result.count / page.limit)), next: result.count > page.page * page.limit ? `/dashboard/my-requests?page=${page.page + 1}` : null, previous: page.page > 1 ? `/dashboard/my-requests?page=${page.page - 1}` : null });
 }));
 router.get('/dashboard/profile', (req, res) => req.session.user ? res.render('platformProfile', { title: 'My profile' }) : res.redirect('/login'));
+router.post('/dashboard/profile', run(async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  let name;
+  try {
+    name = text(req.body.name, 'Full name', true, 255);
+    if (/[\u0000-\u001f\u007f]/.test(name)) fail('Full name must not contain control characters.');
+  } catch (error) {
+    if (error.status !== 400) throw error;
+    req.flash('error_msg', error.message);
+    return res.redirect(303, '/dashboard/profile');
+  }
+  await sequelize.transaction(async transaction => {
+    const account = await User.findByPk(req.session.user.id, { transaction, lock: transaction.LOCK.UPDATE });
+    if (!account) fail('Account not found.', 404);
+    if (account.name !== name) {
+      await account.update({ name }, { transaction });
+      await audit(req, 'account.name-updated', 'account', account.id, 'Updated profile name', transaction);
+    }
+  });
+  req.session.user.name = name;
+  req.flash('success_msg', 'Your name has been updated.');
+  res.redirect(303, '/dashboard/profile');
+}));
 router.get('/help', (req, res) => res.render('platformHelp', { title: 'Help and office guidance' }));
 router.post('/dashboard/notifications/:id/read', run(async (req, res) => {
   if (!req.session.user) return res.redirect('/login');

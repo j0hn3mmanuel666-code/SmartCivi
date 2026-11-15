@@ -112,6 +112,69 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
     await users.registrar.update({ role: 'registrar' });
     assert.equal((await registrar.get('/admin/registry')).status, 200);
   });
+  await t.test('pages provide role-appropriate Back links without JavaScript', async () => {
+    for (const path of ['/dashboard/my-requests', '/dashboard/profile', '/browse', '/request/submit', '/help']) {
+      const page = await citizen.get(path);
+      assert.match(page.html, /class="page-back-link" href="\/dashboard" data-page-back/, path);
+      assert.equal((page.html.match(/data-page-back/g) || []).length, 1);
+    }
+    assert.match((await admin.get('/admin/residents/new')).html, /class="page-back-link" href="\/admin" data-page-back/);
+    assert.match((await client().get('/login')).html, /class="page-back-link" href="\/" data-page-back/);
+  });
+  await t.test('profile name editing is validated, saved and restricted to the signed-in account', async () => {
+    for (const [browser, role] of [[citizen, 'user'], [admin, 'admin']]) {
+      const old = users[role].toJSON();
+      await browser.get('/dashboard/profile');
+      const r = await browser.call('/dashboard/profile', { name: '  Maria Isabel Dela Cruz  ', id: users.registrar.id, email: 'forged@example.test', role: 'admin' }, 'POST');
+      assert.equal(r.status, 303); assert.equal(r.location, '/dashboard/profile');
+      const saved = await users[role].reload();
+      assert.equal(saved.name, 'Maria Isabel Dela Cruz'); assert.equal(saved.email, old.email); assert.equal(saved.role, old.role);
+      assert.equal(saved.password, old.password);
+      const page = await browser.get('/dashboard/profile');
+      assert.match(page.html, /Your name has been updated/);
+      assert.match(page.html, /value="Maria Isabel Dela Cruz"/);
+      assert.match(page.html, /<strong[^>]*>Maria Isabel Dela Cruz<\/strong>/);
+      assert.equal((await browser.call('/dashboard/profile', { name: saved.name }, 'POST')).status, 303, 'Saving an unchanged name succeeds');
+      for (const name of ['   ', 'x'.repeat(256), 'Invalid\u0000Name']) {
+        assert.equal((await browser.call('/dashboard/profile', { name }, 'POST')).status, 303);
+        assert.equal((await saved.reload()).name, 'Maria Isabel Dela Cruz');
+      }
+      assert.equal((await browser.call('/dashboard/profile', { 'name[]': 'Array value' }, 'POST')).status, 303);
+      const csrf = await fetch(origin + '/dashboard/profile', { method: 'POST', headers: { Cookie: browser.cookie, 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ name: 'Forged without CSRF' }) });
+      assert.equal(csrf.status, 403);
+      assert.equal((await saved.reload()).name, 'Maria Isabel Dela Cruz');
+      assert.ok(await Audit.count({ where: { actorId: saved.id, action: 'account.name-updated' } }));
+    }
+    assert.equal((await users.registrar.reload()).name, 'Test registrar');
+    const guest = client(); await guest.get('/login');
+    assert.equal((await guest.call('/dashboard/profile', { name: 'Unauthenticated' }, 'POST')).location, '/login');
+  });
+  await t.test('audit pagination limits rows, retains search and handles page boundaries', async () => {
+    const action = `pagination.${suffix}`;
+    await Audit.bulkCreate(Array.from({ length: 31 }, (_, index) => ({ action, entity: 'test', detail: `Audit page entry ${index}`, actorName: 'Pagination test' })));
+    try {
+      const countRows = html => (html.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1].match(/<tr>/g) || []).length;
+      const first = await admin.get(`/admin/audit?q=${action}`);
+      assert.equal(countRows(first.html), 10);
+      assert.match(first.html, /Showing 1–10 of 31 entries/);
+      assert.match(first.html, /Audit page entry 30/);
+      assert.equal(first.html.includes('Audit page entry 20<'), false);
+      assert.match(first.html, /aria-current="page"[^>]*>1<\/span>/);
+      const link = first.html.replaceAll('&#x3D;', '=').match(/href="([^\"]*page=2[^\"]*)"/)[1].replaceAll('&amp;', '&');
+      const url = new URL(link, origin);
+      assert.equal(url.searchParams.get('q'), action); assert.equal(url.searchParams.get('limit'), '10');
+      const second = await admin.get(url.pathname + url.search);
+      assert.equal(countRows(second.html), 10); assert.match(second.html, /Showing 11–20 of 31 entries/);
+      const last = await admin.get(`/admin/audit?q=${action}&page=99`);
+      assert.equal(countRows(last.html), 1); assert.match(last.html, /Showing 31–31 of 31 entries/);
+      assert.match(last.html, /Page 4 of 4/);
+      const larger = await admin.get(`/admin/audit?q=${action}&limit=25`);
+      assert.equal(countRows(larger.html), 25); assert.match(larger.html, /Page 1 of 2/);
+      const empty = await admin.get(`/admin/audit?q=missing-${suffix}&page=99`);
+      assert.equal(countRows(empty.html), 0); assert.match(empty.html, /No audit entries found/); assert.match(empty.html, /Page 1 of 1/);
+      assert.equal((await citizen.get('/admin/audit')).status, 403);
+    } finally { await Audit.destroy({ where: { action } }); }
+  });
   await t.test('appointments keep document status separate and support reschedule requests', async () => {
     const appointmentDate = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
     const response = await citizen.call('/request', { fullName: 'Appointment client', phone: '09123456789', documentType: 'birth', purpose: 'Appointment', appointmentDate }, 'POST');

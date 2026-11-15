@@ -230,3 +230,54 @@ body.auth-page{margin:0;min-height:100dvh;display:flex;flex-direction:column;bac
 .auth-single{width:100%;max-width:520px;margin:auto;flex:1;display:flex;align-items:center;padding:48px 24px}.auth-single .auth-card{width:100%}
 .auth-google-form{margin:0}.auth-google{width:100%;min-height:48px;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;color:#252b2d;border:1px solid #aebbb2;border-radius:4px;font:500 14px Inter,'Segoe UI',sans-serif;cursor:pointer;padding:12px 16px}.auth-google svg{width:20px;height:20px;flex-shrink:0}.auth-google:hover:not(:disabled){background:#f5f6f3}.auth-google:focus-visible{outline:2px solid #1f593e;outline-offset:3px}.auth-google:disabled,.auth-submit:disabled{opacity:.6;cursor:not-allowed}.auth-provider-note{font-size:12px;line-height:1.65;color:#596367;margin:12px 0;text-align:center}.auth-provider-note a{color:#1f593e}.auth-field .auth-provider-note{text-align:left;margin:7px 0 0}.auth-divider{display:flex;align-items:center;gap:12px;color:#596367;font-size:11px;margin:22px 0}.auth-divider:before,.auth-divider:after{content:'';height:1px;flex:1;background:#dce0df}
 @media(max-width:640px){.auth-single{padding:28px 20px;align-items:flex-start}}
+/* Profile: read-only account information and sign-in settings. */
+.office .profile-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:24px;align-items:start}
+.office .profile-layout>.panel{margin:0;min-width:0;padding:28px}
+.office .profile-section-heading{padding-bottom:22px;border-bottom:1px solid var(--line)}
+.office .profile-section-heading h2{margin:0 0 6px;font-size:17px}
+.office .profile-section-heading p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
+.office .profile-facts{margin:0}
+.office .profile-facts>div{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px;align-items:baseline;padding:20px 0;border-bottom:1px solid var(--line)}
+.office .profile-facts dt{font-size:13px;color:var(--muted);font-weight:400}
+.office .profile-facts dd{margin:0;font-size:14px;font-weight:550;overflow-wrap:anywhere;line-height:1.6}
+.office .profile-role{color:var(--forest)}
+.office .profile-corrections{padding-top:24px}
+.office .profile-corrections h3{margin:0 0 6px;font-size:13px;font-weight:600}
+.office .profile-corrections p,.office .profile-provider p{margin:0;color:var(--muted);font-size:13px;line-height:1.75}
+.office .profile-links{display:flex;align-items:center;flex-wrap:wrap;gap:22px;margin-top:22px}
+.office .profile-links>a:not(.button){font-size:13px;font-weight:550;color:var(--forest);text-underline-offset:4px}
+.office .profile-provider{display:flex;align-items:flex-start;gap:14px;margin:24px 0 20px}
+.office .profile-provider svg{width:24px;height:24px;flex-shrink:0;margin-top:2px}
+.office .profile-provider h3{margin:0 0 6px;font-size:14px;font-weight:600}
+.office .profile-google-form{margin:0}
+.office .profile-google-form .button{width:100%}
+.office .profile-permissions{font-size:12px;line-height:1.75;color:var(--muted);border-top:1px solid var(--line);margin:24px 0 0;padding-top:18px}
+.office .profile-provider-unavailable{font-size:13px;line-height:1.7;color:var(--muted);margin:0}
+@media(max-width:1000px){.office .profile-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){.office .profile-layout>.panel{padding:22px 20px}.office .profile-facts>div{grid-template-columns:minmax(0,1fr);gap:6px;padding:17px 0}.office .profile-links{gap:18px}.office .profile-section-heading{padding-bottom:18px}}
+/* Consistent page navigation, independent of the sidebar and page layout. */
+.page-back-navigation{width:100%;max-width:1240px;margin-inline:auto;padding:16px clamp(16px,2.5vw,36px) 0;flex-shrink:0}
+.page-back-link{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:4px 8px 4px 0;color:var(--forest);font-size:13px;font-weight:550;line-height:1.5;text-decoration:none}
+.page-back-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.page-back-link:hover{text-decoration:underline;text-underline-offset:4px;color:var(--deep)}
+.page-back-navigation+.office-main{padding-top:12px}
+.auth-page>.page-back-navigation{max-width:1140px;padding-inline:32px}
+@media(max-width:760px){.auth-page>.page-back-navigation{padding-inline:20px}}
+@media print{.page-back-navigation{display:none!important}}
+.office .profile-name-form{display:flex;align-items:center;gap:10px;margin:0;min-width:0;flex-wrap:wrap}
+.office .profile-name-form input[type=text]{flex:1 1 180px;width:100%;min-width:0;font-weight:400}
+.office .profile-name-form .button{flex-shrink:0;white-space:nowrap;font-size:13px}
+.office .profile-facts>div:has(.profile-name-form){align-items:center}
+@media(max-width:520px){.office .profile-name-form input[type=text]{font-size:16px}.office .profile-name-form .button{margin-left:auto}}
+.office .audit-pagination{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin:22px 0;font-variant-numeric:tabular-nums}
+.office .audit-pagination:last-child{margin-bottom:0}
+.office .audit-page-summary{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--muted);font-size:12px;line-height:1.6}
+.office .audit-page-controls,.office .audit-page-numbers{display:flex;align-items:center;gap:6px}
+.office .audit-page-step,.office .audit-page-number{display:inline-flex;align-items:center;justify-content:center;min-height:40px;min-width:40px;padding:8px 12px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);text-decoration:none;font-size:13px;line-height:1.4}
+.office .audit-page-number[aria-current=page]{background:var(--forest);border-color:var(--forest);color:#fff;font-weight:600}
+.office a.audit-page-step:hover,.office a.audit-page-number:hover{background:#edf5ef;border-color:var(--forest);color:var(--forest)}
+.office .audit-page-step[aria-disabled=true]{color:#7a8380;background:#f5f6f3}
+@media(max-width:600px){.office .audit-page-controls{width:100%;justify-content:space-between;flex-wrap:wrap}.office .audit-page-step,.office .audit-page-number{min-width:34px;padding:8px}.office .audit-page-numbers{gap:4px}.office .audit-page-summary{justify-content:space-between;width:100%}}
+@media print{.audit-pagination{display:none!important}}
+.office .audit-table .office-table{min-width:1000px}
+.office .audit-table .office-table td:first-child{white-space:nowrap}

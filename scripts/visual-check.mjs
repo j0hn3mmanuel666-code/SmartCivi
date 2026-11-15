@@ -6,6 +6,9 @@ import { pathToFileURL } from 'node:url';
 if (!process.env.DB_NAME?.endsWith('_test')) throw new Error('Visual checks require a disposable _test database.');
 if (!process.env.PLAYWRIGHT_MODULE) throw new Error('Set PLAYWRIGHT_MODULE to the installed playwright/index.mjs path.');
 process.env.ELECTRON = '1';
+// Keep this shell check independent of local OAuth credentials.
+process.env.GOOGLE_CLIENT_ID = '';
+process.env.GOOGLE_CLIENT_SECRET = '';
 const { default: app } = await import('../index.js');
 const { User, Resource, sequelize } = await import('../models/Platform.js');
 const { default: bcrypt } = await import('bcrypt');
@@ -123,13 +126,16 @@ try {
   await citizenPage.locator('[name=email]').fill(citizen.email);
   await citizenPage.locator('[name=password]').fill(password);
   await Promise.all([citizenPage.waitForURL(origin + '/browse'), citizenPage.locator('button[type=submit]').click()]);
+  assert.equal(await citizenPage.locator('[data-page-back]').getAttribute('href'), '/dashboard', 'Back does not return to the sign-in submission');
   for (const width of [1440, 390]) {
     await citizenPage.setViewportSize({ width, height: 1000 });
     for (const [index, path] of ['/browse', '/dashboard', '/dashboard/my-requests', '/my-appointments', '/payments', '/records', '/request/submit', '/appoint', '/offices'].entries()) {
-      assert.equal((await citizenPage.goto(origin + path)).status(), 200, path);
+      // Page controls do not depend on the office directory's third-party map finishing.
+      assert.equal((await citizenPage.goto(origin + path, { waitUntil: 'domcontentloaded' })).status(), 200, path);
       assert.equal(await citizenPage.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Citizen overflow ${width} ${path}`);
       assert.equal(await citizenPage.locator('#workspace-navigation').count(), 1, `Shared sidebar ${path}`);
-      assert.equal(await citizenPage.locator('body > nav').count(), 0, `No old top navigation ${path}`);
+      assert.equal(await citizenPage.locator('body > nav:not(.page-back-navigation)').count(), 0, `No old top navigation ${path}`);
+      assert.equal(await citizenPage.locator('[data-page-back]').count(), 1, `One Back link ${path}`);
       assert.equal(await citizenPage.locator('[data-sidebar-toggle]').isVisible(), true, `Hamburger available ${path}`);
       if (path === '/browse') {
         await citizenPage.locator('#serviceSearch').fill('appointment');
@@ -143,6 +149,18 @@ try {
       await citizenPage.screenshot({ path: `tmp/visual-check/citizen-${width}-${index}.png`, fullPage: true });
     }
   }
+  await citizenPage.goto(origin + '/dashboard');
+  await citizenPage.goto(origin + '/dashboard/profile');
+  await citizenPage.getByRole('link', { name: 'My requests', exact: true }).last().click();
+  await citizenPage.waitForURL(origin + '/dashboard/my-requests');
+  await Promise.all([citizenPage.waitForURL(origin + '/dashboard/profile'), citizenPage.locator('[data-page-back]').click()]);
+  await Promise.all([citizenPage.waitForURL(origin + '/dashboard'), citizenPage.locator('[data-page-back]').click()]);
+  const directContext = await browser.newContext({ storageState: await citizenPage.context().storageState() });
+  const direct = await directContext.newPage();
+  await direct.goto(origin + '/dashboard/my-requests');
+  assert.equal(await direct.locator('[data-page-back]').getAttribute('href'), '/dashboard');
+  await Promise.all([direct.waitForURL(origin + '/dashboard'), direct.locator('[data-page-back]').click()]);
+  await directContext.close();
   await citizenPage.close();
   assert.deepEqual(errors, []);
   console.log(`Browser passed: ${paths.length} office screens at 1440/1024/768/390px and 9 citizen screens at desktop/mobile; consistent navigation, desktop toggle/persistence, service filtering, drawer focus/resize/Escape/backdrop verified; no overflow/JS errors.`);

@@ -1,0 +1,10 @@
+{{#with pager}}
+<div class="audit-pagination">
+  <div class="audit-page-summary"><span>{{summary}}</span><span>Page {{page}} of {{pages}}</span></div>
+  <nav class="audit-page-controls" aria-label="Audit pagination {{../position}}">
+    {{#if previous}}<a class="audit-page-step" href="{{previous}}" rel="prev">Previous</a>{{else}}<span class="audit-page-step" aria-disabled="true">Previous</span>{{/if}}
+    <div class="audit-page-numbers">{{#each numbers}}{{#if current}}<span class="audit-page-number" aria-current="page">{{number}}</span>{{else}}<a class="audit-page-number" href="{{url}}" aria-label="Page {{number}}">{{number}}</a>{{/if}}{{/each}}</div>
+    {{#if next}}<a class="audit-page-step" href="{{next}}" rel="next">Next</a>{{else}}<span class="audit-page-step" aria-disabled="true">Next</span>{{/if}}
+  </nav>
+</div>
+{{/with}}

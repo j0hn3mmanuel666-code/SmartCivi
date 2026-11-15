@@ -40,5 +40,5 @@ export function mailTransport(config = authConfiguration()) {
 }
 export async function sendVerificationEmail(user, token, transport = mailTransport(), config = authConfiguration()) {
   const url = `${config.origin}/verify-email?token=${token}`;
-  await transport.sendMail({ from: config.MAIL_FROM, to: user.email, subject: 'Verify your SmartCivi email address', text: `Welcome to SmartCivi.\n\nVerify your email address to finish creating your citizen account:\n${url}\n\nThis link expires in 30 minutes and can be used once. If you did not register, ignore this email.\n\nMunicipal Civil Registry, Bansud, Oriental Mindoro` });
+  await transport.sendMail({ from: config.MAIL_FROM, to: user.email, subject: 'Verify your SmartCivi email address', text: `Welcome to SmartCivi.\n\nVerify your email address to finish creating your citizen account:\n${url}\n\nThis link expires in 30 minutes and can be used once. If you did not register, ignore this email.\n\nMunicipal Civil Registry, Bongabong, Oriental Mindoro` });
 }

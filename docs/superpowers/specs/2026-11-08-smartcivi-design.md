@@ -1,6 +1,6 @@
 # SmartCivi conversion design
 
-User approved proceeding on 2026-11-08 after confirming the citizen portal, requests, appointments and payments remain. Exact title: **SmartCivi: A Smart Civil Registry and Resource Planning Platform for Local Government Units (LGUs)**. Bansud, Oriental Mindoro remains the implementing office.
+User approved proceeding on 2026-11-08 after confirming the citizen portal, requests, appointments and payments remain. Exact title: **SmartCivi: A Smart Civil Registry and Resource Planning Platform for Local Government Units (LGUs)**. Bongabong, Oriental Mindoro remains the implementing office.
 
 ## Approach
 Extend the existing Express/Handlebars/Sequelize/MySQL application. Rebuilding would discard working citizen flows; separate services would add deployment complexity without improving this local application. Preserve the incumbent forest green, cream, white and copper visual language, using accessible forms and responsive tables for office work.

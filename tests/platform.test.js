@@ -19,7 +19,7 @@ test('resident validation standardizes identifiers and rejects incomplete and fu
   assert.throws(() => residentInput({ ...input, firstName: '' }));
 });
 test('civil records require valid resident, type, registry number and event date', () => {
-  const input = { residentId: '1', type: 'birth', registryNumber: '2026-001', eventDate: '2000-01-01', eventPlace: 'Bansud' };
+  const input = { residentId: '1', type: 'birth', registryNumber: '2026-001', eventDate: '2000-01-01', eventPlace: 'Bongabong' };
   assert.equal(recordInput(input).residentId, 1);
   assert.throws(() => recordInput({ ...input, type: 'fake' }));
   assert.throws(() => recordInput({ ...input, residentId: '-1' }));

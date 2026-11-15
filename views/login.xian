@@ -1,13 +1,13 @@
 {{> head officeStyles=true}}
 <body class="auth-page">
 <a href="#main" class="skip-link">Skip to sign in</a>
-<header class="auth-header"><div class="auth-header-inner"><a class="brand-link" href="/"><span class="brand-mark" aria-hidden="true">S</span><span>SmartCivi<small>Municipality of Bansud</small></span></a><a class="auth-services-link" href="/browse">Explore services<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></div></header>
+<header class="auth-header"><div class="auth-header-inner"><a class="brand-link" href="/"><span class="brand-mark" aria-hidden="true">S</span><span>SmartCivi<small>Municipality of Bongabong</small></span></a><a class="auth-services-link" href="/browse">Explore services<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></div></header>
 <main id="main" class="auth-layout">
   <section class="auth-intro" aria-labelledby="auth-intro-title">
     <h2 id="auth-intro-title">Your civil services, <br>in one place.</h2>
     <p>Connect with your local civil registry office. Request documents, arrange a visit and follow your progress from one account.</p>
     <ul class="auth-features"><li>{{> navIcon icon="record"}}<span><strong>Request civil documents</strong><span>Birth, marriage and death certificates.</span></span></li><li>{{> navIcon icon="audit"}}<span><strong>Track your requests</strong><span>View processing history and service updates.</span></span></li><li>{{> navIcon icon="calendar"}}<span><strong>Manage appointments</strong><span>Check your schedule and updates from the office.</span></span></li></ul>
-    <p class="auth-office">Municipal Civil Registry<br>Bansud, Oriental Mindoro</p>
+    <p class="auth-office">Municipal Civil Registry<br>Bongabong, Oriental Mindoro</p>
   </section>
   <section class="auth-card" aria-labelledby="sign-in-title">
     <h1 id="sign-in-title">Sign in to SmartCivi</h1>

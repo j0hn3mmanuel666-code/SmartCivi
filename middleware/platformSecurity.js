@@ -21,7 +21,7 @@ export async function platformSecurity(req, res, next) {
       res.set('Cache-Control', 'no-store');
     }
     req.session.csrf ||= randomBytes(32).toString('hex');
-    Object.assign(res.locals, { systemTitle: SYSTEM_TITLE, officeName: 'Municipality of Bansud, Oriental Mindoro', csrf: req.session.csrf, user: req.session.user, isStaff: can(req.session.user?.role, 'overview'), canRegistry: can(req.session.user?.role, 'registry'), canResidents: can(req.session.user?.role, 'residents'), canResources: can(req.session.user?.role, 'resources'), canRequests: can(req.session.user?.role, 'requests'), canReports: can(req.session.user?.role, 'reports'), isAdmin: req.session.user?.role === 'admin' });
+    Object.assign(res.locals, { systemTitle: SYSTEM_TITLE, officeName: 'Municipality of Bongabong, Oriental Mindoro', csrf: req.session.csrf, user: req.session.user, isStaff: can(req.session.user?.role, 'overview'), canRegistry: can(req.session.user?.role, 'registry'), canResidents: can(req.session.user?.role, 'residents'), canResources: can(req.session.user?.role, 'resources'), canRequests: can(req.session.user?.role, 'requests'), canReports: can(req.session.user?.role, 'reports'), isAdmin: req.session.user?.role === 'admin' });
     const send = res.send;
     res.send = function(body) {
       if (typeof body === 'string' && (this.getHeader('Content-Type')?.includes('text/html') || /^\s*<!doctype html>/i.test(body))) {

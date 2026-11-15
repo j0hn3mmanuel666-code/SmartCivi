@@ -7,7 +7,7 @@
     <h2 id="register-intro-title">Your local services, <br>one secure account.</h2>
     <p>Create your citizen account to request civil documents, manage appointments and follow updates from the municipal registry.</p>
     <ul class="auth-features"><li>{{> navIcon icon="record"}}<span><strong>Request civil documents</strong><span>Birth, marriage and death certificates.</span></span></li><li>{{> navIcon icon="user"}}<span><strong>Verify your email</strong><span>A verification link helps protect your account.</span></span></li><li>{{> navIcon icon="calendar"}}<span><strong>Stay up to date</strong><span>Follow your requests and upcoming visits.</span></span></li></ul>
-    <p class="auth-office">Municipal Civil Registry<br>Bansud, Oriental Mindoro</p>
+    <p class="auth-office">Municipal Civil Registry<br>Bongabong, Oriental Mindoro</p>
   </section>
   <section class="auth-card" aria-labelledby="register-title">
     <h1 id="register-title">Create your account</h1>

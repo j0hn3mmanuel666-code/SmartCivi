@@ -2,7 +2,7 @@
 
 System title: **SmartCivi: A Smart Civil Registry and Resource Planning Platform for Local Government Units (LGUs)**
 
-Implementing office: Municipality of Bansud, Oriental Mindoro. Work started 8 November 2026; verified locally 9 November 2026. Citizen services and incumbent green/cream/copper branding are retained. There is no cloud or production deployment in this task.
+Implementing office: Municipality of Bongabong, Oriental Mindoro. Work started 8 November 2026; verified locally 9 November 2026. Citizen services and incumbent green/cream/copper branding are retained. There is no cloud or production deployment in this task.
 
 ## Implemented locally
 

@@ -39,11 +39,11 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
     resident = await Resident.findOne({ where: { residentCode: residentData.residentCode } });
     assert.ok(resident);
     assert.equal((await registrar.call('/admin/residents', residentData, 'POST')).status, 409);
-    assert.equal((await registrar.call(`/admin/residents/${resident.id}`, { ...residentData, barangay: 'Proper Bansud' }, 'POST')).status, 302);
-    assert.equal((await resident.reload()).barangay, 'Proper Bansud');
+    assert.equal((await registrar.call(`/admin/residents/${resident.id}`, { ...residentData, barangay: 'Proper Bongabong' }, 'POST')).status, 302);
+    assert.equal((await resident.reload()).barangay, 'Proper Bongabong');
   });
   await t.test('linked civil records and role-scoped reports', async () => {
-    const data = { residentId: resident.id, type: 'birth', registryNumber: `REG-${suffix}`, eventDate: '2000-01-01', eventPlace: 'Bansud' };
+    const data = { residentId: resident.id, type: 'birth', registryNumber: `REG-${suffix}`, eventDate: '2000-01-01', eventPlace: 'Bongabong' };
     assert.equal((await registrar.call('/admin/registry', data, 'POST')).status, 302);
     record = await CivilRecord.findOne({ where: { registryNumber: data.registryNumber } });
     assert.ok(record);

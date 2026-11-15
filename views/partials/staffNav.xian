@@ -4,7 +4,7 @@
   <div class="sidebar-brand"><a class="brand-link" href="{{#if isStaff}}/admin{{else}}/dashboard{{/if}}"><span class="brand-mark" aria-hidden="true">S</span><span>SmartCivi<small>Municipal services</small></span></a><button type="button" class="sidebar-close icon-button" data-sidebar-close aria-label="Close navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
   <div class="sidebar-profile"><span class="workspace-avatar">{{> navIcon icon="user"}}</span><div><strong title="{{user.name}}">{{user.name}}</strong><small>{{> roleLabel}}</small></div></div>
   <nav class="office-nav sidebar-navigation" aria-label="{{#if isStaff}}Office{{else}}Citizen{{/if}} navigation">{{> officeNavLinks}}</nav>
-  <div class="sidebar-footer"><p>Municipality of Bansud<br>Oriental Mindoro</p><a href="/logout">{{> navIcon icon="logout"}}Sign out</a></div>
+  <div class="sidebar-footer"><p>Municipality of Bongabong<br>Oriental Mindoro</p><a href="/logout">{{> navIcon icon="logout"}}Sign out</a></div>
 </aside>
 <header class="office-header workspace-header">
   <div class="workspace-header-inner">

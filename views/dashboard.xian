@@ -1,7 +1,7 @@
 {{> head officeStyles=true}}
 <body class="office">{{> staffNav}}
 <main id="main" class="office-main">{{> officeFlash}}
-  <header class="page-heading"><div><h1>Welcome{{#if user.name}}, {{user.name}}{{/if}}</h1><p>Manage your civil document requests, appointments and updates from the Bansud registry office.</p></div><a class="button secondary" href="/dashboard/my-requests">Track a request</a></header>
+  <header class="page-heading"><div><h1>Welcome{{#if user.name}}, {{user.name}}{{/if}}</h1><p>Manage your civil document requests, appointments and updates from the Bongabong registry office.</p></div><a class="button secondary" href="/dashboard/my-requests">Track a request</a></header>
   <div class="citizen-workspace">
     <section class="request-spotlight" aria-labelledby="request-heading">
       <h2 id="request-heading">Request a civil document</h2>

@@ -1,6 +1,6 @@
 # SmartCivi workspace design
 
-The user requested VitalMatch as the visual reference on 12 November 2026. SmartCivi retains its name, full system title, Bansud office context, green brand and existing role-based workflows.
+The user requested VitalMatch as the visual reference on 12 November 2026. SmartCivi retains its name, full system title, Bongabong office context, green brand and existing role-based workflows.
 
 ## Reference and implementation
 

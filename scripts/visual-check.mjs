@@ -10,7 +10,7 @@ process.env.ELECTRON = '1';
 process.env.GOOGLE_CLIENT_ID = '';
 process.env.GOOGLE_CLIENT_SECRET = '';
 const { default: app } = await import('../index.js');
-const { User, Resource, sequelize } = await import('../models/Platform.js');
+const { User, Resource, Request, RequestEvent, Notice, sequelize } = await import('../models/Platform.js');
 const { default: bcrypt } = await import('bcrypt');
 const { chromium } = await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE).href);
 const server = app.listen(0, '127.0.0.1');
@@ -20,6 +20,8 @@ const email = `visual-${Date.now()}@example.test`, password = 'Local-visual-test
 const user = await User.create({ name: 'Visual review administrator', email, password: await bcrypt.hash(password, 4), role: 'admin' });
 const citizen = await User.create({ name: 'Maria Santos', email: `citizen-${Date.now()}@example.test`, password: await bcrypt.hash(password, 4), role: 'user' });
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
+let transactionFixtures = [];
+let citizenPaths = [];
 try {
   const { default: hbs } = await import('hbs');
   for (const file of await readdir('views')) if (file.endsWith('.xian')) hbs.handlebars.precompile(await readFile(`views/${file}`, 'utf8'));
@@ -50,8 +52,17 @@ try {
   await page.locator('input[name=password]').fill(password);
   await Promise.all([page.waitForURL(origin + '/admin'), page.locator('button[type=submit]').click()]);
   await mkdir('tmp/visual-check', { recursive: true });
+  const fixtureBase = { fullName: citizen.name, email: citizen.email, phone: '09123456789', documentType: 'birth', purpose: 'Local interface verification' };
+  transactionFixtures = await Request.bulkCreate([
+    { ...fixtureBase, status: 'processing', appointmentDate: new Date(Date.now() + 172800000), appointmentStatus: 'scheduled' },
+    { ...fixtureBase, status: 'approved', paymentAmount: '155.00' },
+    { ...fixtureBase, status: 'released', paymentAmount: '155.00', paymentMethod: 'online', paymentReference: `UI-PAID-${Date.now()}`, paidAt: new Date() },
+    { ...fixtureBase, status: 'payment_pending', paymentAmount: '155.00', paymentMethod: 'otc', paymentReference: `UI-PENDING-${Date.now()}` },
+  ]);
+  await RequestEvent.bulkCreate([{ requestId: transactionFixtures[0].id, status: 'pending', detail: 'Request submitted', actorName: 'Citizen' }, { requestId: transactionFixtures[0].id, status: 'processing', detail: 'Office review started', actorName: 'Registry office' }]);
+  await Notice.bulkCreate([{ userId: citizen.id, title: 'Your request is being reviewed', message: 'The office has started reviewing your document request.', url: `/request/${transactionFixtures[0].id}` }, { userId: user.id, title: 'Document request received', message: 'Review the pending document request.', url: `/admin/requests/${transactionFixtures[0].id}` }]);
   const resource = await Resource.findOne({ order: [['id', 'DESC']] });
-  const paths = ['/admin', '/admin/residents', '/admin/residents/new', '/admin/registry', '/admin/resources', ...(resource ? [`/admin/resources/${resource.id}`] : []), '/admin/reports', '/admin/users', '/admin/appointments', '/dashboard/notifications'];
+  const paths = ['/admin', '/admin/residents', '/admin/residents/new', '/admin/registry', '/admin/resources', ...(resource ? [`/admin/resources/${resource.id}`] : []), '/admin/reports', '/admin/users', '/admin/appointments', '/dashboard/notifications', '/admin/requests', `/admin/requests/${transactionFixtures[0].id}`, '/admin/audit', '/admin/operations', '/admin/integrations', '/dashboard/profile', '/help', '/api'];
   for (const width of [1440, 1024, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const [i, path] of paths.entries()) {
@@ -127,9 +138,10 @@ try {
   await citizenPage.locator('[name=password]').fill(password);
   await Promise.all([citizenPage.waitForURL(origin + '/browse'), citizenPage.locator('button[type=submit]').click()]);
   assert.equal(await citizenPage.locator('[data-page-back]').getAttribute('href'), '/dashboard', 'Back does not return to the sign-in submission');
+  citizenPaths = ['/browse', '/dashboard', '/dashboard/my-requests', '/my-appointments', '/payments', '/records', '/request/submit', '/appoint', '/offices', '/dashboard/profile', '/dashboard/notifications', '/status', `/request/${transactionFixtures[0].id}`, `/request/${transactionFixtures[1].id}/pay`, `/request/${transactionFixtures[0].id}/confirmation`, `/request/${transactionFixtures[0].id}/attachments`];
   for (const width of [1440, 390]) {
     await citizenPage.setViewportSize({ width, height: 1000 });
-    for (const [index, path] of ['/browse', '/dashboard', '/dashboard/my-requests', '/my-appointments', '/payments', '/records', '/request/submit', '/appoint', '/offices'].entries()) {
+    for (const [index, path] of citizenPaths.entries()) {
       // Page controls do not depend on the office directory's third-party map finishing.
       assert.equal((await citizenPage.goto(origin + path, { waitUntil: 'domcontentloaded' })).status(), 200, path);
       assert.equal(await citizenPage.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Citizen overflow ${width} ${path}`);
@@ -137,6 +149,7 @@ try {
       assert.equal(await citizenPage.locator('body > nav:not(.page-back-navigation)').count(), 0, `No old top navigation ${path}`);
       assert.equal(await citizenPage.locator('[data-page-back]').count(), 1, `One Back link ${path}`);
       assert.equal(await citizenPage.locator('[data-sidebar-toggle]').isVisible(), true, `Hamburger available ${path}`);
+      assert.equal(await citizenPage.locator('script[src*=\"tailwindcss\"]').count(), 0, `Local styles ${path}`);
       if (path === '/browse') {
         await citizenPage.locator('#serviceSearch').fill('appointment');
         assert.equal(await citizenPage.locator('.service-card:visible').count(), 2);
@@ -149,6 +162,18 @@ try {
       await citizenPage.screenshot({ path: `tmp/visual-check/citizen-${width}-${index}.png`, fullPage: true });
     }
   }
+  await citizenPage.goto(origin + '/payments');
+  await citizenPage.locator('#filterPaid').click();
+  assert.equal(await citizenPage.locator('.payment-row:visible').count(), 1);
+  assert.equal(await citizenPage.locator('#filterPaid').getAttribute('aria-pressed'), 'true');
+  await citizenPage.locator('#filterPending').click();
+  assert.equal(await citizenPage.locator('.payment-row:visible').count(), 2);
+  const pendingPayment = citizenPage.locator(`.payment-row[data-payment-id="${transactionFixtures[3].id}"]`);
+  await pendingPayment.getByRole('button', { name: 'View Details', exact: true }).click();
+  await citizenPage.getByRole('dialog', { name: 'Payment details' }).waitFor();
+  assert.match(await citizenPage.locator('#paymentDetails').innerText(), /155/);
+  await citizenPage.keyboard.press('Escape');
+  assert.equal(await citizenPage.locator('#paymentModal').evaluate(dialog => dialog.open), false);
   await citizenPage.goto(origin + '/dashboard');
   await citizenPage.goto(origin + '/dashboard/profile');
   await citizenPage.getByRole('link', { name: 'My requests', exact: true }).last().click();
@@ -163,9 +188,15 @@ try {
   await directContext.close();
   await citizenPage.close();
   assert.deepEqual(errors, []);
-  console.log(`Browser passed: ${paths.length} office screens at 1440/1024/768/390px and 9 citizen screens at desktop/mobile; consistent navigation, desktop toggle/persistence, service filtering, drawer focus/resize/Escape/backdrop verified; no overflow/JS errors.`);
+  console.log(`Browser passed: ${paths.length} office screens at 1440/1024/768/390px and ${citizenPaths.length} populated citizen screens at desktop/mobile; consistent navigation, desktop toggle/persistence, service filtering, drawer focus/resize/Escape/backdrop verified; no overflow/JS errors.`);
 } finally {
   await browser.close();
+  if (transactionFixtures.length) {
+    const ids = transactionFixtures.map(record => record.id);
+    await RequestEvent.destroy({ where: { requestId: ids } });
+    await Request.destroy({ where: { id: ids } });
+  }
+  await Notice.destroy({ where: { userId: [user.id, citizen.id] } });
   await User.destroy({ where: { id: user.id } });
   await citizen.destroy();
   await new Promise(resolve => server.close(resolve));

@@ -128,7 +128,23 @@
     mobile.addEventListener('change', () => closeSidebar(false));
     closeSidebar(false);
   }
-  document.querySelectorAll('.badge').forEach(badge => { badge.dataset.state = badge.textContent.trim().toLowerCase(); });
+  const statusLabels = { pending: 'Pending', processing: 'Processing', approved: 'Approved', payment_pending: 'Awaiting payment', paid: 'Paid', completed: 'Completed', released: 'Released', rejected: 'Rejected', scheduled: 'Scheduled', confirmed: 'Confirmed', rescheduled: 'Rescheduled', cancelled: 'Cancelled' };
+  document.querySelectorAll('.office-table').forEach(table => {
+    const statusColumn = [...table.querySelectorAll('thead th')].findIndex(header => header.textContent.trim().toLowerCase() === 'status');
+    if (statusColumn < 0) return;
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const cell = row.cells[statusColumn];
+      if (!cell || cell.children.length || !statusLabels[cell.textContent.trim()]) return;
+      const badge = document.createElement('span');
+      badge.className = 'badge'; badge.textContent = cell.textContent.trim();
+      cell.replaceChildren(badge);
+    });
+  });
+  document.querySelectorAll('.badge').forEach(badge => {
+    const state = badge.textContent.trim().toLowerCase();
+    badge.dataset.state = state;
+    if (statusLabels[state]) badge.textContent = statusLabels[state];
+  });
   document.addEventListener('pointerdown', event => {
     document.querySelectorAll('.nav-more[open], .mobile-menu[open]').forEach(menu => { if (!menu.contains(event.target)) menu.open = false; });
   });

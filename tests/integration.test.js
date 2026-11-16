@@ -82,6 +82,33 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
     assert.equal((await officer.get('/admin/reports?dataset=allocations&format=csv')).status, 200);
     assert.ok(await Audit.count());
   });
+  await t.test('citizen transaction pages share workspace headings and local styles', async () => {
+    for (const path of ['/payments', '/records', '/status', '/offices']) {
+      const page = await citizen.get(path);
+      assert.equal(page.status, 200, path);
+      assert.equal(page.html.includes('cdn.tailwindcss.com'), false, `${path} does not compile styles in the browser`);
+      assert.match(page.html, /href="\/utilities.css"/, path);
+      assert.ok(page.html.indexOf('<main') < page.html.indexOf('<h1'), `${path} heading belongs inside main content`);
+      assert.match(page.html, /class="page-heading"/);
+      assert.match(page.html, /class="office-footer"/);
+    }
+  });
+  await t.test('account directory search and pagination keep large user lists manageable', async () => {
+    const prefix = `ui-directory-${suffix}`;
+    const fixtures = await User.bulkCreate(Array.from({ length: 26 }, (_, index) => ({ name: `${prefix} ${index}`, email: `${prefix}.${index}@example.test`, password: users.user.password, role: 'user' })));
+    try {
+      const first = await admin.get(`/admin/users?q=${prefix}`);
+      assert.match(first.html, /Showing 1–25 of 26 accounts/);
+      assert.match(first.html, /Page 1 of 2/);
+      const firstTable = first.html.match(/<table id="accountsTable"[\s\S]*?<tbody>([\s\S]*?)<\/tbody>/)[1];
+      assert.equal((firstTable.match(/<tr>/g) || []).length, 25);
+      const second = await admin.get(`/admin/users?q=${prefix}&page=2`);
+      assert.match(second.html, /Showing 26–26 of 26 accounts/);
+      assert.equal((second.html.match(/<table id="accountsTable"[\s\S]*?<tbody>([\s\S]*?)<\/tbody>/)[1].match(/<tr>/g) || []).length, 1);
+      assert.match(second.html, new RegExp(`${prefix} 0`));
+      assert.equal((await citizen.get('/admin/users')).status, 403);
+    } finally { await User.destroy({ where: { id: fixtures.map(user => user.id) } }); }
+  });
   await t.test('normal HTML forms receive CSRF tokens and current roles are refreshed', async () => {
     const login = await admin.get('/login');
     assert.match(login.html, /class="auth-page"/);

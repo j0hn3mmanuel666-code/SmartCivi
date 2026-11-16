@@ -238,7 +238,7 @@ router.get('/admin/audit', requireFeature('audit'), run(async (req, res) => {
     next: page < pages ? link(page + 1) : null,
     numbers: Array.from({ length: Math.min(5, pages) }, (_, index) => ({ number: firstNumber + index, current: firstNumber + index === page, url: link(firstNumber + index) })),
   };
-  res.render('platformList', { title: 'Audit history', description: 'Accountability for sign-ins, record changes, exports and resource movements. Times are shown in Philippine time.', columns: ['Time', 'Actor', 'Action', 'Entity', 'Reference', 'Detail'], rows: rows.map(row => ({ cells: [displayDate(row.createdAt), row.actorName, row.action, row.entity, row.entityId, row.detail] })), count, q, page, pages, limit, auditPagination, base: '/admin/audit' });
+  res.render('platformList', { title: 'Audit history', description: 'Accountability for sign-ins, record changes, exports and resource movements. Times are shown in Philippine time.', columns: ['Time', 'Actor', 'Action', 'Entity', 'Reference', 'Detail'], rows: rows.map(row => ({ cells: [displayDate(row.createdAt), row.actorName, row.action, row.entity, row.entityId, row.detail] })), count, q, page, pages, limit, auditPagination, hideActions: true, base: '/admin/audit' });
 }));
 router.get('/dashboard/notifications', run(async (req, res) => {
   if (!req.session.user) return res.redirect('/login');

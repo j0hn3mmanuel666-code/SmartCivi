@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{csrf}}">
+  {{#unless officeStyles}}<link rel="stylesheet" href="/utilities.css">{{/unless}}
   <link rel="stylesheet" href="/platform.css">
   <link rel="stylesheet" href="/workspace.css">
   <script src="/platform.js" defer></script>
-  {{#unless officeStyles}}<script src="https://cdn.tailwindcss.com"></script>
+  {{#unless officeStyles}}
   <style>
     body[class~="from-pink-300"] {
       background-color: #f3f6f2 !important;
@@ -16,7 +17,7 @@
       color: #202923 !important;
     }
 
-    body[class~="from-pink-300"] > nav {
+    body[class~="from-pink-300"] > nav:not(.page-back-navigation) {
       border-bottom: 1px solid #dce4dc !important;
       background: rgba(255, 255, 255, .96) !important;
       box-shadow: none !important;
@@ -24,12 +25,12 @@
       backdrop-filter: blur(12px);
     }
 
-    body[class~="from-pink-300"] > nav a {
+    body[class~="from-pink-300"] > nav:not(.page-back-navigation) a {
       color: #536158 !important;
     }
 
-    body[class~="from-pink-300"] > nav a[href="/logout"],
-    body[class~="from-pink-300"] > nav a[href="/browse"] {
+    body[class~="from-pink-300"] > nav:not(.page-back-navigation) a[href="/logout"],
+    body[class~="from-pink-300"] > nav:not(.page-back-navigation) a[href="/browse"] {
       display: inline-flex !important;
       align-items: center;
       justify-content: center;

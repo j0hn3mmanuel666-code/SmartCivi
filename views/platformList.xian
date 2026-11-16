@@ -6,7 +6,7 @@
 {{#if auditPagination}}
 {{> auditPagination pager=auditPagination position="top"}}
 {{else}}<p class="small muted">{{count}} matching records{{#if archived}} · Archived records{{/if}}</p>{{/if}}
-{{#if rows}}<div class="table-wrap{{#if auditPagination}} audit-table{{/if}}"><table class="office-table"><thead><tr>{{#each columns}}<th scope="col">{{this}}</th>{{/each}}<th scope="col">Actions</th></tr></thead><tbody>{{#each rows}}<tr>{{#each cells}}<td>{{this}}</td>{{/each}}<td>{{#if url}}<a href="{{url}}">Open</a>{{/if}}{{#if registerUrl}}<br><a href="{{registerUrl}}">Register civil record</a>{{/if}}</td></tr>{{/each}}</tbody></table></div>
+{{#if rows}}<div class="table-wrap{{#if auditPagination}} audit-table{{/if}}"><table class="office-table"><thead><tr>{{#each columns}}<th scope="col">{{this}}</th>{{/each}}{{#unless hideActions}}<th scope="col">Actions</th>{{/unless}}</tr></thead><tbody>{{#each rows}}<tr>{{#each cells}}<td>{{this}}</td>{{/each}}{{#unless ../hideActions}}<td><div class="record-actions">{{#if url}}<a href="{{url}}">Open</a>{{/if}}{{#if registerUrl}}<a href="{{registerUrl}}">Register civil record</a>{{/if}}</div></td>{{/unless}}</tr>{{/each}}</tbody></table></div>
 {{else}}<div class="empty"><h2>No records to show</h2><p>{{#if q}}Try a different search or reset your filters.{{else}}Records will appear here as your office adds them.{{/if}}</p>{{#if newUrl}}<a class="button" href="{{newUrl}}">Add {{singular}}</a>{{/if}}</div>{{/if}}
 {{#if auditPagination}}
 {{> auditPagination pager=auditPagination position="bottom"}}

@@ -30,7 +30,7 @@ import { User } from "../models/User.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
 import { sequelize, Notice, RequestEvent, Resident, CivilRecord } from '../models/Platform.js';
-import { audit, notifyStaff, requestEvent } from '../services/platform.js';
+import { audit, notifyStaff, requestEvent, pagination } from '../services/platform.js';
 import { can, date, fail, integer, requestStatus, roles, text, paymentComplete } from '../services/platformRules.js';
 
 export const homePage = (req, res) => {
@@ -555,19 +555,22 @@ function generatePDFReport(res, data, summary, reportType) {
 }
 export const usersPage = async (req, res) => {
   try {
+    const q = text(req.query.q, 'Search', false, 100) || '';
+    const requested = pagination(req.query);
+    const where = q ? { [Op.or]: ['name', 'email'].map(field => ({ [field]: { [Op.like]: `%${q.replace(/[\\%_]/g, '\\$&')}%` } })) } : {};
+    const count = await User.count({ where });
+    const pages = Math.max(1, Math.ceil(count / requested.limit));
+    const page = Math.min(requested.page, pages), offset = (page - 1) * requested.limit;
     const users = await User.findAll({
       attributes: ['id', 'name', 'email', 'role', 'createdAt', 'updatedAt'],
-      order: [['createdAt', 'DESC']]
+      where, limit: requested.limit, offset, order: [['id', 'DESC']]
     });
-
-    res.render("users", {
-      title: "User Management",
-      users: users.map(user => {
-        const userData = user.toJSON();
-        // Format dates for display
-        userData.createdAt = new Date(userData.createdAt).toLocaleDateString();
-        return userData;
-      })
+    const link = number => `/admin/users?${new URLSearchParams({ q, page: String(number) })}`;
+    res.render('users', {
+      title: 'User management', users: users.map(user => user.toJSON()), q, count, page, pages,
+      range: count ? `Showing ${offset + 1}–${Math.min(offset + requested.limit, count)} of ${count} accounts` : 'No accounts match this search',
+      previous: page > 1 ? link(page - 1) : null,
+      next: page < pages ? link(page + 1) : null,
     });
   } catch (error) {
     console.error("Error loading users:", error);
@@ -982,7 +985,7 @@ export const paymentsReceiptsPage = async (req, res) => {
     // Format payments data for display
     const payments = paymentsData.map(req => {
       const data = req.toJSON();
-      data.updatedAt = new Date(data.updatedAt).toLocaleDateString();
+      data.updatedAt = new Date(data.updatedAt).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium' });
       return data;
     });
 
@@ -1388,7 +1391,7 @@ export const myAppointmentsPage = async (req, res) => {
     const appointmentsData = appointments.map(appointment => {
       const data = appointment.toJSON();
       data.createdAt = new Date(data.createdAt).toLocaleDateString();
-      data.updatedAt = new Date(data.updatedAt).toLocaleDateString();
+      data.updatedAt = new Date(data.updatedAt).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium' });
 
       // Add status styling
       data.statusClass = {
@@ -1426,7 +1429,7 @@ export const adminAppointmentsPage = async (req, res) => {
     const appointmentsData = appointments.map(appointment => {
       const data = appointment.toJSON();
       data.createdAt = new Date(data.createdAt).toLocaleDateString();
-      data.updatedAt = new Date(data.updatedAt).toLocaleDateString();
+      data.updatedAt = new Date(data.updatedAt).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium' });
 
       // Add status styling
       data.statusClass = {

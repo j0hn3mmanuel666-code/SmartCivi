@@ -103,6 +103,11 @@ hbs.registerHelper('ifEq', function(a, b, options) {
   return a === b ? options.fn(this) : options.inverse(this);
 });
 hbs.registerHelper('ifPaid', function(request, options) { return paymentComplete(request) ? options.fn(this) : options.inverse(this); });
+hbs.registerHelper('localDateTime', value => {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' });
+});
 
 app.get('/api/health', async (_req, res) => {
   try {

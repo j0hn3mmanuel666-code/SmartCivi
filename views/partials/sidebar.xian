@@ -1,0 +1,61 @@
+<div class="app-sidebar-backdrop" id="app-sidebar-backdrop"></div>
+<button type="button" class="app-sidebar-mobile-toggle" id="app-sidebar-mobile-toggle" aria-label="Open navigation" aria-expanded="false">
+  <span aria-hidden="true">☰</span>
+  <span class="sr-only">Open navigation</span>
+</button>
+<aside class="app-sidebar" id="app-sidebar" aria-label="Main navigation">
+  <div class="app-sidebar-brand">
+    <a class="app-sidebar-logo" href="{{#if user}}{{#if isAdmin}}/admin{{else}}/dashboard{{/if}}{{else}}/{{/if}}">
+      <span class="app-sidebar-mark" aria-hidden="true">SC</span>
+      <span class="app-sidebar-brand-name">SmartCivi</span>
+    </a>
+    <button type="button" class="app-sidebar-collapse" id="app-sidebar-collapse" aria-label="Collapse navigation" aria-expanded="true">
+      <span aria-hidden="true">‹</span>
+    </button>
+  </div>
+
+  <nav class="app-sidebar-nav">
+    {{#if user}}
+      {{#if isAdmin}}
+        <p class="app-sidebar-section">Workspace</p>
+        <a class="app-sidebar-link" href="/admin" data-label="Overview"><span class="app-sidebar-icon">OV</span><span class="app-sidebar-label">Overview</span></a>
+        <a class="app-sidebar-link" href="/admin/requests" data-label="Reports"><span class="app-sidebar-icon">RP</span><span class="app-sidebar-label">Reports</span></a>
+        <a class="app-sidebar-link" href="/admin/appointments" data-label="Appointments"><span class="app-sidebar-icon">AP</span><span class="app-sidebar-label">Appointments</span></a>
+        <a class="app-sidebar-link" href="/admin/users" data-label="Users"><span class="app-sidebar-icon">US</span><span class="app-sidebar-label">Users</span></a>
+        <a class="app-sidebar-link" href="/admin/reports" data-label="Analytics"><span class="app-sidebar-icon">AN</span><span class="app-sidebar-label">Analytics</span></a>
+        <a class="app-sidebar-link" href="/dashboard/notifications" data-label="Notifications"><span class="app-sidebar-icon">NT</span><span class="app-sidebar-label">Notifications</span></a>
+        <p class="app-sidebar-section">More</p>
+        <a class="app-sidebar-link" href="/help" data-label="Help"><span class="app-sidebar-icon">HL</span><span class="app-sidebar-label">Help &amp; support</span></a>
+      {{else}}
+        <p class="app-sidebar-section">My account</p>
+        <a class="app-sidebar-link" href="/dashboard" data-label="Overview"><span class="app-sidebar-icon">OV</span><span class="app-sidebar-label">Overview</span></a>
+        <a class="app-sidebar-link" href="/browse" data-label="Services"><span class="app-sidebar-icon">SV</span><span class="app-sidebar-label">Services</span></a>
+        <a class="app-sidebar-link" href="/dashboard/my-requests" data-label="My requests"><span class="app-sidebar-icon">RP</span><span class="app-sidebar-label">My requests</span></a>
+        <a class="app-sidebar-link" href="/my-appointments" data-label="Appointments"><span class="app-sidebar-icon">AP</span><span class="app-sidebar-label">Appointments</span></a>
+        <a class="app-sidebar-link" href="/dashboard/notifications" data-label="Notifications"><span class="app-sidebar-icon">NT</span><span class="app-sidebar-label">Notifications</span></a>
+        <a class="app-sidebar-link" href="/dashboard/profile" data-label="Profile"><span class="app-sidebar-icon">PF</span><span class="app-sidebar-label">Profile</span></a>
+        <p class="app-sidebar-section">More</p>
+        <a class="app-sidebar-link" href="/help" data-label="Help"><span class="app-sidebar-icon">HL</span><span class="app-sidebar-label">Help &amp; support</span></a>
+      {{/if}}
+    {{else}}
+      <p class="app-sidebar-section">SmartCivi</p>
+      <a class="app-sidebar-link" href="/" data-label="Home"><span class="app-sidebar-icon">HM</span><span class="app-sidebar-label">Home</span></a>
+      <a class="app-sidebar-link" href="/browse" data-label="Services"><span class="app-sidebar-icon">SV</span><span class="app-sidebar-label">Services</span></a>
+      <a class="app-sidebar-link" href="/login" data-label="Sign in"><span class="app-sidebar-icon">IN</span><span class="app-sidebar-label">Sign in</span></a>
+      <a class="app-sidebar-link" href="/register" data-label="Create account"><span class="app-sidebar-icon">AC</span><span class="app-sidebar-label">Create account</span></a>
+      <a class="app-sidebar-link" href="/help" data-label="Help"><span class="app-sidebar-icon">HL</span><span class="app-sidebar-label">Help &amp; support</span></a>
+    {{/if}}
+  </nav>
+
+  <div class="app-sidebar-footer">
+    {{#if user}}
+      <div class="app-sidebar-user">
+        <span class="app-sidebar-avatar" aria-hidden="true">{{#if isAdmin}}AD{{else}}US{{/if}}</span>
+        <span class="app-sidebar-user-name">{{user.name}}</span>
+      </div>
+      <a class="app-sidebar-signout" href="/logout" title="Sign out">Sign out</a>
+    {{else}}
+      <p class="app-sidebar-caption">Civil services, made simpler.</p>
+    {{/if}}
+  </div>
+</aside>

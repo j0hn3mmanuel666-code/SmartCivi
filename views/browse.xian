@@ -1,5 +1,5 @@
 {{> head }}
-<body class="min-h-screen bg-[#f3f6f2] text-[#202923] antialiased" style="background-image: linear-gradient(rgba(31, 83, 58, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 83, 58, .035) 1px, transparent 1px); background-size: 36px 36px;">
+<body class="top-nav-page min-h-screen bg-[#f3f6f2] text-[#202923] antialiased" style="background-image: linear-gradient(rgba(31, 83, 58, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 83, 58, .035) 1px, transparent 1px); background-size: 36px 36px;">
 	<nav class="sticky top-0 z-50 border-b border-[#dce4dc] bg-white/95 backdrop-blur">
 		<div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4">
 			<a href="/" class="flex items-center gap-3 text-lg font-bold tracking-tight text-[#20372b]">
@@ -13,6 +13,7 @@
 					<a href="/my-appointments" class="text-[#536158] transition hover:text-[#1f593e]">Appointments</a>
 					<a href="/logout" class="rounded-md border border-[#dce4dc] px-3 py-2 text-[#38483d] transition hover:bg-[#f3f6f2]">Sign out</a>
 				{{else}}
+					<a href="/" class="text-[#536158] transition hover:text-[#1f593e]">Back to Home</a>
 					<a href="/login" class="rounded-md bg-[#1f593e] px-4 py-2 text-white transition hover:bg-[#174630]">Sign in</a>
 				{{/if}}
 			</div>

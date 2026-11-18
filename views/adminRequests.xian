@@ -1,19 +1,7 @@
 {{> head }}
 <body class="min-h-screen bg-zinc-50 text-zinc-900 antialiased">
 
-  <nav class="sticky top-0 z-50 border-b border-zinc-200 bg-white">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-3 px-5 py-4">
-      <a href="/admin" class="text-lg font-bold tracking-tight text-zinc-900">SmartCivi<span class="text-emerald-700">.</span><span class="ml-2 text-xs font-medium uppercase tracking-widest text-zinc-500">Admin</span></a>
-      <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
-        <a href="/admin" class="text-zinc-600 hover:text-zinc-900">Overview</a>
-        <a href="/admin/requests" class="text-emerald-800">Requests</a>
-        <a href="/admin/users" class="text-zinc-600 hover:text-zinc-900">Users</a>
-        <a href="/admin/appointments" class="text-zinc-600 hover:text-zinc-900">Appointments</a>
-        <a href="/admin/reports" class="text-zinc-600 hover:text-zinc-900">Reports</a>
-        <a href="/logout" class="border-l border-zinc-200 pl-5 text-zinc-600 hover:text-zinc-900">Sign out</a>
-      </div>
-    </div>
-  </nav>
+  {{> sidebar}}
 
   <header class="mx-auto max-w-7xl px-5 pb-7 pt-10 sm:pt-12">
     <p class="text-xs font-semibold uppercase tracking-widest text-emerald-800">Operations</p>
@@ -48,6 +36,18 @@
         </button>
         <button id="filterRejected" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
           Rejected
+        </button>
+        <button id="filterSubmitted" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
+          Submitted
+        </button>
+        <button id="filterUnderReview" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
+          Under Review
+        </button>
+        <button id="filterResolved" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
+          Resolved
+        </button>
+        <button id="filterClosed" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
+          Closed
         </button>
       </div>
     </div>
@@ -92,7 +92,11 @@
                       {{#ifEq this.status 'approved'}}bg-green-100 text-green-800{{/ifEq}}
                       {{#ifEq this.status 'rejected'}}bg-red-100 text-red-800{{/ifEq}}
                       {{#ifEq this.status 'paid'}}bg-purple-100 text-purple-800{{/ifEq}}
-                      {{#ifEq this.status 'payment_pending'}}bg-orange-100 text-orange-800{{/ifEq}}">
+                      {{#ifEq this.status 'payment_pending'}}bg-orange-100 text-orange-800{{/ifEq}}
+                      {{#ifEq this.status 'Submitted'}}bg-yellow-100 text-yellow-800{{/ifEq}}
+                      {{#ifEq this.status 'Under Review'}}bg-blue-100 text-blue-800{{/ifEq}}
+                      {{#ifEq this.status 'Resolved'}}bg-green-100 text-green-800{{/ifEq}}
+                      {{#ifEq this.status 'Closed'}}bg-zinc-100 text-zinc-800{{/ifEq}}">
                       {{this.status}}
                     </span>
                   </td>
@@ -101,6 +105,11 @@
                       <!-- Status Update -->
                       <form method="POST" action="/admin/requests/{{this.id}}/status" class="flex items-center space-x-1">
                         <select name="status" class="min-h-9 rounded-md border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-700 focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700/20">
+                          <option value="Submitted" {{#ifEq this.status 'Submitted'}}selected{{/ifEq}}>Submitted</option>
+                          <option value="Under Review" {{#ifEq this.status 'Under Review'}}selected{{/ifEq}}>Under Review</option>
+                          <option value="Resolved" {{#ifEq this.status 'Resolved'}}selected{{/ifEq}}>Resolved</option>
+                          <option value="Closed" {{#ifEq this.status 'Closed'}}selected{{/ifEq}}>Closed</option>
+                          <option disabled>Legacy request statuses</option>
                           <option value="pending" {{#ifEq this.status 'pending'}}selected{{/ifEq}}>Pending</option>
                           <option value="processing" {{#ifEq this.status 'processing'}}selected{{/ifEq}}>Processing</option>
                           <option value="approved" {{#ifEq this.status 'approved'}}selected{{/ifEq}}>Approved</option>
@@ -151,7 +160,11 @@
       filterProcessing: document.getElementById('filterProcessing'),
       filterApproved: document.getElementById('filterApproved'),
       filterPaid: document.getElementById('filterPaid'),
-      filterRejected: document.getElementById('filterRejected')
+      filterRejected: document.getElementById('filterRejected'),
+      filterSubmitted: document.getElementById('filterSubmitted'),
+      filterUnderReview: document.getElementById('filterUnderReview'),
+      filterResolved: document.getElementById('filterResolved'),
+      filterClosed: document.getElementById('filterClosed')
     };
 
     const requestRows = document.querySelectorAll('.request-row');
@@ -211,6 +224,26 @@
       filterRequests('rejected');
     });
 
+    filterButtons.filterSubmitted.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterSubmitted);
+      filterRequests('Submitted');
+    });
+
+    filterButtons.filterUnderReview.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterUnderReview);
+      filterRequests('Under Review');
+    });
+
+    filterButtons.filterResolved.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterResolved);
+      filterRequests('Resolved');
+    });
+
+    filterButtons.filterClosed.addEventListener('click', () => {
+      setActiveFilter(filterButtons.filterClosed);
+      filterRequests('Closed');
+    });
+
     // AJAX form handling for status updates
     document.addEventListener('submit', async function(e) {
       const form = e.target;
@@ -247,7 +280,11 @@
               'approved': 'bg-green-100 text-green-800',
               'rejected': 'bg-red-100 text-red-800',
               'paid': 'bg-purple-100 text-purple-800',
-              'payment_pending': 'bg-orange-100 text-orange-800'
+              'payment_pending': 'bg-orange-100 text-orange-800',
+              'Submitted': 'bg-yellow-100 text-yellow-800',
+              'Under Review': 'bg-blue-100 text-blue-800',
+              'Resolved': 'bg-green-100 text-green-800',
+              'Closed': 'bg-zinc-100 text-zinc-800'
             };
             
             statusCell.className += ' ' + (statusClasses[newStatus] || 'bg-gray-100 text-gray-800');

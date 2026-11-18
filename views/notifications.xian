@@ -1,0 +1,73 @@
+{{> head }}
+<body class="min-h-screen bg-zinc-50 text-zinc-900 antialiased">
+  {{> sidebar}}
+
+  <header class="mx-auto max-w-7xl px-5 pb-7 pt-10 sm:pt-12">
+    <p class="text-xs font-semibold uppercase tracking-widest text-emerald-800">
+      {{#if isAdmin}}Operations{{else}}Citizen portal{{/if}}
+    </p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-zinc-950">Notifications</h1>
+    <p class="mt-2 text-sm text-zinc-600">Updates about submitted reports and their progress.</p>
+  </header>
+
+  <main class="mx-auto grid max-w-7xl gap-6 px-5 pb-12 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+    {{#if success_msg}}
+      <div class="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800 lg:col-span-2">{{success_msg}}</div>
+    {{/if}}
+    {{#if error_msg}}
+      <div class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 lg:col-span-2">{{error_msg}}</div>
+    {{/if}}
+    <section class="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+      <h2 class="mb-4 text-lg font-semibold">Recent notifications</h2>
+      {{#if notifications}}
+        <div class="space-y-3">
+          {{#each notifications}}
+            <article class="rounded-md border border-zinc-200 p-4">
+              <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                <h3 class="font-semibold text-zinc-900">{{this.title}}</h3>
+                <time class="text-xs text-zinc-500">{{this.createdAt}}</time>
+              </div>
+              <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-700">{{this.message}}</p>
+              {{#if this.requestId}}
+                <a href="/request/{{this.requestId}}" class="mt-3 inline-block text-sm font-semibold text-emerald-800 hover:text-emerald-900">
+                  View report #{{this.requestId}} <span aria-hidden="true">&#8594;</span>
+                </a>
+              {{/if}}
+            </article>
+          {{/each}}
+        </div>
+      {{else}}
+        <p class="rounded-md bg-zinc-50 p-5 text-sm text-zinc-600">There are no notifications yet.</p>
+      {{/if}}
+    </section>
+
+    {{#if isAdmin}}
+      <section class="h-fit rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+        <h2 class="text-lg font-semibold">Send a notification</h2>
+        <p class="mt-1 text-sm text-zinc-600">Send an update to one user or all users.</p>
+        <form method="POST" action="/admin/notifications" class="mt-5 space-y-4">
+          <div>
+            <label for="recipient" class="mb-1 block text-sm font-medium text-zinc-700">Recipient</label>
+            <select id="recipient" name="recipient" required class="min-h-11 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm">
+              <option value="all">All users</option>
+              {{#each users}}
+                <option value="{{this.email}}">{{this.name}} ({{this.email}})</option>
+              {{/each}}
+            </select>
+          </div>
+          <div>
+            <label for="title" class="mb-1 block text-sm font-medium text-zinc-700">Title</label>
+            <input id="title" name="title" type="text" maxlength="120" required class="min-h-11 w-full rounded-md border border-zinc-300 px-3 text-sm">
+          </div>
+          <div>
+            <label for="message" class="mb-1 block text-sm font-medium text-zinc-700">Message</label>
+            <textarea id="message" name="message" rows="5" maxlength="4000" required class="w-full rounded-md border border-zinc-300 p-3 text-sm"></textarea>
+          </div>
+          <button type="submit" class="min-h-11 rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-900">
+            Send notification
+          </button>
+        </form>
+      </section>
+    {{/if}}
+  </main>
+</body>

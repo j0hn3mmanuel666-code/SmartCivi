@@ -1,5 +1,5 @@
 {{> head }}
-<body class="overflow-x-hidden bg-[#f3f6f2] text-[#202923] antialiased">
+<body class="home-page top-nav-page overflow-x-hidden bg-[#f3f6f2] text-[#202923] antialiased">
   <nav class="sticky top-0 z-50 border-b border-[#dce4dc] bg-white/95 backdrop-blur">
     <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4">
       <a href="/" class="flex items-center gap-3 text-lg font-bold tracking-tight text-[#20372b]">

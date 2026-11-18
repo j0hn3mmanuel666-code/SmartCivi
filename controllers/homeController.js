@@ -27,8 +27,23 @@ SOFTWARE.
 
 import { Request } from "../models/Request.js";
 import { User } from "../models/User.js";
+import { Notification } from "../models/Notification.js";
+import { sequelize } from "../models/db.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
+
+const requestStatuses = [
+  "Submitted",
+  "Under Review",
+  "Resolved",
+  "Closed",
+  "pending",
+  "processing",
+  "approved",
+  "rejected",
+  "paid",
+  "payment_pending"
+];
 
 export const homePage = (req, res) => {
   res.render("home", { title: "SmartCivi" });
@@ -49,6 +64,10 @@ export const adminPage = async (req, res) => {
     const stats = {
       totalRequests: requests.length,
       totalUsers: users.length,
+      submittedReports: requests.filter(r => r.status === 'Submitted').length,
+      underReviewReports: requests.filter(r => r.status === 'Under Review').length,
+      resolvedReports: requests.filter(r => r.status === 'Resolved').length,
+      closedReports: requests.filter(r => r.status === 'Closed').length,
       pendingRequests: requests.filter(r => r.status === 'pending').length,
       processingRequests: requests.filter(r => r.status === 'processing').length,
       approvedRequests: requests.filter(r => r.status === 'approved').length,
@@ -131,21 +150,32 @@ export const createRequest = async (req, res) => {
       req.flash('error_msg', 'Please login to submit a request');
       return res.redirect('/login');
     }
-    const { fullName, email, phone, documentType, purpose } = req.body;
+    const { fullName, phone, documentType, purpose } = req.body;
 
     // Basic validation
-    if (!fullName || !email || !phone || !documentType || !purpose) {
+    if (!fullName || !req.session.user.email || !phone || !documentType || !purpose) {
       req.flash('error_msg', 'All fields are required');
       return res.redirect('/request');
     }
 
-    const newReq = await Request.create({
-      fullName,
-      email,
-      phone,
-      documentType,
-      purpose,
-      status: 'pending'
+    const newReq = await sequelize.transaction(async transaction => {
+      const request = await Request.create({
+        fullName,
+        email: req.session.user.email,
+        phone,
+        documentType,
+        purpose,
+        status: 'Submitted'
+      }, { transaction });
+
+      await Notification.create({
+        audience: 'admin',
+        title: 'New report submitted',
+        message: `${fullName} submitted a ${documentType} request.`,
+        requestId: request.id
+      }, { transaction });
+
+      return request;
     });
 
     req.flash('success_msg', 'Request submitted successfully');
@@ -187,7 +217,35 @@ export const updateRequestStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    await Request.update({ status }, { where: { id } });
+    if (!requestStatuses.includes(status)) {
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
+        return res.status(400).json({ success: false, error: 'Invalid request status' });
+      }
+      req.flash('error_msg', 'Invalid request status');
+      return res.redirect('/admin/requests');
+    }
+
+    await sequelize.transaction(async transaction => {
+      const request = await Request.findByPk(id, { transaction });
+      if (!request) {
+        const error = new Error('Request not found');
+        error.status = 404;
+        throw error;
+      }
+
+      if (request.status !== status) {
+        request.status = status;
+        await request.save({ transaction });
+        await Notification.create({
+          audience: 'user',
+          recipientEmail: request.email,
+          title: status === 'Resolved' ? 'Your report has been resolved' : 'Your report status was updated',
+          message: `The status of your request #${request.id} is now ${status}.`,
+          requestId: request.id
+        }, { transaction });
+      }
+    });
+
     // If AJAX request, return JSON so client can update UI without redirect
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
       return res.json({ success: true, id, status });
@@ -197,9 +255,9 @@ export const updateRequestStatus = async (req, res) => {
   } catch (err) {
     console.error('Error updating request status:', err);
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1)) {
-      return res.status(500).json({ success: false, error: err.message });
+      return res.status(err.status || 500).json({ success: false, error: err.message });
     }
-    req.flash('error_msg', 'Failed to update status');
+    req.flash('error_msg', err.status === 404 ? 'Request not found' : 'Failed to update status');
     return res.redirect('/admin/requests');
   }
 };
@@ -337,10 +395,19 @@ export const generateReport = async (req, res) => {
   const { reportType, startDate, endDate, format, statusFilter } = req.body;
   
   try {
+    const start = new Date(startDate);
+    const endExclusive = new Date(endDate);
+    if (!startDate || !endDate || Number.isNaN(start.getTime()) || Number.isNaN(endExclusive.getTime()) || start > endExclusive) {
+      req.flash('error_msg', 'Choose a valid date range');
+      return res.redirect('/admin/reports');
+    }
+    endExclusive.setDate(endExclusive.getDate() + 1);
+
     // Build query conditions
     let whereConditions = {
       createdAt: {
-        [Op.between]: [new Date(startDate), new Date(endDate)]
+        [Op.gte]: start,
+        [Op.lt]: endExclusive
       }
     };
 
@@ -373,6 +440,10 @@ export const generateReport = async (req, res) => {
     // Calculate summary statistics
     const reportSummary = {
       total: reportData.length,
+      submitted: reportData.filter(r => r.status === 'Submitted').length,
+      underReview: reportData.filter(r => r.status === 'Under Review').length,
+      resolved: reportData.filter(r => r.status === 'Resolved').length,
+      closed: reportData.filter(r => r.status === 'Closed').length,
       pending: reportData.filter(r => r.status === 'pending').length,
       processing: reportData.filter(r => r.status === 'processing').length,
       approved: reportData.filter(r => r.status === 'approved').length,
@@ -1266,9 +1337,84 @@ export const analyticsPage = (req, res) => {
   res.render('analytics', { title: 'Reports & Analytics' });
 };
 
-export const notificationsPage = (req, res) => {
+export const notificationsPage = async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
-  res.render('notifications', { title: 'Notifications' });
+  try {
+    const isAdmin = req.session.user.role === 'admin';
+    const where = isAdmin
+      ? { audience: 'admin' }
+      : {
+          [Op.or]: [
+            { audience: 'all' },
+            { audience: 'user', recipientEmail: req.session.user.email }
+          ]
+        };
+    const [notifications, users] = await Promise.all([
+      Notification.findAll({ where, order: [['createdAt', 'DESC']] }),
+      isAdmin
+        ? User.findAll({
+            where: { role: 'user' },
+            attributes: ['name', 'email'],
+            order: [['name', 'ASC']]
+          })
+        : Promise.resolve([])
+    ]);
+
+    res.render('notifications', {
+      title: 'Notifications',
+      isAdmin,
+      notifications: notifications.map(notification => ({
+        ...notification.toJSON(),
+        createdAt: new Date(notification.createdAt).toLocaleString()
+      })),
+      users: users.map(user => user.toJSON())
+    });
+  } catch (error) {
+    console.error('Error loading notifications:', error);
+    req.flash('error_msg', 'Failed to load notifications');
+    return res.redirect(req.session.user.role === 'admin' ? '/admin' : '/dashboard');
+  }
+};
+
+export const sendNotification = async (req, res) => {
+  try {
+    const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
+    const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
+    const recipient = req.body.recipient;
+
+    if (!title || title.length > 120 || !message || message.length > 4000) {
+      req.flash('error_msg', 'Enter a title (up to 120 characters) and message (up to 4000 characters)');
+      return res.redirect('/dashboard/notifications');
+    }
+
+    if (recipient === 'all') {
+      await Notification.create({
+        audience: 'all',
+        title,
+        message
+      });
+    } else {
+      const user = await User.findOne({ where: { email: recipient, role: 'user' } });
+      if (!user) {
+        req.flash('error_msg', 'Choose a valid user recipient');
+        return res.redirect('/dashboard/notifications');
+      }
+
+      await Notification.create({
+        audience: 'user',
+        recipientEmail: user.email,
+        title,
+        message
+      });
+    }
+
+    req.flash('success_msg', 'Notification sent');
+    return res.redirect('/dashboard/notifications');
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    req.flash('error_msg', 'Failed to send notification');
+    return res.redirect('/dashboard/notifications');
+  }
 };
 
 export const helpPage = (req, res) => {

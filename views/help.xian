@@ -1,0 +1,40 @@
+{{> head }}
+<body class="top-nav-page min-h-screen bg-zinc-50 text-zinc-900 antialiased">
+  <nav class="sticky top-0 z-50 border-b border-[#dce4dc] bg-white/95 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4">
+      <a href="/" class="flex items-center gap-3 text-lg font-bold tracking-tight text-[#20372b]">
+        <span class="flex h-9 w-9 items-center justify-center rounded-md bg-[#1f593e] text-sm font-bold text-white">S</span>
+        SmartCivi
+      </a>
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium">
+        <a href="/" class="text-[#536158] transition hover:text-[#1f593e]">Back to Home</a>
+        {{#if user}}
+          <a href="/dashboard" class="text-[#536158] transition hover:text-[#1f593e]">Dashboard</a>
+          <a href="/dashboard/my-requests" class="text-[#536158] transition hover:text-[#1f593e]">My requests</a>
+          <a href="/my-appointments" class="text-[#536158] transition hover:text-[#1f593e]">Appointments</a>
+          <a href="/logout" class="rounded-md border border-[#dce4dc] px-3 py-2 text-[#38483d] transition hover:bg-[#f3f6f2]">Sign out</a>
+        {{else}}
+          <a href="/login" class="rounded-md bg-[#1f593e] px-4 py-2 text-white transition hover:bg-[#174630]">Sign in</a>
+        {{/if}}
+      </div>
+    </div>
+  </nav>
+  <header class="mx-auto max-w-7xl px-5 pb-7 pt-10 sm:pt-12">
+    <p class="text-xs font-semibold uppercase tracking-widest text-emerald-800">Support</p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-zinc-950">Help &amp; support</h1>
+    <p class="mt-2 text-sm text-zinc-600">Find assistance with requests, appointments, and your account.</p>
+  </header>
+  <main class="mx-auto grid max-w-7xl gap-4 px-5 pb-12 md:grid-cols-2">
+    <section class="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold">Contact the support team</h2>
+      <p class="mt-2 text-sm leading-6 text-zinc-600">For help with an application or account, send the SmartCivi team a message.</p>
+      <a href="mailto:support@smartcivi.ph" class="mt-5 inline-flex rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-900">Email support</a>
+    </section>
+    <section class="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold">Track a request</h2>
+      <p class="mt-2 text-sm leading-6 text-zinc-600">Review your requests and check their current status from the citizen portal.</p>
+      <a href="{{#if user}}/status{{else}}/login{{/if}}" class="mt-5 inline-flex rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50">View request status</a>
+    </section>
+  </main>
+</body>
+</html>

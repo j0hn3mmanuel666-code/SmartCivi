@@ -28,6 +28,7 @@ import { Sequelize } from "sequelize";
 import { sequelize } from "./models/db.js";
 import { User } from "./models/userModel.js";
 import { Request } from "./models/Request.js";
+import "./models/Notification.js";
 import inquirer from "inquirer";
 
 // Server-level connection (no database selected)

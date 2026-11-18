@@ -1,50 +1,34 @@
 {{> head }}
 <body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
 
-  <!-- Nav (matching home) -->
-  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
-    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+  {{> sidebar}}
 
-      <ul class="hidden md:flex space-x-6 font-medium">
-        <li><a href="/admin/requests" class="hover:text-yellow-300 transition-all">Requests</a></li>
-        <li><a href="/admin/users" class="hover:text-yellow-300 transition-all">Users</a></li>
-        <li><a href="/help" class="hover:text-yellow-300 transition-all">Help</a></li>
-      </ul>
-
-      <div class="hidden md:flex space-x-4">
-        <a href="/logout" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Logout</a>
+  <header class="mx-auto max-w-7xl px-5 pb-7 pt-10 sm:pt-12">
+    <p class="text-xs font-semibold uppercase tracking-widest text-emerald-800">Operations</p>
+    <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-zinc-950">Admin panel</h1>
+        <p class="mt-2 max-w-2xl text-sm text-zinc-600">Manage requests, users, and system settings.</p>
       </div>
-
-      <button class="md:hidden hover:opacity-80">☰</button>
+      <a href="/admin" class="text-sm font-semibold text-emerald-800 hover:text-emerald-900">Back to overview <span aria-hidden="true">&#8594;</span></a>
     </div>
-  </nav>
-
-  <!-- Hero -->
-  <section class="flex flex-col justify-center items-center text-center h-64 px-6 pt-24">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Admin Control Panel</h1>
-    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">Manage requests, users and system settings from here.</p>
-    <div class="mt-4 space-x-3">
-      <a href="/admin/requests" class="bg-white text-blue-700 px-5 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-all">View Requests</a>
-      <a href="/admin/users" class="bg-transparent border border-white text-white px-5 py-2 rounded-lg font-semibold hover:bg-white hover:text-blue-700 transition-all">Manage Users</a>
-    </div>
-  </section>
+  </header>
 
   <!-- Admin quick action tabs -->
-  <div class="container mx-auto px-6 mt-6">
-    <div class="flex items-center justify-center space-x-3">
-      <button id="adminTabAll" class="px-4 py-2 bg-white rounded-md text-sm font-medium">All Requests</button>
-      <button id="adminTabAppointments" class="px-4 py-2 bg-white rounded-md text-sm font-medium">Manage Appointments</button>
-      <button id="adminTabSubmissions" class="px-4 py-2 bg-white rounded-md text-sm font-medium">Manage Submissions</button>
-      <button id="adminTabUsers" class="px-4 py-2 bg-white rounded-md text-sm font-medium">User Accounts</button>
+  <div class="mx-auto max-w-7xl px-5">
+    <div class="flex flex-wrap gap-2 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
+      <button id="adminTabAll" class="min-h-10 rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white">All requests</button>
+      <button id="adminTabAppointments" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700">Manage appointments</button>
+      <button id="adminTabSubmissions" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700">Manage submissions</button>
+      <button id="adminTabUsers" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700">User accounts</button>
     </div>
   </div>
 
-  <main class="py-10 px-4 container mx-auto">
+  <main class="mx-auto max-w-7xl px-5 pb-12 pt-4">
     <div class="flex justify-center">
       <!-- Main area: Requests table (centered) -->
-      <section id="requestsSection" class="w-full bg-white bg-opacity-90 rounded-lg shadow-md p-6 mx-auto max-w-6xl">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Requests</h2>
+      <section id="requestsSection" class="w-full rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
+        <h2 class="mb-4 text-lg font-semibold text-zinc-900">Recent requests</h2>
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm">
             <thead class="bg-gray-100 text-left">
@@ -108,8 +92,8 @@
     </div>
 
     <!-- Users section (below, centered) -->
-    <section id="usersSection" class="mt-8 bg-white bg-opacity-90 rounded-lg shadow-md p-6 mx-auto max-w-6xl">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">User Accounts</h2>
+    <section id="usersSection" class="mt-4 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
+      <h2 class="mb-4 text-lg font-semibold text-zinc-900">User accounts</h2>
       <div class="overflow-x-auto">
         <table class="min-w-full text-sm">
           <thead class="bg-gray-100 text-left">
@@ -264,8 +248,14 @@
       const requestsSection = document.getElementById('requestsSection');
 
       function setActive(button){
-        [btnAll, btnAppt, btnSub, btnUsers].forEach(b=> b.classList.remove('ring','ring-2','ring-blue-300'));
-        if(button) button.classList.add('ring','ring-2','ring-blue-300');
+        [btnAll, btnAppt, btnSub, btnUsers].forEach(b => {
+          b.classList.remove('bg-emerald-800', 'text-white', 'font-semibold');
+          b.classList.add('bg-zinc-100', 'text-zinc-700', 'font-medium');
+        });
+        if (button) {
+          button.classList.remove('bg-zinc-100', 'text-zinc-700', 'font-medium');
+          button.classList.add('bg-emerald-800', 'text-white', 'font-semibold');
+        }
       }
 
       function showUsers(){ requestsSection.classList.add('hidden'); usersSection.scrollIntoView({behavior:'smooth'}); usersSection.classList.remove('hidden'); }

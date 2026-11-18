@@ -1,62 +1,47 @@
 {{> head }}
 <body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
 
-  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
-    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+  {{> sidebar}}
 
-      <ul class="hidden md:flex space-x-6 font-medium">
-        <li><a href="/admin" class="hover:text-yellow-300 transition-all">Dashboard</a></li>
-        <li><a href="/admin/requests" class="hover:text-yellow-300 transition-all">Requests</a></li>
-        <li><a href="/admin/appointments" class="hover:text-yellow-300 transition-all text-yellow-300">Appointments</a></li>
-        <li><a href="/admin/users" class="hover:text-yellow-300 transition-all">Users</a></li>
-        <li><a href="/help" class="hover:text-yellow-300 transition-all">Help</a></li>
-      </ul>
-
-      <div class="hidden md:flex space-x-4">
-        <a href="/logout" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Logout</a>
+  <header class="mx-auto max-w-7xl px-5 pb-7 pt-10 sm:pt-12">
+    <p class="text-xs font-semibold uppercase tracking-widest text-emerald-800">Operations</p>
+    <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-zinc-950">Manage appointments</h1>
+        <p class="mt-2 max-w-2xl text-sm text-zinc-600">Review, confirm, and manage all scheduled appointments.</p>
       </div>
-
-      <button class="md:hidden hover:opacity-80">☰</button>
+      <a href="/admin" class="text-sm font-semibold text-emerald-800 hover:text-emerald-900">Back to overview <span aria-hidden="true">&#8594;</span></a>
     </div>
-  </nav>
+  </header>
 
-  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Manage Appointments</h1>
-    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">Review, confirm, and manage all scheduled appointments.</p>
-    <div class="mt-3">
-      <a href="/admin" class="text-sm text-white underline">← Back to Dashboard</a>
-    </div>
-  </section>
-
-  <main class="container mx-auto px-4 py-8">
+  <main class="mx-auto max-w-7xl px-5 pb-12">
     
     <!-- Filter Tabs -->
-    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-4 mb-6 max-w-6xl mx-auto">
-      <div class="flex flex-wrap gap-2 justify-center">
-        <button id="filterAll" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-all">
+    <div class="mb-4 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
+      <div class="flex flex-wrap gap-2">
+        <button id="filterAll" class="min-h-10 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-all">
           All Appointments
         </button>
-        <button id="filterScheduled" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+        <button id="filterScheduled" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
           Scheduled
         </button>
-        <button id="filterConfirmed" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+        <button id="filterConfirmed" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
           Confirmed
         </button>
-        <button id="filterToday" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+        <button id="filterToday" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
           Today's Appointments
         </button>
-        <button id="filterUpcoming" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 transition-all">
+        <button id="filterUpcoming" class="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition-all">
           Upcoming
         </button>
       </div>
     </div>
 
     <!-- Appointments Table -->
-    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 max-w-6xl mx-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-800">All Appointments</h2>
-        <div class="text-sm text-gray-600">
+    <div class="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-zinc-900">All appointments</h2>
+        <div class="text-sm text-zinc-600">
           Total: <span id="totalCount">{{appointments.length}}</span> appointments
         </div>
       </div>

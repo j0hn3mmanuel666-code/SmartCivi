@@ -1,19 +1,7 @@
 {{> head }}
 <body class="min-h-screen bg-zinc-50 text-zinc-900 antialiased">
 
-  <nav class="sticky top-0 z-50 border-b border-zinc-200 bg-white">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-3 px-5 py-4">
-      <a href="/admin" class="text-lg font-bold tracking-tight text-zinc-900">SmartCivi<span class="text-emerald-700">.</span><span class="ml-2 text-xs font-medium uppercase tracking-widest text-zinc-500">Admin</span></a>
-      <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
-        <a href="/admin" class="text-emerald-800">Overview</a>
-        <a href="/admin/requests" class="text-zinc-600 hover:text-zinc-900">Requests</a>
-        <a href="/admin/users" class="text-zinc-600 hover:text-zinc-900">Users</a>
-        <a href="/admin/appointments" class="text-zinc-600 hover:text-zinc-900">Appointments</a>
-        <a href="/admin/reports" class="text-zinc-600 hover:text-zinc-900">Reports</a>
-        <a href="/logout" class="border-l border-zinc-200 pl-5 text-zinc-600 hover:text-zinc-900">Sign out</a>
-      </div>
-    </div>
-  </nav>
+  {{> sidebar}}
 
   <header class="mx-auto max-w-7xl px-5 pb-7 pt-10 sm:pt-12">
     <p class="text-xs font-semibold uppercase tracking-widest text-emerald-800">Operations</p>
@@ -87,6 +75,28 @@
       </div>
 
     </div>
+
+    <section class="mb-8" aria-labelledby="report-monitoring-heading">
+      <h2 id="report-monitoring-heading" class="mb-3 text-lg font-semibold text-zinc-900">Report monitoring</h2>
+      <div class="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <div class="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-zinc-600">Submitted</p>
+          <p class="mt-1 text-2xl font-bold text-zinc-950">{{stats.submittedReports}}</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-zinc-600">Under review</p>
+          <p class="mt-1 text-2xl font-bold text-zinc-950">{{stats.underReviewReports}}</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-zinc-600">Resolved</p>
+          <p class="mt-1 text-2xl font-bold text-zinc-950">{{stats.resolvedReports}}</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-zinc-600">Closed</p>
+          <p class="mt-1 text-2xl font-bold text-zinc-950">{{stats.closedReports}}</p>
+        </div>
+      </div>
+    </section>
 
     <!-- Charts Row -->
     <div class="grid grid-cols-1 gap-4 mb-8 lg:grid-cols-2">

@@ -1,9 +1,12 @@
 {{> head }}
-<body class="min-h-screen bg-[#f3f6f2] text-[#202923] antialiased" style="background-image: linear-gradient(rgba(31, 83, 58, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 83, 58, .035) 1px, transparent 1px); background-size: 36px 36px;">
+<body class="top-nav-page min-h-screen bg-[#f3f6f2] text-[#202923] antialiased" style="background-image: linear-gradient(rgba(31, 83, 58, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 83, 58, .035) 1px, transparent 1px); background-size: 36px 36px;">
   <nav class="border-b border-[#dce4dc] bg-white">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
       <a href="/" class="flex items-center gap-3 text-lg font-bold tracking-tight text-[#20372b]"><span class="flex h-9 w-9 items-center justify-center rounded-md bg-[#1f593e] text-sm text-white">S</span>SmartCivi</a>
-      <a href="/browse" class="text-sm font-semibold text-[#24724c] hover:text-[#174630]">Explore services <span aria-hidden="true">&#8594;</span></a>
+      <div class="flex items-center gap-5">
+        <a href="/" class="text-sm font-semibold text-[#536158] hover:text-[#1f593e]">Back to Home</a>
+        <a href="/browse" class="text-sm font-semibold text-[#24724c] hover:text-[#174630]">Explore services <span aria-hidden="true">&#8594;</span></a>
+      </div>
     </div>
   </nav>
 

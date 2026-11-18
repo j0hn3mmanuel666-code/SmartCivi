@@ -1,38 +1,24 @@
 {{> head }}
 <body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
 
-  <nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-pink-500 to-blue-600 text-white shadow-lg">
-    <div class="container mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="text-2xl font-bold tracking-wide">SmartCivi</a>
+  {{> sidebar}}
 
-      <ul class="hidden md:flex space-x-6 font-medium">
-        <li><a href="/admin" class="hover:text-yellow-300 transition-all">Dashboard</a></li>
-        <li><a href="/admin/requests" class="hover:text-yellow-300 transition-all">Requests</a></li>
-        <li><a href="/admin/users" class="hover:text-yellow-300 transition-all text-yellow-300">Users</a></li>
-        <li><a href="/help" class="hover:text-yellow-300 transition-all">Help</a></li>
-      </ul>
-
-      <div class="hidden md:flex space-x-4">
-        <a href="/logout" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all">Logout</a>
+  <header class="mx-auto max-w-7xl px-5 pb-7 pt-10 sm:pt-12">
+    <p class="text-xs font-semibold uppercase tracking-widest text-emerald-800">Operations</p>
+    <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-zinc-950">Manage users</h1>
+        <p class="mt-2 max-w-2xl text-sm text-zinc-600">Manage user accounts, roles, and permissions.</p>
       </div>
-
-      <button class="md:hidden hover:opacity-80">☰</button>
+      <a href="/admin" class="text-sm font-semibold text-emerald-800 hover:text-emerald-900">Back to overview <span aria-hidden="true">&#8594;</span></a>
     </div>
-  </nav>
+  </header>
 
-  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">User Management</h1>
-    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">Manage user accounts, roles, and permissions.</p>
-    <div class="mt-3">
-      <a href="/admin" class="text-sm text-white underline">← Back to Admin Dashboard</a>
-    </div>
-  </section>
-
-  <main class="container mx-auto px-4 py-8">
+  <main class="mx-auto max-w-7xl px-5 pb-12">
     
     <!-- Add New User Section -->
-    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 mb-6 max-w-4xl mx-auto">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Add New User</h2>
+    <div class="mb-4 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
+      <h2 class="mb-4 text-lg font-semibold text-zinc-900">Add new user</h2>
       
       <form method="POST" action="/admin/users" class="grid md:grid-cols-2 gap-4">
         <div>
@@ -69,10 +55,10 @@
     </div>
 
     <!-- Users List -->
-    <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 max-w-6xl mx-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-800">All Users</h2>
-        <div class="text-sm text-gray-600">
+    <div class="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-zinc-900">All users</h2>
+        <div class="text-sm text-zinc-600">
           Total: {{users.length}} users
         </div>
       </div>
@@ -80,19 +66,19 @@
       {{#if users}}
         <div class="overflow-x-auto">
           <table class="min-w-full">
-            <thead class="bg-gray-100">
+            <thead class="border-y border-zinc-200 bg-zinc-50">
               <tr>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ID</th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Role</th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Created</th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">ID</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">Name</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">Email</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">Role</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">Created</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
               {{#each users}}
-                <tr class="hover:bg-gray-50" data-user-id="{{this.id}}">
+                <tr class="border-b border-zinc-100 hover:bg-emerald-50/40" data-user-id="{{this.id}}">
                   <td class="px-4 py-3 text-sm text-gray-900">{{this.id}}</td>
                   <td class="px-4 py-3 text-sm text-gray-900">{{this.name}}</td>
                   <td class="px-4 py-3 text-sm text-gray-600">{{this.email}}</td>

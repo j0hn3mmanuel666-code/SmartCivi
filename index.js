@@ -76,6 +76,7 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash("error_msg");
   // expose user to templates
   res.locals.user = req.session && req.session.user ? req.session.user : null;
+  res.locals.isAdmin = Boolean(req.session && req.session.user && req.session.user.role === 'admin');
   next();
 });
 

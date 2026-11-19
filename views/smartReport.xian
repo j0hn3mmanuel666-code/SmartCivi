@@ -1,0 +1,40 @@
+{{> head officeStyles=true}}<body class="office">{{> staffNav}}
+<main id="main" class="office-main">{{> officeFlash}}
+  <header class="page-heading">
+    <div><h1>{{title}}</h1>{{#if report}}<p>Report #{{report.id}} · Submitted {{submitted}}</p>{{/if}}</div>
+    <a class="button secondary" href="{{base}}">Back to reports</a>
+  </header>
+  {{#if submitting}}
+  <section class="panel">
+    <form method="post" action="{{base}}">
+      <label><span>Title</span><input name="title" maxlength="200" required></label>
+      <label><span>Description</span><textarea name="description" rows="6" maxlength="3000" required></textarea></label>
+      <button class="button" type="submit">Submit report</button>
+    </form>
+  </section>
+  {{else}}
+  <section class="panel">
+    <h2>Report details</h2>
+    <p><strong>Status</strong> {{report.status}}</p>
+    <p>{{report.description}}</p>
+  </section>
+  {{#if review}}
+  <section class="panel">
+    <h2>Review report</h2>
+    <form method="post" action="{{base}}/{{report.id}}/status" class="toolbar">
+      <label><span>Status</span><select name="status">{{#each statuses}}
+        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
+      {{/each}}</select></label>
+      <button class="button" type="submit">Update status</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>Send a notification</h2>
+    <form method="post" action="{{base}}/{{report.id}}/notify">
+      <label><span>Message to the report submitter</span><textarea name="message" rows="4" maxlength="3000" required></textarea></label>
+      <button class="button" type="submit">Send notification</button>
+    </form>
+  </section>
+  {{/if}}
+  {{/if}}
+</main>{{> officeFooter}}</body></html>

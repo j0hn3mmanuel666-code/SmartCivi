@@ -52,6 +52,10 @@ New email registration is unavailable until sender configuration is present. If 
 
 Put the same authentication keys into the existing `.env` alongside Docker settings. Compose passes them into the app. Rebuild/recreate using the normal project command:
 
+For the current port **3001** instance (`smartcivi-main`), the private credentials are in `SmartCivi-main/.env` and its Compose override explicitly passes `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. `PUBLIC_ORIGIN` is `http://localhost:3001`. The Google client must authorize `http://localhost:3001/auth/google/callback`; retaining the existing port 3000 callback supports native development too. An enabled button confirms local configuration, while Google's `redirect_uri_mismatch` means the requested callback is not authorized on that client. Do not change the public origin to another running app's port to work around this error.
+
+The native `.env.auth` file is intentionally excluded from the Docker image, so native credentials do not become available in a container automatically. After changing Compose environment settings, recreate the app using the port 3001 command in `docs/MAINTENANCE.md`. Keep `.env` files ignored by Git and never put credentials in Compose YAML.
+
 ```powershell
 docker compose up --build -d --wait
 ```

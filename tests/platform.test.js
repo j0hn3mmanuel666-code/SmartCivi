@@ -11,8 +11,8 @@ test('office permissions keep citizens and resource officers away from registry 
   assert.equal(can('registrar', 'users'), false);
 });
 test('resident validation standardizes identifiers and rejects incomplete and future records', () => {
-  const input = { residentCode: ' ban-001 ', firstName: ' Ana ', lastName: 'Cruz', birthDate: '2000-01-01', barangay: 'Poblacion' };
-  assert.equal(residentInput(input).residentCode, 'BAN-001');
+  const input = { residentCode: ' ban-001 ', firstName: ' Ana ', lastName: 'Cruz', birthDate: '2000-01-01', barangay: 'Poblacion', civilStatus: 'single' };
+  assert.equal(residentInput(input).residentCode, undefined);
   assert.equal(residentInput(input).firstName, 'Ana');
   assert.throws(() => residentInput({ ...input, birthDate: '2999-01-01' }));
   assert.throws(() => residentInput({ ...input, birthDate: '2023-02-29' }));

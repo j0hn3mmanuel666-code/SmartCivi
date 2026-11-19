@@ -24,6 +24,7 @@
     SOFTWARE.
     */
     
+import { normalizeUsername, identityWhere } from '../services/accountIdentity.js';
 import bcrypt from "bcrypt";
 import { User, sequelize } from "../models/userModel.js";
 import "../models/Request.js";
@@ -103,7 +104,7 @@ export const loginUser = async (req, res) => {
   try {
     const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
     const password = typeof req.body.password === 'string' ? req.body.password : '';
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: identityWhere(email) });
     if (!user) {
       await audit(req, 'login.failed', 'account', null, 'Invalid credentials');
       req.flash('error_msg', 'User not found');
@@ -117,6 +118,7 @@ export const loginUser = async (req, res) => {
       return res.redirect('/login');
     }
 
+    if (user.isActive === false) return await signIn(req, res, user);
     if (user.emailVerificationRequired && !user.emailVerifiedAt) {
       req.session.pendingEmail = user.email;
       req.flash('error_msg', 'Please verify your email address before signing in.');
@@ -133,6 +135,7 @@ export const loginUser = async (req, res) => {
 export const registerUser = async (req, res) => {
   try {
     const { name, password } = req.body;
+    const username = normalizeUsername(req.body.username);
     const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
     if (typeof name !== 'string' || !name.trim() || name.trim().length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255 || typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) {
       req.flash('error_msg', 'Enter your full name, a valid email and a password of at least 8 characters (up to 72 bytes).');
@@ -146,7 +149,7 @@ export const registerUser = async (req, res) => {
       req.flash('error_msg', 'This email is already registered. Sign in or request another verification email.');
       return res.redirect('/login');
     }
-    const user = await User.create({ name: name.trim(), email, password: await bcrypt.hash(password, 10), role: 'user', emailVerificationRequired: true });
+    const user = await User.create({ name: name.trim(), username, email, password: await bcrypt.hash(password, 10), role: 'user', emailVerificationRequired: true });
     req.session.pendingEmail = user.email;
     try {
       await issueVerification(user, req.app.locals.mailTransport);
@@ -155,13 +158,20 @@ export const registerUser = async (req, res) => {
       req.flash('error_msg', 'Your account is waiting for verification, but we could not send the email. Please request another email later.');
     }
     return res.redirect('/verify-email');
-  } catch {
+  } catch (error) {
+    if (error.status === 400 || error.name === 'SequelizeUniqueConstraintError') {
+      req.flash('error_msg', error.status === 400 ? error.message : 'This email or username is already registered.');
+      return res.redirect('/register');
+    }
     req.flash('error_msg', 'Registration could not be completed. Please try signing in or request a verification email.');
     return res.redirect('/register');
   }
 };
 
-export const logoutUser = (req, res) => {
-  req.session.destroy();
-  res.redirect("/login");
+export const logoutUser = (req, res, next) => {
+  req.session.destroy(error => {
+    if (error) return next(error);
+    res.clearCookie('smartcivi.sid', { path: '/' });
+    res.redirect('/login');
+  });
 };

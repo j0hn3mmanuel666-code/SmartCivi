@@ -26,8 +26,11 @@
     */
 import { DataTypes } from "sequelize";
 import { sequelize } from "./db.js";
+import { normalizeUsername } from '../services/accountIdentity.js';
 
 export const User = sequelize.define("User", {
+  username: { type: DataTypes.STRING(40), allowNull: true, unique: true, set(value) { this.setDataValue('username', normalizeUsername(value)); } },
+  isActive: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
   name: { 
     type: DataTypes.STRING, 
     allowNull: false 

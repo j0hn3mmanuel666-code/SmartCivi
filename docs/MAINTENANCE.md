@@ -2,6 +2,18 @@
 
 ## Start and sign in
 
+### Current port 3001 instance
+
+The browser instance at `http://localhost:3001` uses Compose project `smartcivi-main`, with its existing database volume `smartcivi-main_mysql_data`. Its files are `C:/Users/Lourena/Desktop/nickoHey/SmartCivi-main/compose.yaml` and `compose.override.yaml`. The override builds image `smartcivi-workspace:local` from `../bansudLGU`, so this workspace supplies the current application. That separate image avoids changing the older stack on port 3000.
+
+After changing source files, rebuild the running instance; its application files are copied into the image rather than mounted live:
+
+```powershell
+docker compose -p smartcivi-main -f C:/Users/Lourena/Desktop/nickoHey/SmartCivi-main/compose.yaml -f C:/Users/Lourena/Desktop/nickoHey/SmartCivi-main/compose.override.yaml up -d --build --wait app
+```
+
+Refresh `http://localhost:3001/login` after the container is healthy. Opening an older container or rebuilding a different folder will show that build's UI. Database volumes are not replaced by this command. The original startup instructions below apply to the separate stack defined directly in this workspace.
+
 From the project directory, run `docker compose --profile maintenance up -d --build app backup`. Open http://localhost:3000. The existing MySQL named volume is retained. Never use `docker compose down -v` to restart this project: that removes its data volumes.
 
 The first local administrator's login details, if created during setup, are in the ignored `tmp/LOCAL_ADMIN_LOGIN.txt`. Additional office accounts and roles are created through **Users**. Citizen self-registration always creates a citizen account.

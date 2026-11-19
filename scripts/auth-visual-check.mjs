@@ -36,7 +36,7 @@ try {
   await page.screenshot({ path: 'tmp/auth-check/confirm-mobile.png', fullPage: true });
   await Promise.all([page.waitForURL(origin + '/login'), page.getByRole('button', { name: 'Confirm email address' }).click()]);
   assert.match(await page.getByRole('status').innerText(), /Email verified/);
-  await page.getByLabel('Email address', { exact: true }).fill(email);
+  await page.getByLabel('Username or email', { exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill('Local-verification-test-123');
   await Promise.all([page.waitForURL(origin + '/browse'), page.getByRole('button', { name: 'Sign in', exact: true }).click()]);
   await page.goto(origin + '/dashboard/profile');

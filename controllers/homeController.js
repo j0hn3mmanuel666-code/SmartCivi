@@ -29,6 +29,7 @@ import { Request } from "../models/Request.js";
 import { User } from "../models/User.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
+import { normalizeUsername, accountStatus } from "../services/accountIdentity.js";
 import { sequelize, Notice, RequestEvent, Resident, CivilRecord } from '../models/Platform.js';
 import { audit, notifyStaff, requestEvent, pagination } from '../services/platform.js';
 import { can, date, fail, integer, requestStatus, roles, text, paymentComplete } from '../services/platformRules.js';
@@ -557,12 +558,12 @@ export const usersPage = async (req, res) => {
   try {
     const q = text(req.query.q, 'Search', false, 100) || '';
     const requested = pagination(req.query);
-    const where = q ? { [Op.or]: ['name', 'email'].map(field => ({ [field]: { [Op.like]: `%${q.replace(/[\\%_]/g, '\\$&')}%` } })) } : {};
+    const where = q ? { [Op.or]: ['name', 'email', 'username'].map(field => ({ [field]: { [Op.like]: `%${q.replace(/[\\%_]/g, '\\$&')}%` } })) } : {};
     const count = await User.count({ where });
     const pages = Math.max(1, Math.ceil(count / requested.limit));
     const page = Math.min(requested.page, pages), offset = (page - 1) * requested.limit;
     const users = await User.findAll({
-      attributes: ['id', 'name', 'email', 'role', 'createdAt', 'updatedAt'],
+      attributes: ['id', 'name', 'email', 'username', 'isActive', 'role', 'createdAt', 'updatedAt'],
       where, limit: requested.limit, offset, order: [['id', 'DESC']]
     });
     const link = number => `/admin/users?${new URLSearchParams({ q, page: String(number) })}`;
@@ -580,98 +581,62 @@ export const usersPage = async (req, res) => {
 };
 
 export const createOrUpdateUser = async (req, res) => {
-  const { id, name, email, role, password } = req.body;
-
+  const { id, password } = req.body;
   try {
-    if (!roles.includes(role)) fail('Choose a valid role.');
-    text(name, 'Name', true); text(email, 'Email', true);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail('Enter a valid email.');
-    if (id) {
-      const current = await User.findByPk(integer(id, 'User', 1));
-      if (!current) fail('User not found.', 404);
-      if (current.id === req.session.user.id && role !== 'admin') fail('You cannot remove your own administrator access.');
-      if (current.role === 'admin' && role !== 'admin' && await User.count({ where: { role: 'admin' } }) <= 1) fail('The last administrator cannot be demoted.');
-    } else if (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) fail('Use a password of 8–72 bytes.');
-    if (id) {
-      // Update existing user (no password change)
-      await User.update({ name, email, role }, {
-        where: { id }
-      });
-      req.flash('success_msg', 'User updated successfully');
-    } else {
-      // Create new user
-      if (!password) {
-        req.flash('error_msg', 'Password is required for new users');
-        return res.redirect("/admin/users");
+    if (!can(req.session.user?.role, 'users')) fail('Administrator access required.', 403);
+    await sequelize.transaction(async transaction => {
+      // Every access change takes the same administrator locks first, so two
+      // administrators cannot concurrently disable or demote each other.
+      const admins = await User.findAll({ where: { role: 'admin' }, order: [['id', 'ASC']], transaction, lock: transaction.LOCK.UPDATE });
+      if (!admins.some(account => account.id === req.session.user.id && account.isActive)) fail('Active administrator access required.', 403);
+      const current = id ? await User.findByPk(integer(id, 'User', 1), { transaction, lock: transaction.LOCK.UPDATE }) : null;
+      if (id && !current) fail('User not found.', 404);
+      const values = {};
+      if (!id || Object.hasOwn(req.body, 'role')) {
+        if (!roles.includes(req.body.role)) fail('Choose a valid role.');
+        values.role = req.body.role;
       }
-
-      // Check if email already exists
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        req.flash('error_msg', 'Email already exists');
-        return res.redirect("/admin/users");
+      if (!id || Object.hasOwn(req.body, 'name')) values.name = text(req.body.name, 'Name', true);
+      if (!id || Object.hasOwn(req.body, 'email')) {
+        values.email = text(req.body.email, 'Email', true).toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) fail('Enter a valid email.');
       }
-
-      // Hash password
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-      await User.create({
-        name,
-        email,
-        password: hashedPassword,
-        role
-      });
-      req.flash('success_msg', 'User created successfully');
-    }
-
-    await audit(req, id ? 'user.updated' : 'user.created', 'account', id || null, `Role set to ${role}`);
-    res.redirect("/admin/users");
+      if (Object.hasOwn(req.body, 'username')) values.username = normalizeUsername(req.body.username);
+      if (!id || Object.hasOwn(req.body, 'isActive')) values.isActive = accountStatus(req.body.isActive);
+      if (current) {
+        const active = values.isActive ?? current.isActive, role = values.role ?? current.role;
+        if (current.id === req.session.user.id && (!active || role !== 'admin')) fail('You cannot disable your own account or remove your own administrator access.');
+        if (current.role === 'admin' && current.isActive && (!active || role !== 'admin') && admins.filter(user => user.isActive).length <= 1) fail('The last active administrator cannot be disabled or demoted.');
+        await current.update(values, { transaction });
+      } else {
+        if (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) fail('Use a password of at least 8 characters and up to 72 bytes.');
+        await User.create({ ...values, password: await bcrypt.hash(password, 10) }, { transaction });
+      }
+      await audit(req, id ? 'user.updated' : 'user.created', 'account', id || null, 'Account access updated', transaction);
+    });
+    req.flash('success_msg', id ? 'User updated successfully' : 'User created successfully');
   } catch (error) {
-    console.error("Error managing user:", error);
-
-    // Handle specific database errors
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      req.flash('error_msg', 'Email already exists');
-    } else if (error.name === 'SequelizeValidationError') {
-      req.flash('error_msg', 'Invalid data provided');
-    } else {
-      req.flash('error_msg', 'Failed to manage user');
-    }
-
-    res.redirect("/admin/users");
+    req.flash('error_msg', error.name === 'SequelizeUniqueConstraintError' ? 'Email or username already exists.' : error.status ? error.message : 'Failed to manage user');
   }
+  return res.redirect('/admin/users');
 };
 
 export const deleteUser = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    // Check if user exists
-    const user = await User.findByPk(id);
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    // Prevent deleting the last admin
-    if (user.role === 'admin') {
-      const adminCount = await User.count({ where: { role: 'admin' } });
-      if (adminCount <= 1) {
-        return res.status(400).json({
-          success: false,
-          message: 'Cannot delete the last admin user'
-        });
-      }
-    }
-
-    if (Number(id) === req.session.user.id) return res.status(400).json({ success: false, message: 'You cannot delete your own account.' });
-    await User.destroy({ where: { id } });
-    await audit(req, 'user.deleted', 'account', id, 'Account removed');
-
-    res.json({ success: true, message: 'User deleted successfully' });
+    if (!can(req.session.user?.role, 'users')) fail('Administrator access required.', 403);
+    await sequelize.transaction(async transaction => {
+      const admins = await User.findAll({ where: { role: 'admin' }, order: [['id', 'ASC']], transaction, lock: transaction.LOCK.UPDATE });
+      if (!admins.some(account => account.id === req.session.user.id && account.isActive)) fail('Active administrator access required.', 403);
+      const user = await User.findByPk(integer(req.params.id, 'User', 1), { transaction, lock: transaction.LOCK.UPDATE });
+      if (!user) fail('User not found.', 404);
+      if (user.id === req.session.user.id) fail('You cannot delete your own account.');
+      if (user.role === 'admin' && user.isActive && admins.filter(account => account.isActive).length <= 1) fail('The last active administrator cannot be deleted.');
+      await user.destroy({ transaction });
+      await audit(req, 'user.deleted', 'account', user.id, 'Account removed', transaction);
+    });
+    return res.json({ success: true, message: 'User deleted successfully' });
   } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ success: false, message: 'Failed to delete user' });
+    return res.status(error.status || 500).json({ success: false, message: error.status ? error.message : 'Failed to delete user' });
   }
 };
 

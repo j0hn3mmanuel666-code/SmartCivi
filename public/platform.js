@@ -128,17 +128,19 @@
     mobile.addEventListener('change', () => closeSidebar(false));
     closeSidebar(false);
   }
-  const statusLabels = { pending: 'Pending', processing: 'Processing', approved: 'Approved', payment_pending: 'Awaiting payment', paid: 'Paid', completed: 'Completed', released: 'Released', rejected: 'Rejected', scheduled: 'Scheduled', confirmed: 'Confirmed', rescheduled: 'Rescheduled', cancelled: 'Cancelled' };
+  const statusLabels = { good: 'Good', fair: 'Fair', poor: 'Poor', serviceable: 'Serviceable', maintenance: 'Maintenance', unserviceable: 'Unserviceable', 'low stock': 'Low stock', available: 'Available', active: 'Active', on_leave: 'On leave', inactive: 'Inactive', pending: 'Pending', processing: 'Processing', approved: 'Approved', payment_pending: 'Awaiting payment', paid: 'Paid', completed: 'Completed', released: 'Released', rejected: 'Rejected', scheduled: 'Scheduled', confirmed: 'Confirmed', rescheduled: 'Rescheduled', cancelled: 'Cancelled' };
   document.querySelectorAll('.office-table').forEach(table => {
-    const statusColumn = [...table.querySelectorAll('thead th')].findIndex(header => header.textContent.trim().toLowerCase() === 'status');
+    const statusColumns = [...table.querySelectorAll('thead th')].map((header, index) => ['status', 'condition', 'stock status', 'personnel status'].includes(header.textContent.trim().toLowerCase()) ? index : -1).filter(index => index >= 0);
+    for (const statusColumn of statusColumns) {
     if (statusColumn < 0) return;
     table.querySelectorAll('tbody tr').forEach(row => {
       const cell = row.cells[statusColumn];
-      if (!cell || cell.children.length || !statusLabels[cell.textContent.trim()]) return;
+      if (!cell || cell.children.length || !statusLabels[cell.textContent.trim().toLowerCase()]) return;
       const badge = document.createElement('span');
       badge.className = 'badge'; badge.textContent = cell.textContent.trim();
       cell.replaceChildren(badge);
     });
+    }
   });
   document.querySelectorAll('.badge').forEach(badge => {
     const state = badge.textContent.trim().toLowerCase();

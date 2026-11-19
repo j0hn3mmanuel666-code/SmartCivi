@@ -10,7 +10,7 @@ process.env.ELECTRON = '1';
 process.env.GOOGLE_CLIENT_ID = '';
 process.env.GOOGLE_CLIENT_SECRET = '';
 const { default: app } = await import('../index.js');
-const { User, Resource, Request, RequestEvent, Notice, sequelize } = await import('../models/Platform.js');
+const { User, Resource, Request, RequestEvent, Notice, sequelize, Barangay } = await import('../models/Platform.js');
 const { default: bcrypt } = await import('bcrypt');
 const { chromium } = await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE).href);
 const server = app.listen(0, '127.0.0.1');
@@ -62,7 +62,8 @@ try {
   await RequestEvent.bulkCreate([{ requestId: transactionFixtures[0].id, status: 'pending', detail: 'Request submitted', actorName: 'Citizen' }, { requestId: transactionFixtures[0].id, status: 'processing', detail: 'Office review started', actorName: 'Registry office' }]);
   await Notice.bulkCreate([{ userId: citizen.id, title: 'Your request is being reviewed', message: 'The office has started reviewing your document request.', url: `/request/${transactionFixtures[0].id}` }, { userId: user.id, title: 'Document request received', message: 'Review the pending document request.', url: `/admin/requests/${transactionFixtures[0].id}` }]);
   const resource = await Resource.findOne({ order: [['id', 'DESC']] });
-  const paths = ['/admin', '/admin/residents', '/admin/residents/new', '/admin/registry', '/admin/resources', ...(resource ? [`/admin/resources/${resource.id}`] : []), '/admin/reports', '/admin/users', '/admin/appointments', '/dashboard/notifications', '/admin/requests', `/admin/requests/${transactionFixtures[0].id}`, '/admin/audit', '/admin/operations', '/admin/integrations', '/dashboard/profile', '/help', '/api'];
+  await Barangay.findOrCreate({ where: { name: 'Poblacion' } });
+  const paths = ['/admin/barangays', '/admin/population', '/admin/resident-activity', '/admin', '/admin/residents', '/admin/residents/new', '/admin/registry', '/admin/resources', ...(resource ? [`/admin/resources/${resource.id}`] : []), '/admin/reports', '/admin/users', '/admin/appointments', '/dashboard/notifications', '/admin/requests', `/admin/requests/${transactionFixtures[0].id}`, '/admin/audit', '/admin/operations', '/admin/integrations', '/dashboard/profile', '/help', '/api'];
   for (const width of [1440, 1024, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const [i, path] of paths.entries()) {
@@ -116,9 +117,28 @@ try {
   // A real browser submits a new resident form with the injected CSRF input.
   await page.goto(origin + '/admin/residents/new');
   const suffix = Date.now();
-  for (const [key, value] of Object.entries({ residentCode: `VIS-${suffix}`, firstName: `Visual${suffix}`, lastName: 'Sample', birthDate: '2000-01-01', barangay: 'Poblacion' })) await page.locator(`[name=${key}]`).fill(value);
+  for (const [key, value] of Object.entries({ firstName: `Visual${suffix}`, lastName: 'Sample', birthDate: '2000-01-01' })) await page.locator(`[name=${key}]`).fill(value);
+  await page.locator('[name=barangay]').selectOption('Poblacion');
+  await page.locator('[name=civilStatus]').selectOption('single');
   await Promise.all([page.waitForURL(/\/admin\/residents\/\d+$/), page.getByRole('button', { name: 'Save record', exact: true }).click()]);
   assert.match(await page.locator('body').innerText(), /saved/i);
+  const residentId = page.url().split('/').pop();
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    for (const mode of ['profile', 'print']) {
+      const response = await page.goto(`${origin}/admin/residents/${residentId}/${mode}`);
+      assert.equal(response.status(), 200);
+      assert.match(await page.locator('h2').first().innerText(), /Visual/);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Resident ${mode} overflow ${width}`);
+      await page.screenshot({ path: `tmp/visual-check/resident-${mode}-${width}.png`, fullPage: true });
+    }
+  }
+  await page.emulateMedia({ media: 'print' });
+  assert.equal(await page.locator('.workspace-sidebar').isVisible(), false);
+  assert.equal(await page.locator('.workspace-header').isVisible(), false);
+  assert.equal(await page.locator('body').evaluate(body => getComputedStyle(body).paddingLeft), '0px');
+  await page.pdf({ path: 'tmp/visual-check/resident-profile.pdf', format: 'A4', printBackground: true });
+  await page.emulateMedia({ media: 'screen' });
   await page.goto(origin + '/appoint');
   await page.locator('#region').selectOption({ index: 1 });
   await page.locator('#phone').fill('09123456789');

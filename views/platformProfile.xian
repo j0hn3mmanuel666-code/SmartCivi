@@ -11,10 +11,11 @@
       <div class="profile-section-heading"><h2 id="account-details-title">Account information</h2><p>Details registered with your SmartCivi account.</p></div>
       <dl class="profile-facts">
         <div><dt><label for="profile-name">Full name</label></dt><dd><form method="post" action="/dashboard/profile" class="profile-name-form"><input id="profile-name" type="text" name="name" value="{{user.name}}" autocomplete="name" maxlength="255" required><button type="submit" class="button">Save name</button></form></dd></div>
+        <div><dt><label for="profile-username">Username (optional)</label></dt><dd><form method="post" action="/dashboard/profile" class="profile-name-form"><input id="profile-username" type="text" name="username" value="{{user.username}}" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="3" maxlength="40" pattern="[A-Za-z][A-Za-z0-9._-]{2,39}" aria-describedby="username-hint"><button type="submit" class="button">Save username</button></form><p id="username-hint" class="small muted">Start with a letter; use 3–40 letters, numbers, dots, underscores or hyphens. Leave blank to use email only.</p></dd></div>
         <div><dt>Email address</dt><dd>{{user.email}}</dd></div>
         <div><dt>Account role</dt><dd><span class="profile-role">{{> roleLabel}}</span></dd></div>
       </dl>
-      <div class="profile-corrections"><h3>Account corrections</h3><p>You can update your name above. For email address or account role corrections, contact the authorized office administrator.</p></div>
+      <div class="profile-corrections"><h3>Account corrections</h3><p>You can update your name and optional username above. For email address or account role corrections, contact the authorized office administrator.</p></div>
       <div class="profile-links"><a class="button secondary" href="/dashboard/my-requests">My requests</a><a href="/help">Office guidance <span aria-hidden="true">&#8594;</span></a></div>
     </section>
     <section class="panel profile-sign-in" aria-labelledby="google-sign-in-title">

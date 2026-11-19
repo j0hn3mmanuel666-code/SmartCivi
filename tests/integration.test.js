@@ -6,7 +6,7 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
   assert.match(process.env.DB_NAME || '', /_test$/, 'Use a disposable database ending in _test');
   process.env.ELECTRON = '1';
   const { default: app } = await import('../index.js');
-  const { User, Resident, CivilRecord, Resource, Notice, Audit, Request, sequelize } = await import('../models/Platform.js');
+  const { User, Resident, CivilRecord, Resource, Notice, Audit, Request, sequelize, Barangay } = await import('../models/Platform.js');
   const { default: bcrypt } = await import('bcrypt');
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
@@ -25,18 +25,42 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
   }, async login(role) { await this.get('/login'); const r = await this.call('/login', { email: users[role].email, password }, 'POST'); assert.equal(r.status, 302); await this.get('/login'); } });
   const admin = client(), citizen = client(), officer = client(), registrar = client();
   await admin.login('admin'); await citizen.login('user'); await officer.login('resource_officer'); await registrar.login('registrar');
+  await t.test('SmartReports submission, review, notifications, and export', async () => {
+    const title = `Lighting repair ${suffix}`;
+    const submitted = await citizen.call('/dashboard/smartreports', { title, description: 'The streetlight needs repair.' }, 'POST');
+    assert.equal(submitted.status, 302, submitted.html);
+    assert.match(submitted.location, /^\/dashboard\/smartreports\/\d+$/);
+    const adminReport = submitted.location.replace('/dashboard/', '/admin/');
+    assert.match((await citizen.get(submitted.location)).html, /Submitted/);
+    assert.equal((await officer.get(submitted.location)).status, 404);
+    assert.equal((await citizen.get(adminReport)).status, 403);
+    assert.match((await admin.get('/dashboard/notifications')).html, /New SmartReports submission/);
+    for (const status of ['Under Review', 'Resolved', 'Closed']) {
+      assert.equal((await admin.call(adminReport + '/status', { status }, 'POST')).status, 302);
+      assert.match((await citizen.get('/dashboard/notifications')).html, new RegExp(`Your report status is now ${status}`));
+    }
+    assert.equal((await admin.call(adminReport + '/notify', { message: 'The repair team completed the work.' }, 'POST')).status, 302);
+    assert.match((await citizen.get('/dashboard/notifications')).html, /The repair team completed the work/);
+    assert.match((await admin.get('/admin/smartreports?filter=Closed')).html, new RegExp(title));
+    const exported = await admin.get('/admin/reports?dataset=smartreports&format=csv');
+    assert.equal(exported.status, 200);
+    assert.match(exported.html, new RegExp(title + '.*Closed'));
+    assert.equal((await officer.get('/admin/reports?dataset=smartreports&format=csv')).status, 403);
+  });
   await t.test('permission and CSRF barriers', async () => {
     assert.equal((await citizen.get('/admin/residents')).status, 403);
     assert.equal((await officer.get('/admin/registry')).status, 403);
     const r = await fetch(origin + '/admin/residents', { method: 'POST', headers: { Cookie: admin.cookie } });
     assert.equal(r.status, 403);
   });
-  const residentData = { residentCode: `BAN-${suffix}`, firstName: `Ana${suffix}`, lastName: 'Cruz', birthDate: '2000-01-01', barangay: 'Poblacion', sex: 'female' };
+  await Barangay.findOrCreate({ where: { name: 'Poblacion' } });
+  await Barangay.findOrCreate({ where: { name: 'Proper Bongabong' } });
+  const residentData = { residentCode: `BAN-${suffix}`, firstName: `Ana${suffix}`, lastName: 'Cruz', birthDate: '2000-01-01', barangay: 'Poblacion', sex: 'female', civilStatus: 'single' };
   let resident, record, resource;
   await t.test('resident creation, duplicate protection and editing', async () => {
     const r = await registrar.call('/admin/residents', residentData, 'POST');
     assert.equal(r.status, 302, r.html);
-    resident = await Resident.findOne({ where: { residentCode: residentData.residentCode } });
+    resident = await Resident.findOne({ where: { firstName: residentData.firstName } });
     assert.ok(resident);
     assert.equal((await registrar.call('/admin/residents', residentData, 'POST')).status, 409);
     assert.equal((await registrar.call(`/admin/residents/${resident.id}`, { ...residentData, barangay: 'Proper Bongabong' }, 'POST')).status, 302);

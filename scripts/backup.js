@@ -1,12 +1,13 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { sequelize, initializePlatform, User, Resident, CivilRecord, Request, Resource, Allocation, Movement, Audit, Notice, RequestEvent } from '../models/Platform.js';
+import { sequelize, initializePlatform, User, Barangay, Resident, CivilRecord, Request, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport } from '../models/Platform.js';
+import { BudgetItem } from '../models/Planning.js';
 import { Appointment } from '../models/Appointment.js';
 import { Attachment } from '../models/Attachment.js';
 import { encryptArchive, decryptArchive } from '../services/backupArchive.js';
 import { pruneSessions } from '../middleware/platformSecurity.js';
 
-const models = [User, Resident, CivilRecord, Request, Appointment, Attachment, Resource, Allocation, Movement, Audit, Notice, RequestEvent];
+const models = [User, Barangay, BudgetItem, Resident, CivilRecord, Request, Appointment, Attachment, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport];
 async function backup() {
   const snapshot = await sequelize.transaction({ isolationLevel: 'REPEATABLE READ' }, async transaction => {
     const tables = {};
@@ -23,13 +24,24 @@ async function backup() {
 }
 async function restore(path, apply) {
   const snapshot = decryptArchive(await readFile(resolve(path)), process.env.BACKUP_KEY);
+  // Older archives predate the catalog. Rebuild only locations present in their resident records.
+  const legacyCatalog = snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'barangays') && Array.isArray(snapshot.tables.residents);
+  if (legacyCatalog) {
+    snapshot.tables.barangays = [...new Set(snapshot.tables.residents.map(row => row.barangay?.trim()).filter(Boolean))].map(name => ({ name, archivedAt: null }));
+  }
+  if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'budget_items')) snapshot.tables.budget_items = [];
+  if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'citizen_reports')) snapshot.tables.citizen_reports = [];
   const expected = models.map(model => model.tableName).sort();
   if (snapshot.format !== 1 || JSON.stringify(Object.keys(snapshot.tables || {}).sort()) !== JSON.stringify(expected) || expected.some(table => !Array.isArray(snapshot.tables[table]))) throw new Error('Backup schema is incompatible with this application.');
   console.log(`Authenticated backup created ${snapshot.createdAt}; ${expected.reduce((sum, table) => sum + snapshot.tables[table].length, 0)} rows across ${expected.length} tables.`);
   if (!apply) { console.log('Verification only. To restore into an EMPTY target database, add --apply.'); return; }
   await sequelize.transaction(async transaction => {
     for (const model of models) if (await model.count({ transaction })) throw new Error(`Restore refused: target table ${model.tableName} is not empty.`);
-    for (const model of models) await model.bulkCreate(snapshot.tables[model.tableName], { transaction, validate: true });
+    for (const model of models) {
+      if (model === Barangay && legacyCatalog) {
+        for (const row of snapshot.tables.barangays) await Barangay.findOrCreate({ where: { name: row.name }, transaction });
+      } else await model.bulkCreate(snapshot.tables[model.tableName], { transaction, validate: true });
+    }
   });
   console.log('Restore completed. Sign in again; sessions are intentionally excluded.');
 }

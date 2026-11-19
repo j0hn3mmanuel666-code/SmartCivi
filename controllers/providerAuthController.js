@@ -64,7 +64,7 @@ export async function finishGoogle(req, res) {
     if (flow.linkId) {
       if (req.session.userId !== flow.linkId) throw new Error('Account session changed');
       const current = await User.findByPk(flow.linkId);
-      if (!current || current.email.toLowerCase() !== profile.email || (current.googleSubject && current.googleSubject !== profile.subject) || (user && user.id !== current.id)) throw new Error('Google account does not match');
+      if (!current || current.isActive === false || current.email.toLowerCase() !== profile.email || (current.googleSubject && current.googleSubject !== profile.subject) || (user && user.id !== current.id)) throw new Error('Google account does not match');
       await current.update({ googleSubject: profile.subject, emailVerifiedAt: new Date(), emailVerificationRequired: false, verificationTokenHash: null, verificationExpiresAt: null });
       await audit(req, 'account.google-linked', 'account', current.id, 'Linked Google sign-in');
       req.flash('success_msg', 'Google sign-in is connected to your account.');

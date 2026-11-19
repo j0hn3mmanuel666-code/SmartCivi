@@ -1,7 +1,7 @@
 export const SYSTEM_TITLE = 'SmartCivi: A Smart Civil Registry and Resource Planning Platform for Local Government Units (LGUs)';
 export const roles = ['user', 'staff', 'registrar', 'resource_officer', 'admin'];
-const permissions = { admin: ['overview', 'registry', 'residents', 'resources', 'requests', 'reports', 'audit', 'users', 'operations'], staff: ['overview', 'requests', 'residents'], registrar: ['overview', 'registry', 'residents', 'requests', 'reports'], resource_officer: ['overview', 'resources', 'reports'] };
-export const can = (role, feature) => permissions[role]?.includes(feature) || false;
+const permissions = { admin: ['overview', 'registry', 'residents', 'resources', 'requests', 'reports', 'audit', 'users', 'operations', 'barangays', 'population', 'residentActivity', 'personnel', 'budget', 'planningReports', 'diagrams'], staff: ['overview', 'requests', 'residents', 'reports', 'barangays', 'population', 'residentActivity'], registrar: ['overview', 'registry', 'residents', 'requests', 'reports', 'barangays', 'population', 'residentActivity'], resource_officer: ['overview', 'resources', 'reports', 'personnel', 'budget', 'planningReports', 'diagrams'] };
+export const can = (role, feature) => feature === 'smartReports' ? role === 'admin' : permissions[role]?.includes(feature) || false;
 export function fail(message, status = 400) { throw Object.assign(new Error(message), { status }); }
 export function text(value, label, required = false, max = 255) {
   if (value != null && typeof value !== 'string') fail(`${label} must be text.`);
@@ -26,18 +26,17 @@ export function date(value, label, required = false, past = true) {
   return value;
 }
 function choice(value, choices, label) { if (!choices.includes(value)) fail(`Select a valid ${label}.`); return value; }
+export const civilStatuses = ['single', 'married', 'widowed', 'separated', 'annulled', 'divorced', 'not_recorded'];
 export function residentInput(body) {
   const email = text(body.email, 'Email');
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail('Enter a valid email address.');
-  const residentCode = text(body.residentCode, 'Resident ID', true, 50).toUpperCase();
-  if (!/^[A-Z0-9-]+$/.test(residentCode)) fail('Resident ID may contain letters, numbers and hyphens.');
-  return { residentCode, firstName: text(body.firstName, 'First name', true, 100), middleName: text(body.middleName, 'Middle name', false, 100), lastName: text(body.lastName, 'Last name', true, 100), birthDate: date(body.birthDate, 'Birth date', true), sex: choice(body.sex || 'unspecified', ['female', 'male', 'unspecified'], 'sex'), barangay: text(body.barangay, 'Barangay', true, 100), address: text(body.address, 'Address'), email: email?.toLowerCase() || null, phone: text(body.phone, 'Phone', false, 40) };
+  return { civilStatus: choice(body.civilStatus, civilStatuses, 'civil status'), firstName: text(body.firstName, 'First name', true, 100), middleName: text(body.middleName, 'Middle name', false, 100), lastName: text(body.lastName, 'Last name', true, 100), birthDate: date(body.birthDate, 'Birth date', true), sex: choice(body.sex || 'unspecified', ['female', 'male', 'unspecified'], 'sex'), barangay: text(body.barangay, 'Barangay', true, 100), address: text(body.address, 'Address'), email: email?.toLowerCase() || null, phone: text(body.phone, 'Phone', false, 40) };
 }
 export function recordInput(body) {
   return { residentId: integer(body.residentId, 'Resident', 1), type: choice(body.type, ['birth', 'marriage', 'death', 'other'], 'record type'), registryNumber: text(body.registryNumber, 'Registry number', true, 80).toUpperCase(), eventDate: date(body.eventDate, 'Event date', true), registeredDate: date(body.registeredDate, 'Registration date'), eventPlace: text(body.eventPlace, 'Event place', true), fatherName: text(body.fatherName, 'Father name'), motherName: text(body.motherName, 'Mother name'), spouseName: text(body.spouseName, 'Spouse name'), notes: text(body.notes, 'Notes', false, 3000) };
 }
 export function resourceInput(body) {
-  const data = { code: text(body.code, 'Resource code', true, 50).toUpperCase(), name: text(body.name, 'Name', true), category: choice(body.category, ['personnel', 'supply', 'equipment', 'other'], 'category'), department: text(body.department, 'Department', true, 150), unit: text(body.unit, 'Unit', true, 40), quantity: integer(body.quantity, 'Quantity'), minimum: integer(body.minimum || 0, 'Minimum stock'), position: text(body.position, 'Position', false, 150), condition: choice(body.condition || 'serviceable', ['serviceable', 'maintenance', 'unserviceable'], 'condition'), notes: text(body.notes, 'Notes', false, 3000) };
+  const data = { code: text(body.code, 'Resource code', false, 50)?.toUpperCase() || null, name: text(body.name, 'Name', true), category: choice(body.category, ['personnel', 'supply', 'equipment', 'other'], 'category'), department: text(body.department, 'Department', true, 150), unit: text(body.unit, 'Unit', true, 40), quantity: integer(body.quantity, 'Quantity'), minimum: integer(body.minimum || 0, 'Minimum stock'), position: text(body.position, 'Position', false, 150), condition: choice(body.condition || 'serviceable', ['good', 'fair', 'poor', 'serviceable', 'maintenance', 'unserviceable'], 'condition'), notes: text(body.notes, 'Notes', false, 3000), location: text(body.location, 'Location', false, 150), contactNumber: text(body.contactNumber, 'Contact number', false, 40), employeeStatus: choice(body.employeeStatus || 'active', ['active', 'on_leave', 'inactive'], 'personnel status') };
   if (data.category === 'personnel' && data.quantity !== 1) fail('A personnel entry must have quantity 1.');
   return data;
 }

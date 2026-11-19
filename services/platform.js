@@ -1,12 +1,13 @@
 import { Op } from 'sequelize';
-import { sequelize, Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, RequestEvent, User, Request } from '../models/Platform.js';
+import { randomUUID } from 'node:crypto';
+import { sequelize, Barangay, Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, RequestEvent, User, Request } from '../models/Platform.js';
 import { can, date, fail, integer, residentInput, recordInput, resourceInput, stockChange, text } from './platformRules.js';
 
 export async function audit(req, action, entity, id, detail, transaction) {
   return Audit.create({ actorId: req.session?.user?.id || null, actorName: req.session?.user?.name || 'Unauthenticated', action, entity, entityId: id == null ? null : String(id), detail, ip: req.ip }, { transaction });
 }
 export async function notifyStaff(feature, title, message, url, transaction) {
-  const users = await User.findAll({ attributes: ['id', 'role'], transaction });
+  const users = await User.findAll({ attributes: ['id', 'role'], where: { isActive: true }, transaction });
   await Notice.bulkCreate(users.filter(user => can(user.role, feature)).map(user => ({ userId: user.id, title, message, url })), { transaction });
 }
 export async function requestEvent(req, request, detail, transaction) {
@@ -18,14 +19,46 @@ export async function requestEvent(req, request, detail, transaction) {
 export async function saveResident(req, id) {
   const data = residentInput(req.body);
   return sequelize.transaction(async transaction => {
+    const location = await Barangay.findOne({ where: { name: data.barangay, archivedAt: null }, transaction, lock: transaction.LOCK.UPDATE });
+    if (!location) fail('Choose an active barangay from Barangay management.');
+    data.barangay = location.name;
     let resident;
     if (id) {
       resident = await Resident.findByPk(integer(id, 'Resident', 1), { transaction, lock: transaction.LOCK.UPDATE });
       if (!resident || resident.archivedAt) fail('Active resident not found.', 404);
       await resident.update(data, { transaction });
-    } else resident = await Resident.create(data, { transaction });
-    await audit(req, id ? 'resident.updated' : 'resident.created', 'resident', resident.id, 'Master record saved', transaction);
+    } else {
+      // The temporary code and numeric database ID are never visible before commit.
+      resident = await Resident.create({ ...data, residentCode: `NEW-${randomUUID()}` }, { transaction });
+      const year = new Intl.DateTimeFormat('en', { timeZone: 'Asia/Manila', year: 'numeric' }).format(new Date());
+      const base = `BGB-${year}-${String(resident.id).padStart(6, '0')}`;
+      let code = base, suffix = 1;
+      // Retain pre-existing manually assigned IDs even if one uses the new format.
+      while (await Resident.findOne({ attributes: ['id'], where: { residentCode: code }, transaction })) code = `${base}-${suffix++}`;
+      await resident.update({ residentCode: code }, { transaction });
+    }
+    await audit(req, id ? 'resident.updated' : 'resident.created', 'residents', resident.id, 'Master record saved', transaction);
     return resident;
+  });
+}
+export async function saveBarangay(req, id) {
+  const name = text(req.body.name, 'Barangay name', true, 100).replace(/\s+/g, ' ');
+  const code = text(req.body.code, 'Barangay code', false, 40)?.toUpperCase() || null;
+  if (/[\u0000-\u001f\u007f]/.test(name)) fail('Enter a valid barangay name.');
+  return sequelize.transaction(async transaction => {
+    let barangay;
+    if (id) {
+      barangay = await Barangay.findByPk(integer(id, 'Barangay', 1), { transaction, lock: transaction.LOCK.UPDATE });
+      if (!barangay || barangay.archivedAt) fail('Active barangay not found.', 404);
+      if (barangay.name !== name) {
+        const residents = await Resident.findAll({ attributes: ['id'], where: { barangay: barangay.name }, transaction, lock: transaction.LOCK.UPDATE });
+        await Resident.update({ barangay: name }, { where: { barangay: barangay.name }, transaction });
+        if (residents.length) await Audit.bulkCreate(residents.map(row => ({ actorId: req.session.user.id, actorName: req.session.user.name, action: 'resident.barangay-updated', entity: 'residents', entityId: String(row.id), detail: 'Barangay catalog name updated', ip: req.ip })), { transaction });
+      }
+      await barangay.update({ name, code }, { transaction });
+    } else barangay = await Barangay.create({ name, code }, { transaction });
+    await audit(req, id ? 'barangay.updated' : 'barangay.created', 'barangays', barangay.id, 'Barangay catalog saved', transaction);
+    return barangay;
   });
 }
 export async function saveRecord(req, id) {
@@ -54,11 +87,19 @@ export async function saveResource(req, id) {
       resource = await Resource.findByPk(integer(id, 'Resource', 1), { transaction, lock: transaction.LOCK.UPDATE });
       if (!resource || resource.archivedAt) fail('Active resource not found.', 404);
       // Availability only changes through the movement ledger, never through edits.
-      const data = resourceInput({ ...req.body, category: resource.category, quantity: resource.category === 'personnel' ? 1 : resource.quantity });
-      delete data.quantity;
+      const data = resourceInput({ location: resource.location, contactNumber: resource.contactNumber, employeeStatus: resource.employeeStatus, ...req.body, code: resource.code, category: resource.category, quantity: resource.category === 'personnel' ? 1 : resource.quantity });
+      delete data.quantity; delete data.code;
       await resource.update(data, { transaction });
     } else {
-      resource = await Resource.create(resourceInput(req.body), { transaction });
+      const data = resourceInput(req.body);
+      resource = await Resource.create({ ...data, code: data.code || `NEW-${randomUUID()}` }, { transaction });
+      if (!data.code) {
+        const year = new Intl.DateTimeFormat('en', { timeZone: 'Asia/Manila', year: 'numeric' }).format(new Date());
+        const base = `RES-${year}-${String(resource.id).padStart(6, '0')}`;
+        let code = base, suffix = 1;
+        while (await Resource.findOne({ attributes: ['id'], where: { code }, transaction })) code = `${base}-${suffix++}`;
+        await resource.update({ code }, { transaction });
+      }
       await Movement.create({ resourceId: resource.id, action: 'opening', quantity: resource.quantity, balance: resource.quantity, actorId: req.session.user.id }, { transaction });
     }
     await audit(req, id ? 'resource.updated' : 'resource.created', 'resource', resource.id, 'Resource saved', transaction);
@@ -72,7 +113,8 @@ export async function moveResource(req, id) {
   return sequelize.transaction(async transaction => {
     const resource = await Resource.findByPk(integer(id, 'Resource', 1), { transaction, lock: transaction.LOCK.UPDATE });
     if (!resource || resource.archivedAt) fail('Active resource not found.', 404);
-    if (action === 'allocate' && resource.condition !== 'serviceable') fail('Only serviceable resources can be allocated.');
+    if (action === 'allocate' && !['serviceable', 'good', 'fair'].includes(resource.condition)) fail('Only resources in serviceable, Good or Fair condition can be allocated.');
+    if (action === 'allocate' && resource.category === 'personnel' && resource.employeeStatus !== 'active') fail('Only active personnel can be assigned.');
     if (['replenish', 'consume'].includes(action) && resource.category === 'personnel') fail('Personnel can only be assigned and returned.');
     if (action === 'consume' && resource.category !== 'supply') fail('Only supplies can be consumed.');
     let allocation;

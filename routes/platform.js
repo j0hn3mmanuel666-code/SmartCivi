@@ -1,28 +1,47 @@
 import express from 'express';
 import { Op, col, where as sqlWhere } from 'sequelize';
-import { Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, Request, RequestEvent, User, sequelize } from '../models/Platform.js';
-import { audit, pagination, searchWhere, saveResident, saveRecord, saveResource, moveResource, requestEvent } from '../services/platform.js';
-import { can, csv, date, fail, integer, SYSTEM_TITLE, text, paymentComplete } from '../services/platformRules.js';
+import { Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, Request, RequestEvent, User, sequelize, Barangay } from '../models/Platform.js';
+import { audit, pagination, searchWhere, saveResident, saveBarangay, saveRecord, saveResource, moveResource, requestEvent } from '../services/platform.js';
+import { can, csv, date, fail, integer, SYSTEM_TITLE, civilStatuses, text, paymentComplete } from '../services/platformRules.js';
 import { requireFeature, ownRequest } from '../middleware/platformSecurity.js';
 
+import { updateProfile } from '../controllers/profileController.js';
+import { residentLabels } from '../services/residentRules.js';
+import residentFeatures from './residentFeatures.js';
+import planningRoutes from './planning.js';
+import resourceFeatures from './resourceFeatures.js';
+import { smartReports, smartReportsDataset } from './smartReports.js';
+import { planningSummary, fiscalYearInput, peso } from '../services/planning.js';
+import { resourceCondition, stockLabel, lowStock as needsStock } from '../services/resourcePresentation.js';
 const router = express.Router();
+router.use(residentFeatures);
+router.use(planningRoutes);
+router.use(resourceFeatures);
+router.use(smartReports);
 const run = handler => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 const plain = row => row.toJSON();
 const displayDate = value => value ? new Date(value).toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' }) : '—';
 const name = resident => `${resident.firstName} ${resident.lastName}`;
 const configs = {
-  residents: { model: Resident, feature: 'residents', title: 'Residents', singular: 'resident', description: 'One master profile connects each resident to their civil records and transactions.', search: ['residentCode', 'firstName', 'lastName', 'barangay'], columns: ['Resident ID', 'Name', 'Birth date', 'Barangay'], cells: row => [row.residentCode, name(row), row.birthDate, row.barangay], save: saveResident },
+  barangays: { model: Barangay, feature: 'barangays', title: 'Barangay management', singular: 'barangay', description: 'Maintain the barangay names available for resident registration. Archive unused entries to retain their history.', search: ['name', 'code'], columns: ['Barangay', 'Code'], cells: row => [row.name, row.code || '—'], save: saveBarangay },
+  residents: { model: Resident, feature: 'residents', title: 'Residents', singular: 'resident', description: 'One master profile connects each resident to their civil records and transactions.', search: ['residentCode', 'firstName', 'lastName', 'barangay'], columns: ['Resident ID', 'Name', 'Birth date', 'Civil status', 'Barangay'], cells: row => [row.residentCode, name(row), row.birthDate, residentLabels[row.civilStatus] || 'Not recorded', row.barangay], save: saveResident },
   registry: { model: CivilRecord, feature: 'registry', title: 'Civil registry', singular: 'civil record', description: 'Register and maintain birth, marriage, death and other civil records.', search: ['registryNumber', 'type', 'eventPlace'], columns: ['Registry number', 'Resident', 'Type', 'Event date', 'Place'], cells: row => [row.registryNumber, row.Resident ? name(row.Resident) : '—', row.type, row.eventDate, row.eventPlace], save: saveRecord },
-  resources: { model: Resource, feature: 'resources', title: 'Resource planning', singular: 'resource', description: 'Coordinate personnel, supplies and equipment across LGU offices.', search: ['code', 'name', 'department', 'category'], columns: ['Code', 'Resource', 'Category', 'Department', 'Available', 'Condition'], cells: row => [row.code, row.name, row.category, row.department, `${row.quantity} ${row.unit}`, row.condition], save: saveResource },
+  resources: { model: Resource, feature: 'resources', title: 'Resource planning', singular: 'resource', description: 'Coordinate personnel, supplies and equipment across LGU offices.', search: ['code', 'name', 'department', 'category', 'location'], columns: ['Code', 'Resource', 'Category', 'Department', 'Available', 'Condition', 'Stock status', 'Location'], cells: row => [row.code, row.name, row.category, row.department, `${row.quantity} ${row.unit}`, resourceCondition(row), stockLabel(row), row.location || '—'], save: saveResource },
 };
 const input = (key, label, value, type = 'text', required = false, options = null) => ({ key, label, value: value ?? '', type, required, options: options?.map(option => ({ value: typeof option === 'object' ? String(option.value) : option, label: typeof option === 'object' ? option.label : option.replaceAll('_', ' '), selected: String(typeof option === 'object' ? option.value : option) === String(value) })), isSelect: !!options, isTextarea: type === 'textarea' });
 async function fieldsFor(kind, value = {}) {
-  if (kind === 'residents') return [input('residentCode', 'Resident ID', value.residentCode, 'text', true), input('firstName', 'First name', value.firstName, 'text', true), input('middleName', 'Middle name', value.middleName), input('lastName', 'Last name', value.lastName, 'text', true), input('birthDate', 'Birth date', value.birthDate, 'date', true), input('sex', 'Sex', value.sex || 'unspecified', 'text', true, ['unspecified', 'female', 'male']), input('barangay', 'Barangay', value.barangay, 'text', true), input('address', 'Street / address', value.address), input('email', 'Email', value.email, 'email'), input('phone', 'Phone', value.phone, 'tel')];
+  if (kind === 'barangays') return [input('name', 'Barangay name', value.name, 'text', true), input('code', 'Barangay / PSGC code (optional)', value.code)];
+  if (kind === 'residents') {
+    const locations = await Barangay.findAll({ where: { archivedAt: null }, order: [['name', 'ASC']] });
+    const choices = [{ value: '', label: locations.length ? 'Select a barangay' : 'Add a barangay in Barangay management first' }, ...locations.map(row => ({ value: row.name, label: row.name }))];
+    if (value.barangay && !choices.some(option => option.value === value.barangay)) choices.push({ value: value.barangay, label: `${value.barangay} (archived)` });
+    return [{ ...input('residentCode', 'Resident ID', value.residentCode || 'Automatically assigned when saved'), isReadonly: true }, input('firstName', 'First name', value.firstName, 'text', true), input('middleName', 'Middle name', value.middleName), input('lastName', 'Last name', value.lastName, 'text', true), input('birthDate', 'Birth date', value.birthDate, 'date', true), input('sex', 'Sex', value.sex || 'unspecified', 'text', true, ['unspecified', 'female', 'male']), input('civilStatus', 'Civil status', value.civilStatus || '', 'text', true, [{ value: '', label: 'Select civil status' }, ...civilStatuses.map(status => ({ value: status, label: residentLabels[status] }))]), input('barangay', 'Barangay', value.barangay, 'text', true, choices), input('address', 'Street / address', value.address), input('email', 'Email', value.email, 'email'), input('phone', 'Phone', value.phone, 'tel')];
+  }
   if (kind === 'registry') {
     const residents = await Resident.findAll({ where: { archivedAt: null, ...(value.residentId ? { id: value.residentId } : { id: -1 }) }, order: [['lastName', 'ASC']] });
     return [input('residentId', 'Resident ID (select from Residents first)', value.residentId, 'text', true, [{ value: '', label: 'Open Residents and choose Register civil record' }, ...residents.map(r => ({ value: r.id, label: `${r.residentCode} · ${name(r)}` }))]), input('type', 'Record type', value.type || 'birth', 'text', true, ['birth', 'marriage', 'death', 'other']), input('registryNumber', 'Registry number', value.registryNumber, 'text', true), input('eventDate', 'Event date', value.eventDate, 'date', true), input('registeredDate', 'Registration date', value.registeredDate, 'date'), input('eventPlace', 'Event place', value.eventPlace || 'Bongabong, Oriental Mindoro', 'text', true), input('fatherName', 'Father name', value.fatherName), input('motherName', 'Mother name', value.motherName), input('spouseName', 'Spouse name', value.spouseName), input('notes', 'Notes', value.notes, 'textarea')];
   }
-  return [input('code', 'Resource / employee code', value.code, 'text', true), input('name', 'Resource / personnel name', value.name, 'text', true), input('category', 'Category', value.category || 'supply', 'text', true, ['supply', 'equipment', 'personnel', 'other']), input('department', 'Office / department', value.department || 'Municipal Civil Registry', 'text', true), input('position', 'Position (personnel)', value.position), input('unit', 'Unit (person, ream, piece…)', value.unit || 'piece', 'text', true), ...(!value.id ? [input('quantity', 'Opening quantity (1 for personnel)', value.quantity ?? 1, 'number', true)] : []), input('minimum', 'Low stock threshold', value.minimum ?? 0, 'number', true), input('condition', 'Condition', value.condition || 'serviceable', 'text', true, ['serviceable', 'maintenance', 'unserviceable']), input('notes', 'Notes', value.notes, 'textarea')];
+  return [{ ...input('code', value.id ? 'Resource / employee ID' : 'Resource code (optional; generated when blank)', value.code), isReadonly: !!value.id }, input('name', 'Resource / personnel name', value.name, 'text', true), input('category', 'Category', value.category || 'supply', 'text', true, ['supply', 'equipment', 'personnel', 'other']), input('department', 'Office / department', value.department || 'Municipal Civil Registry', 'text', true), input('position', 'Position (personnel)', value.position), input('unit', 'Unit (person, ream, piece…)', value.unit || 'piece', 'text', true), ...(!value.id ? [input('quantity', 'Opening quantity (1 for personnel)', value.quantity ?? 1, 'number', true)] : []), input('minimum', 'Low stock threshold', value.minimum ?? 0, 'number', true), input('condition', 'Condition', value.condition || 'good', 'text', true, ['good', 'fair', 'poor', 'serviceable', 'maintenance', 'unserviceable']), input('location', 'Location', value.location), ...(value.category === 'personnel' || !value.id ? [input('contactNumber', 'Personnel contact number', value.contactNumber, 'tel'), input('employeeStatus', 'Personnel status', value.employeeStatus || 'active', 'text', true, ['active', 'on_leave', 'inactive'])] : []), input('notes', 'Notes', value.notes, 'textarea')];
 }
 
 router.get('/admin', requireFeature('overview'), run(async (req, res) => {
@@ -31,11 +50,18 @@ router.get('/admin', requireFeature('overview'), run(async (req, res) => {
   if (can(role, 'residents')) stats.push({ label: 'Residents', value: await Resident.count({ where: { archivedAt: null } }), url: '/admin/residents' });
   if (can(role, 'registry')) stats.push({ label: 'Civil records', value: await CivilRecord.count({ where: { archivedAt: null } }), url: '/admin/registry' });
   if (can(role, 'requests')) stats.push({ label: 'Pending requests', value: await Request.count({ where: { status: { [Op.in]: ['pending', 'Pending', 'processing'] } } }), url: '/admin/requests' });
-  if (can(role, 'resources')) stats.push({ label: 'Resources', value: await Resource.count({ where: { archivedAt: null } }), url: '/admin/resources' });
+  if (can(role, 'resources')) stats.push({ label: 'Resources', value: await Resource.count({ where: { archivedAt: null, category: { [Op.ne]: 'personnel' } } }), url: '/admin/resources' });
   const requests = can(role, 'requests') ? await Request.findAll({ order: [['createdAt', 'DESC']], limit: 6, raw: true }) : [];
-  const lowStock = can(role, 'resources') ? await Resource.findAll({ where: { archivedAt: null, category: 'supply', [Op.and]: [sqlWhere(col('quantity'), Op.lte, col('minimum'))] }, limit: 8, raw: true }) : [];
+  const fiscalYear = can(role, 'budget') ? fiscalYearInput(req.query.fiscalYear) : null;
+  const budgets = can(role, 'budget') ? (await planningSummary(fiscalYear)).map(row => ({ ...row, zeroAllocation: row.usedPercent === null, allocated: peso(row.allocated), spent: peso(row.spent), remaining: peso(row.remaining) })) : [];
+  if (can(role, 'personnel')) stats.push({ label: 'Active personnel', value: await Resource.count({ where: { category: 'personnel', archivedAt: null, employeeStatus: 'active' } }), url: '/admin/personnel' });
+  const attention = budgets.filter(row => row.overBudget).map(row => ({ title: `${row.department} is over budget`, detail: `Allocated ${row.allocated} · Spent ${row.spent}`, url: `/admin/budget?fiscalYear=${fiscalYear}&q=${encodeURIComponent(row.department)}` }));
+  if (can(role, 'resources')) {
+    const resources = await Resource.findAll({ where: { archivedAt: null, [Op.or]: [{ condition: { [Op.in]: ['poor', 'unserviceable'] } }, { category: 'supply', [Op.and]: [sqlWhere(col('quantity'), Op.lte, col('minimum'))] }] }, order: [['id', 'DESC']], limit: 20 });
+    for (const row of resources) attention.push({ title: `${row.code} · ${row.name}`, detail: [resourceCondition(row), needsStock(row) ? 'Low stock' : '', `${row.quantity} ${row.unit} available`].filter(Boolean).join(' · '), url: `/admin/resources/${row.id}` });
+  }
   const notices = await Notice.findAll({ where: { userId: req.session.user.id, readAt: null }, order: [['id', 'DESC']], limit: 5, raw: true });
-  res.render('platformDashboard', { title: 'Office overview', stats, requests, lowStock, notices });
+  res.render('platformDashboard', { title: 'Office overview', stats, requests, attention, budgets, fiscalYear, notices });
 }));
 
 for (const [kind, config] of Object.entries(configs)) {
@@ -43,13 +69,23 @@ for (const [kind, config] of Object.entries(configs)) {
   router.get(base, requireFeature(config.feature), run(async (req, res) => {
     const page = pagination(req.query);
     const where = searchWhere(req.query, kind === 'registry' ? [...config.search, '$Resident.firstName$', '$Resident.lastName$', '$Resident.residentCode$'] : config.search);
-    const filter = kind === 'resources' ? 'category' : kind === 'registry' ? 'type' : 'barangay';
-    if (req.query.filter) where[filter] = text(req.query.filter, 'Filter', false, 100);
-    const result = await config.model.findAndCountAll({ where, ...page, order: [['id', 'DESC']], ...(kind === 'registry' ? { include: [Resident] } : {}) });
-    const rows = result.rows.map(row => ({ id: row.id, cells: config.cells(row), url: `${base}/${row.id}`, registerUrl: kind === 'residents' && can(req.session.user.role, 'registry') && !row.archivedAt ? `/admin/registry/new?residentId=${row.id}` : null }));
+    const filter = kind === 'barangays' ? null : kind === 'resources' ? 'category' : kind === 'registry' ? 'type' : 'barangay';
+    if (filter && req.query.filter) where[filter] = text(req.query.filter, 'Filter', false, 100);
+    const printResources = kind === 'resources' && req.query.print === '1';
+    if (kind === 'resources' && (req.query.format === 'csv' || printResources)) {
+      const count = await Resource.count({ where });
+      if (count > 10000) fail('More than 10,000 resources match. Narrow your filters before exporting.');
+    }
+    if (kind === 'resources' && req.query.format === 'csv') {
+      const rows = await Resource.findAll({ where, order: [['id', 'DESC']], limit: 10000 });
+      await audit(req, 'report.exported', 'resources', null, `${rows.length} resource rows exported`);
+      return res.attachment('SmartCivi-resources.csv').type('text/csv').send('\uFEFF' + [csv(config.columns), ...rows.map(row => csv(config.cells(row)))].join('\r\n'));
+    }
+    const result = await config.model.findAndCountAll({ where, ...(printResources ? { limit: 10000, offset: 0 } : page), order: [['id', 'DESC']], ...(kind === 'registry' ? { include: [Resident] } : {}) });
+    const rows = result.rows.map(row => ({ id: row.id, cells: config.cells(row), url: kind === 'residents' ? `${base}/${row.id}/profile` : `${base}/${row.id}`, registerUrl: kind === 'residents' && can(req.session.user.role, 'registry') && !row.archivedAt ? `/admin/registry/new?residentId=${row.id}` : null }));
     const params = new URLSearchParams({ q: req.query.q || '', filter: req.query.filter || '', archived: req.query.archived || '' });
     const pages = Math.max(1, Math.ceil(result.count / page.limit));
-    res.render('platformList', { title: config.title, description: config.description, columns: config.columns, rows, count: result.count, page: page.page, pages, previous: page.page > 1 ? `${base}?${params}&page=${page.page - 1}` : null, next: page.page < pages ? `${base}?${params}&page=${page.page + 1}` : null, q: req.query.q, filter: req.query.filter, filterLabel: filter, archived: req.query.archived === '1', base, newUrl: `${base}/new`, singular: config.singular });
+    res.render('platformList', { title: config.title, description: config.description, columns: config.columns, rows, count: result.count, page: page.page, pages, previous: page.page > 1 ? `${base}?${params}&page=${page.page - 1}` : null, next: page.page < pages ? `${base}?${params}&page=${page.page + 1}` : null, q: req.query.q, filter: req.query.filter, filterLabel: filter, archived: req.query.archived === '1', base, newUrl: `${base}/new`, singular: config.singular, exportUrl: kind === 'resources' ? `${base}?${params}&format=csv` : null, canPrint: kind === 'resources', printResources, printUrl: kind === 'resources' ? `${base}?${params}&print=1` : null });
   }));
   router.get(`${base}/new`, requireFeature(config.feature), run(async (req, res) => {
     const value = kind === 'registry' && req.query.residentId ? { residentId: integer(req.query.residentId, 'Resident', 1) } : {};
@@ -68,21 +104,32 @@ for (const [kind, config] of Object.entries(configs)) {
       const outstanding = await Allocation.findAndCountAll({ where: { resourceId: row.id, [Op.and]: [sqlWhere(col('returned'), Op.lt, col('quantity'))] }, order: [['id', 'ASC']], offset: (allocationPage - 1) * 25, limit: 25 });
       const allocations = outstanding.rows.map(a => ({ ...a.toJSON(), outstanding: a.quantity - a.returned }));
       const movements = (await Movement.findAll({ where: { resourceId: row.id }, order: [['id', 'DESC']], limit: 50 })).map(m => ({ ...m.toJSON(), when: displayDate(m.createdAt) }));
-      return res.render('resourceDetail', { title: row.name, resource: row.toJSON(), allocations, allocationCount: outstanding.count, allocationNext: outstanding.count > allocationPage * 25 ? `${base}/${row.id}?allocationPage=${allocationPage + 1}` : null, allocationPrevious: allocationPage > 1 ? `${base}/${row.id}?allocationPage=${allocationPage - 1}` : null, movements, base, fields: await fieldsFor(kind, row.toJSON()), action: `${base}/${row.id}` });
+      return res.render('resourceDetail', { title: row.name, resource: { ...row.toJSON(), conditionLabel: resourceCondition(row), stockLabel: stockLabel(row) }, allocations, allocationCount: outstanding.count, allocationNext: outstanding.count > allocationPage * 25 ? `${base}/${row.id}?allocationPage=${allocationPage + 1}` : null, allocationPrevious: allocationPage > 1 ? `${base}/${row.id}?allocationPage=${allocationPage - 1}` : null, movements, base, fields: await fieldsFor(kind, row.toJSON()), action: `${base}/${row.id}` });
     }
     const related = kind === 'residents' && can(req.session.user.role, 'registry') ? (await CivilRecord.findAll({ where: { residentId: row.id }, order: [['id', 'DESC']], limit: 30 })).map(r => ({ label: `${r.registryNumber} · ${r.type}${r.archivedAt ? ' (archived)' : ''}`, url: `/admin/registry/${r.id}` })) : [];
-    res.render('platformForm', { title: `Edit ${config.singular}`, fields: await fieldsFor(kind, row.toJSON()), action: `${base}/${row.id}`, base, existing: true, archived: !!row.archivedAt, related, registerUrl: kind === 'residents' && can(req.session.user.role, 'registry') && !row.archivedAt ? `/admin/registry/new?residentId=${row.id}` : null });
+    res.render('platformForm', { title: `Edit ${config.singular}`, fields: await fieldsFor(kind, row.toJSON()), action: `${base}/${row.id}`, base, existing: true, archived: !!row.archivedAt, related, profileUrl: kind === 'residents' ? `${base}/${row.id}/profile` : null, printUrl: kind === 'residents' ? `${base}/${row.id}/print` : null, registerUrl: kind === 'residents' && can(req.session.user.role, 'registry') && !row.archivedAt ? `/admin/registry/new?residentId=${row.id}` : null });
   }));
   router.post(`${base}/:id`, requireFeature(config.feature), run(async (req, res) => { await config.save(req, req.params.id); req.flash('success_msg', 'Changes saved.'); res.redirect(`${base}/${req.params.id}`); }));
   router.post(`${base}/:id/archive`, requireFeature(config.feature), run(async (req, res) => {
     await sequelize.transaction(async transaction => {
+      let location, originalBarangay;
+      if (kind === 'residents') {
+        const current = await Resident.findByPk(integer(req.params.id, 'ID', 1), { attributes: ['barangay'], transaction });
+        if (!current) fail('Record not found.', 404);
+        originalBarangay = current.barangay;
+        const catalog = await Barangay.findOne({ where: { name: originalBarangay }, attributes: ['id'], transaction });
+        if (catalog) location = await Barangay.findByPk(catalog.id, { transaction, lock: transaction.LOCK.UPDATE });
+      }
       const row = await config.model.findByPk(integer(req.params.id, 'ID', 1), { transaction, lock: transaction.LOCK.UPDATE });
       if (!row) fail('Record not found.', 404);
+      if (kind === 'residents' && row.barangay !== (location?.name || originalBarangay)) fail('The resident’s barangay changed. Reload the record and try again.', 409);
       if (kind === 'registry' && row.archivedAt) {
         const resident = await Resident.findByPk(row.residentId, { transaction, lock: transaction.LOCK.UPDATE });
         if (!resident || resident.archivedAt) fail('Restore the parent resident before restoring this civil record.');
       }
-      if (kind === 'residents' && !row.archivedAt && await CivilRecord.count({ where: { residentId: row.id, archivedAt: null }, transaction })) fail('Archive the linked active civil records before archiving this resident.');
+      if (kind === 'barangays' && !row.archivedAt && await Resident.count({ where: { barangay: row.name, archivedAt: null }, transaction })) fail('Move or archive active residents before archiving their barangay.');
+      if (kind === 'residents' && row.archivedAt && (!location || location.archivedAt)) fail('Restore the resident’s barangay before restoring this resident.');
+      if (kind === 'residents' && !row.archivedAt && await CivilRecord.findOne({ attributes: ['id'], where: { residentId: row.id, archivedAt: null }, transaction, lock: transaction.LOCK.UPDATE })) fail('Archive the linked active civil records before archiving this resident.');
       if (kind === 'resources' && !row.archivedAt && await Allocation.count({ where: { resourceId: row.id, [Op.and]: [sqlWhere(col('returned'), Op.lt, col('quantity'))] }, transaction })) fail('Return outstanding allocations before archiving this resource.');
       await row.update({ archivedAt: row.archivedAt ? null : new Date() }, { transaction });
       await audit(req, row.archivedAt ? 'record.archived' : 'record.restored', kind, row.id, 'Archive state changed', transaction);
@@ -95,6 +142,7 @@ router.post('/admin/resources/:id/move', requireFeature('resources'), run(async 
 router.get('/admin/reports', requireFeature('reports'), run(async (req, res) => {
   const role = req.session.user.role;
   const reportConfigs = { ...configs,
+    smartreports: smartReportsDataset,
     allocations: { model: Allocation, feature: 'resources', title: 'Resource allocations', columns: ['Resource', 'Recipient', 'Allocated', 'Returned', 'Outstanding', 'Due date'], cells: row => [row.Resource?.code, row.recipient, row.quantity, row.returned, row.quantity - row.returned, row.dueDate] },
     movements: { model: Movement, feature: 'resources', title: 'Resource usage and stock movements', columns: ['Resource', 'Movement', 'Quantity', 'Balance after', 'Recipient', 'Date'], cells: row => [row.Resource?.code, row.action, row.quantity, row.balance, row.recipient, displayDate(row.createdAt)] },
   };
@@ -255,29 +303,7 @@ router.get('/dashboard/my-requests', run(async (req, res) => {
   res.render('platformList', { title: 'My requests', base: '/dashboard/my-requests', q, description: 'Follow the progress of your document requests. Only requests submitted with your account are shown.', columns: ['Request', 'Document', 'Status', 'Submitted'], rows: result.rows.map(row => ({ cells: [`#${row.id}`, row.documentType, row.status, displayDate(row.createdAt)], url: `/request/${row.id}` })), count: result.count, page: page.page, pages: Math.max(1, Math.ceil(result.count / page.limit)), next: result.count > page.page * page.limit ? `/dashboard/my-requests?page=${page.page + 1}` : null, previous: page.page > 1 ? `/dashboard/my-requests?page=${page.page - 1}` : null });
 }));
 router.get('/dashboard/profile', (req, res) => req.session.user ? res.render('platformProfile', { title: 'My profile' }) : res.redirect('/login'));
-router.post('/dashboard/profile', run(async (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
-  let name;
-  try {
-    name = text(req.body.name, 'Full name', true, 255);
-    if (/[\u0000-\u001f\u007f]/.test(name)) fail('Full name must not contain control characters.');
-  } catch (error) {
-    if (error.status !== 400) throw error;
-    req.flash('error_msg', error.message);
-    return res.redirect(303, '/dashboard/profile');
-  }
-  await sequelize.transaction(async transaction => {
-    const account = await User.findByPk(req.session.user.id, { transaction, lock: transaction.LOCK.UPDATE });
-    if (!account) fail('Account not found.', 404);
-    if (account.name !== name) {
-      await account.update({ name }, { transaction });
-      await audit(req, 'account.name-updated', 'account', account.id, 'Updated profile name', transaction);
-    }
-  });
-  req.session.user.name = name;
-  req.flash('success_msg', 'Your name has been updated.');
-  res.redirect(303, '/dashboard/profile');
-}));
+router.post('/dashboard/profile', run(updateProfile));
 router.get('/help', (req, res) => res.render('platformHelp', { title: 'Help and office guidance' }));
 router.post('/dashboard/notifications/:id/read', run(async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
@@ -332,7 +358,7 @@ router.post('/api/v1/registry-soap', requireFeature('registry'), express.text({ 
   res.status(record ? 200 : 404).type('text/xml').send(`<?xml version="1.0"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body>${payload}</soap:Body></soap:Envelope>`);
 }));
 router.use((error, req, res, next) => {
-  if (!req.path.startsWith('/admin') && !req.path.startsWith('/api/v1') && !req.path.startsWith('/dashboard/notifications')) return next(error);
+  if (!req.path.startsWith('/admin') && !req.path.startsWith('/api/v1') && !req.path.startsWith('/dashboard/notifications') && !req.path.startsWith('/dashboard/smartreports')) return next(error);
   let status = error.status || 500, message = error.message;
   if (error.name === 'SequelizeUniqueConstraintError') { status = 409; message = 'This identifier or resident name and birth date already exists. Search existing records before adding another.'; }
   else if (error.name === 'SequelizeForeignKeyConstraintError') { status = 400; message = 'A linked record is unavailable. Reload the page and choose an active record.'; }

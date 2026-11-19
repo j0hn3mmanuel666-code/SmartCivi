@@ -15,13 +15,15 @@ export async function platformSecurity(req, res, next) {
     res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin', 'X-Frame-Options': 'DENY' });
     res.set('Cache-Control', 'no-store');
     if (req.session.user) {
-      const user = await User.findByPk(req.session.user.id, { attributes: ['id', 'name', 'email', 'role'] });
-      if (!user) { req.session.user = null; req.session.userId = null; }
+      const user = await User.findByPk(req.session.user.id, { attributes: ['id', 'name', 'email', 'username', 'isActive', 'role'] });
+      if (!user || user.isActive === false) {
+        await new Promise((resolve, reject) => req.session.regenerate(error => error ? reject(error) : resolve()));
+      }
       else req.session.user = user.toJSON();
       res.set('Cache-Control', 'no-store');
     }
     req.session.csrf ||= randomBytes(32).toString('hex');
-    Object.assign(res.locals, { systemTitle: SYSTEM_TITLE, officeName: 'Municipality of Bongabong, Oriental Mindoro', csrf: req.session.csrf, user: req.session.user, isStaff: can(req.session.user?.role, 'overview'), canRegistry: can(req.session.user?.role, 'registry'), canResidents: can(req.session.user?.role, 'residents'), canResources: can(req.session.user?.role, 'resources'), canRequests: can(req.session.user?.role, 'requests'), canReports: can(req.session.user?.role, 'reports'), isAdmin: req.session.user?.role === 'admin' });
+    Object.assign(res.locals, { systemTitle: SYSTEM_TITLE, officeName: 'Municipality of Bongabong, Oriental Mindoro', csrf: req.session.csrf, user: req.session.user, isStaff: can(req.session.user?.role, 'overview'), canRegistry: can(req.session.user?.role, 'registry'), canResidents: can(req.session.user?.role, 'residents'), canBarangays: can(req.session.user?.role, 'barangays'), canPopulation: can(req.session.user?.role, 'population'), canResidentActivity: can(req.session.user?.role, 'residentActivity'), canResources: can(req.session.user?.role, 'resources'), canBudget: can(req.session.user?.role, 'budget'), canPersonnel: can(req.session.user?.role, 'personnel'), canPlanningReports: can(req.session.user?.role, 'planningReports'), canDiagrams: can(req.session.user?.role, 'diagrams'), canRequests: can(req.session.user?.role, 'requests'), canReports: can(req.session.user?.role, 'reports'), isAdmin: req.session.user?.role === 'admin' });
     const send = res.send;
     res.send = function(body) {
       if (typeof body === 'string' && (this.getHeader('Content-Type')?.includes('text/html') || /^\s*<!doctype html>/i.test(body))) {

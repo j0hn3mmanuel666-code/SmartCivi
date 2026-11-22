@@ -60,7 +60,7 @@ The native `.env.auth` file is intentionally excluded from the Docker image, so 
 docker compose up --build -d --wait
 ```
 
-Do not run `npm run migrate`: it destructively resets data. Normal startup adds only the authentication columns and preserves existing users. Existing users are grandfathered into password access; no unproven verification date is assigned to them.
+Normal startup adds only the authentication columns and preserves existing users. The `npm run migrate` command also uses additive schema initialization and does not reset data. Existing users are grandfathered into password access; no unproven verification date is assigned to them.
 
 ## Verify after setup
 

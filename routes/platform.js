@@ -2,8 +2,9 @@ import express from 'express';
 import { Op, col, where as sqlWhere } from 'sequelize';
 import { Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, Request, RequestEvent, User, sequelize, Barangay } from '../models/Platform.js';
 import { audit, pagination, searchWhere, saveResident, saveBarangay, saveRecord, saveResource, moveResource, requestEvent } from '../services/platform.js';
-import { can, csv, date, fail, integer, SYSTEM_TITLE, civilStatuses, text, paymentComplete } from '../services/platformRules.js';
+import { can, csv, date, fail, integer, SYSTEM_TITLE, civilStatuses, text, paymentComplete, requestStatus } from '../services/platformRules.js';
 import { requireFeature, ownRequest } from '../middleware/platformSecurity.js';
+import { ACTIVE_REQUEST_STATUSES, OPEN_REQUEST_STATUSES, REQUEST_OFFICES, REQUEST_PAUSED_STATUS, addBusinessDays, dueDateDeadline, dueDateInput, isDueSoonCase, isOverdueCase, slaStatusUpdate } from '../services/requestWorkflow.js';
 
 import { updateProfile } from '../controllers/profileController.js';
 import { residentLabels } from '../services/residentRules.js';
@@ -49,13 +50,24 @@ router.get('/admin', requireFeature('overview'), run(async (req, res) => {
   const stats = [];
   if (can(role, 'residents')) stats.push({ label: 'Residents', value: await Resident.count({ where: { archivedAt: null } }), url: '/admin/residents' });
   if (can(role, 'registry')) stats.push({ label: 'Civil records', value: await CivilRecord.count({ where: { archivedAt: null } }), url: '/admin/registry' });
-  if (can(role, 'requests')) stats.push({ label: 'Pending requests', value: await Request.count({ where: { status: { [Op.in]: ['pending', 'Pending', 'processing'] } } }), url: '/admin/requests' });
+  if (can(role, 'requests')) stats.push({ label: 'Open requests', value: await Request.count({ where: { status: { [Op.in]: OPEN_REQUEST_STATUSES } } }), url: '/admin/requests' });
   if (can(role, 'resources')) stats.push({ label: 'Resources', value: await Resource.count({ where: { archivedAt: null, category: { [Op.ne]: 'personnel' } } }), url: '/admin/resources' });
   const requests = can(role, 'requests') ? await Request.findAll({ order: [['createdAt', 'DESC']], limit: 6, raw: true }) : [];
   const fiscalYear = can(role, 'budget') ? fiscalYearInput(req.query.fiscalYear) : null;
   const budgets = can(role, 'budget') ? (await planningSummary(fiscalYear)).map(row => ({ ...row, zeroAllocation: row.usedPercent === null, allocated: peso(row.allocated), spent: peso(row.spent), remaining: peso(row.remaining) })) : [];
   if (can(role, 'personnel')) stats.push({ label: 'Active personnel', value: await Resource.count({ where: { category: 'personnel', archivedAt: null, employeeStatus: 'active' } }), url: '/admin/personnel' });
   const attention = budgets.filter(row => row.overBudget).map(row => ({ title: `${row.department} is over budget`, detail: `Allocated ${row.allocated} · Spent ${row.spent}`, url: `/admin/budget?fiscalYear=${fiscalYear}&q=${encodeURIComponent(row.department)}` }));
+  if (can(role, 'requests')) {
+    const now = new Date();
+    const openRequests = { status: { [Op.in]: OPEN_REQUEST_STATUSES } };
+    const activeRequests = { status: { [Op.in]: ACTIVE_REQUEST_STATUSES }, slaPausedAt: null };
+    const dueSoon = { ...activeRequests, dueAt: { [Op.between]: [now, addBusinessDays(now, 2)] } };
+    stats.push(
+      { label: 'Unassigned requests', value: await Request.count({ where: { ...openRequests, assigneeUserId: null, assignee: null } }), url: '/admin/requests?deadline=unassigned' },
+      { label: 'Overdue requests', value: await Request.count({ where: { ...activeRequests, dueAt: { [Op.lt]: now } } }), url: '/admin/requests?deadline=overdue' },
+      { label: 'Due within 2 business days', value: await Request.count({ where: dueSoon }), url: '/admin/requests?deadline=due_soon' },
+    );
+  }
   if (can(role, 'resources')) {
     const resources = await Resource.findAll({ where: { archivedAt: null, [Op.or]: [{ condition: { [Op.in]: ['poor', 'unserviceable'] } }, { category: 'supply', [Op.and]: [sqlWhere(col('quantity'), Op.lte, col('minimum'))] }] }, order: [['id', 'DESC']], limit: 20 });
     for (const row of resources) attention.push({ title: `${row.code} · ${row.name}`, detail: [resourceCondition(row), needsStock(row) ? 'Low stock' : '', `${row.quantity} ${row.unit} available`].filter(Boolean).join(' · '), url: `/admin/resources/${row.id}` });
@@ -188,13 +200,66 @@ router.post('/request/:id/process-payment', ownRequest, run(async (req, res) => 
   res.redirect(`/request/${req.params.id}`);
 }));
 router.get('/admin/requests', requireFeature('requests'), run(async (req, res) => {
-  const page = pagination(req.query), where = {};
+  const page = pagination(req.query), conditions = [];
   const q = text(req.query.q, 'Search', false, 100);
-  if (q) where[Op.or] = ['fullName', 'email', 'documentType'].map(field => ({ [field]: { [Op.like]: `%${q.replace(/[\\%_]/g, '\\$&')}%` } }));
-  if (req.query.filter) where.status = text(req.query.filter, 'Status filter', false, 30);
+  const filter = req.query.filter ? requestStatus(req.query.filter) : '';
+  const office = text(req.query.office, 'Office', false, 120) || '';
+  const ownerId = text(req.query.owner, 'Owner', false, 20) || '';
+  const deadline = text(req.query.deadline, 'Deadline filter', false, 20) || '';
+  if (q) conditions.push({ [Op.or]: ['fullName', 'email', 'documentType'].map(field => ({ [field]: { [Op.like]: `%${q.replace(/[\\%_]/g, '\\$&')}%` } })) });
+  if (filter) {
+    const legacy = { pending: 'Pending', processing: 'Processing' }[filter];
+    conditions.push({ status: { [Op.in]: legacy ? [filter, legacy] : [filter] } });
+  }
+  if (office && !REQUEST_OFFICES.includes(office)) fail('Choose a valid office filter.');
+  if (office) conditions.push({ office });
+  if (ownerId === 'unassigned') conditions.push({ assigneeUserId: null, assignee: null });
+  else if (ownerId) conditions.push({ assigneeUserId: integer(ownerId, 'Owner', 1) });
+  const now = new Date();
+  if (deadline === 'overdue') {
+    conditions.push({ status: { [Op.in]: ACTIVE_REQUEST_STATUSES }, slaPausedAt: null, dueAt: { [Op.lt]: now } });
+  } else if (deadline === 'due_soon') {
+    conditions.push({ status: { [Op.in]: ACTIVE_REQUEST_STATUSES }, slaPausedAt: null, dueAt: { [Op.between]: [now, addBusinessDays(now, 2)] } });
+  } else if (deadline === 'unassigned') {
+    conditions.push({ status: { [Op.in]: OPEN_REQUEST_STATUSES }, assigneeUserId: null, assignee: null });
+  } else if (deadline === 'waiting') {
+    conditions.push({ status: REQUEST_PAUSED_STATUS });
+  } else if (deadline) {
+    fail('Choose a valid deadline filter.');
+  }
+  const where = conditions.length ? { [Op.and]: conditions } : {};
   const result = await Request.findAndCountAll({ where, ...page, order: [['id', 'DESC']] });
-  const params = new URLSearchParams({ q: q || '', filter: req.query.filter || '' });
-  res.render('platformList', { title: 'Document requests', description: 'Review requests, assign personnel, verify linked records and track each processing step.', columns: ['Request', 'Client', 'Document', 'Status', 'Assigned to', 'Submitted'], rows: result.rows.map(row => ({ cells: [`#${row.id}`, row.fullName, row.documentType, row.status, row.assignee || 'Unassigned', displayDate(row.createdAt)], url: `/admin/requests/${row.id}` })), count: result.count, base: '/admin/requests', filterLabel: 'status', filter: req.query.filter, q, page: page.page, pages: Math.max(1, Math.ceil(result.count / page.limit)), previous: page.page > 1 ? `/admin/requests?${params}&page=${page.page - 1}` : null, next: result.count > page.offset + page.limit ? `/admin/requests?${params}&page=${page.page + 1}` : null });
+  const staff = (await User.findAll({ attributes: ['id', 'name', 'role'], where: { isActive: true }, order: [['name', 'ASC']] })).filter(user => can(user.role, 'requests'));
+  const params = new URLSearchParams({ q: q || '', filter, office, owner: ownerId, deadline });
+  const option = (value, label, selected) => ({ value, label, selected });
+  const officeOptions = [option('', 'All offices', !office), ...REQUEST_OFFICES.map(value => option(value, value, value === office))];
+  const ownerOptions = [option('', 'All staff', !ownerId), option('unassigned', 'Unassigned', ownerId === 'unassigned'), ...staff.map(user => option(String(user.id), user.name, String(user.id) === ownerId))];
+  const statusOptions = [
+    option('', 'All statuses', !filter),
+    ...['pending', 'processing', 'waiting_for_applicant', 'approved', 'rejected', 'payment_pending', 'paid', 'completed', 'released']
+      .map(value => option(value, value.replaceAll('_', ' '), value === filter)),
+  ];
+  const deadlineOptions = [
+    option('', 'All deadlines', !deadline),
+    option('overdue', 'Overdue', deadline === 'overdue'),
+    option('due_soon', 'Due within 2 business days', deadline === 'due_soon'),
+    option('unassigned', 'Unassigned requests', deadline === 'unassigned'),
+    option('waiting', 'Waiting on applicant', deadline === 'waiting'),
+  ];
+  res.render('platformList', {
+    title: 'Document requests',
+    description: 'Route requests to the right office, assign an owner, and monitor deadlines.',
+    columns: ['Request', 'Client', 'Document', 'Office', 'Assigned to', 'Deadline', 'Status'],
+    rows: result.rows.map(row => {
+      const late = isOverdueCase(row, now);
+      const dueLabel = row.slaPausedAt ? 'Paused · awaiting applicant' : late ? 'Overdue' : isDueSoonCase(row, now) ? 'Due soon' : 'On track';
+      return { cells: [`#${row.id}`, row.fullName, row.documentType, row.office, row.assignee || 'Unassigned', `${displayDate(row.dueAt)} · ${dueLabel}`, row.status], url: `/admin/requests/${row.id}` };
+    }),
+    count: result.count, base: '/admin/requests', filterLabel: 'status', filter, q, statusOptions, officeOptions, ownerOptions, deadlineOptions,
+    page: page.page, pages: Math.max(1, Math.ceil(result.count / page.limit)),
+    previous: page.page > 1 ? `/admin/requests?${params}&page=${page.page - 1}` : null,
+    next: result.count > page.offset + page.limit ? `/admin/requests?${params}&page=${page.page + 1}` : null,
+  });
 }));
 async function appointmentsPage(req, res) {
   if (!req.session.user) return res.redirect('/login');
@@ -238,9 +303,68 @@ router.post('/appointments/:id/reschedule', ownRequest, run(async (req, res) => 
 router.get('/admin/requests/:id', requireFeature('requests'), run(async (req, res) => {
   const request = await Request.findByPk(integer(req.params.id, 'Request', 1));
   if (!request) fail('Request not found.', 404);
-  const staff = (await User.findAll({ attributes: ['name', 'role'], order: [['name', 'ASC']] })).filter(user => can(user.role, 'requests')).map(user => ({ name: user.name, selected: user.name === request.assignee }));
+  const staff = (await User.findAll({ attributes: ['id', 'name', 'role'], where: { isActive: true }, order: [['name', 'ASC']] }))
+    .filter(user => can(user.role, 'requests'))
+    .map(user => ({ id: user.id, name: user.name, selected: user.id === request.assigneeUserId || (!request.assigneeUserId && user.name === request.assignee) }));
   const events = (await RequestEvent.findAll({ where: { requestId: request.id }, order: [['id', 'DESC']], limit: 100 })).map(event => ({ ...event.toJSON(), when: displayDate(event.createdAt) }));
-  res.render('requestReview', { title: `Review request #${request.id}`, request: request.toJSON(), staff, events });
+  const now = new Date();
+  const requestData = {
+    ...request.toJSON(),
+    statusValue: String(request.status).toLowerCase(),
+    dueDateInput: dueDateInput(request.dueAt),
+    deadlineLabel: request.slaPausedAt ? 'Paused · awaiting applicant' : isOverdueCase(request, now) ? 'Overdue' : isDueSoonCase(request, now) ? 'Due soon' : 'On track',
+    officeOptions: REQUEST_OFFICES.map(value => ({ value, selected: value === request.office })),
+  };
+  res.render('requestReview', { title: `Review request #${request.id}`, request: requestData, staff, events });
+}));
+router.post('/admin/requests/:id/assign', requireFeature('requests'), run(async (req, res) => {
+  const requestId = integer(req.params.id, 'Request', 1);
+  const office = text(req.body.office, 'Office', true, 120);
+  if (!REQUEST_OFFICES.includes(office)) fail('Choose a valid office.');
+  const dueDate = date(req.body.dueAt, 'Due date', true, false);
+  const dueAt = dueDateDeadline(dueDate);
+  const assigneeId = text(req.body.assigneeUserId, 'Assigned owner', false, 20);
+  await sequelize.transaction(async transaction => {
+    const request = await Request.findByPk(requestId, { transaction, lock: transaction.LOCK.UPDATE });
+    if (!request) fail('Request not found.', 404);
+    let assignee = null;
+    if (assigneeId) {
+      assignee = await User.findByPk(integer(assigneeId, 'Assigned owner', 1), { transaction });
+      if (!assignee || !assignee.isActive || !can(assignee.role, 'requests')) fail('Choose an active staff member authorized to manage requests.');
+    }
+    const changedOwner = request.assigneeUserId !== (assignee?.id || null);
+    await request.update({
+      office,
+      assignee: assignee?.name || null,
+      assigneeUserId: assignee?.id || null,
+      dueAt,
+    }, { transaction });
+    await requestEvent(req, request, `Request routed to ${office}; ${assignee ? `assigned to ${assignee.name}` : 'owner unassigned'}; due ${dueDate}`, transaction, { notifyRequester: false });
+    if (assignee && changedOwner) {
+      await Notice.create({ userId: assignee.id, title: 'Request assigned to you', message: `Review request #${request.id}.`, url: `/admin/requests/${request.id}` }, { transaction });
+    }
+  });
+  req.flash('success_msg', 'Request routing, owner, and deadline saved.');
+  res.redirect(`/admin/requests/${requestId}`);
+}));
+router.post('/admin/requests/:id/status', requireFeature('requests'), run(async (req, res) => {
+  const status = requestStatus(req.body.status);
+  const requestId = integer(req.params.id, 'Request', 1);
+  const requesterMessage = text(req.body.requesterMessage, 'Message to applicant', status === REQUEST_PAUSED_STATUS, 1000);
+  await sequelize.transaction(async transaction => {
+    const request = await Request.findByPk(requestId, { transaction, lock: transaction.LOCK.UPDATE });
+    if (!request) fail('Request not found.', 404);
+    const priorStatus = String(request.status).toLowerCase();
+    if (priorStatus === status) return;
+    await request.update({
+      status,
+      ...slaStatusUpdate(request, status),
+      ...((status === 'paid' || priorStatus === 'paid') && !request.paidAt ? { paidAt: new Date() } : {}),
+    }, { transaction });
+    await requestEvent(req, request, `Status changed from ${priorStatus.replaceAll('_', ' ')} to ${status.replaceAll('_', ' ')}`, transaction, { requesterMessage });
+  });
+  req.flash('success_msg', 'Request status updated.');
+  res.redirect(`/admin/requests/${requestId}`);
 }));
 router.post('/admin/requests/:id/link', requireFeature('registry'), run(async (req, res) => {
   await sequelize.transaction(async transaction => {
@@ -300,7 +424,12 @@ router.get('/dashboard/my-requests', run(async (req, res) => {
   const q = text(req.query.q, 'Search', false, 100);
   if (q) where[Op.or] = ['documentType', 'status'].map(field => ({ [field]: { [Op.like]: `%${q.replace(/[\\%_]/g, '\\$&')}%` } }));
   const result = await Request.findAndCountAll({ where, ...page, order: [['id', 'DESC']] });
-  res.render('platformList', { title: 'My requests', base: '/dashboard/my-requests', q, description: 'Follow the progress of your document requests. Only requests submitted with your account are shown.', columns: ['Request', 'Document', 'Status', 'Submitted'], rows: result.rows.map(row => ({ cells: [`#${row.id}`, row.documentType, row.status, displayDate(row.createdAt)], url: `/request/${row.id}` })), count: result.count, page: page.page, pages: Math.max(1, Math.ceil(result.count / page.limit)), next: result.count > page.page * page.limit ? `/dashboard/my-requests?page=${page.page + 1}` : null, previous: page.page > 1 ? `/dashboard/my-requests?page=${page.page - 1}` : null });
+  const now = new Date();
+  res.render('platformList', { title: 'My requests', base: '/dashboard/my-requests', q, description: 'Follow the progress of your document requests. Only requests submitted with your account are shown.', columns: ['Request', 'Document', 'Status', 'Responsible office', 'Due date', 'Submitted'], rows: result.rows.map(row => {
+    const status = String(row.status).toLowerCase();
+    const deadline = row.slaPausedAt ? 'Waiting on you' : isOverdueCase(row, now) ? 'Overdue' : isDueSoonCase(row, now) ? 'Due soon' : 'On track';
+    return { cells: [`#${row.id}`, row.documentType, status.replaceAll('_', ' '), row.office || '—', `${displayDate(row.dueAt)} · ${deadline}`, displayDate(row.createdAt)], url: `/request/${row.id}` };
+  }), count: result.count, page: page.page, pages: Math.max(1, Math.ceil(result.count / page.limit)), next: result.count > page.page * page.limit ? `/dashboard/my-requests?page=${page.page + 1}` : null, previous: page.page > 1 ? `/dashboard/my-requests?page=${page.page - 1}` : null });
 }));
 router.get('/dashboard/profile', (req, res) => req.session.user ? res.render('platformProfile', { title: 'My profile' }) : res.redirect('/login'));
 router.post('/dashboard/profile', run(updateProfile));

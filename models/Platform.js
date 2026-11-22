@@ -1,8 +1,10 @@
 import { DataTypes as D } from 'sequelize';
 import { sequelize } from './db.js';
+import { Op } from 'sequelize';
 import { User } from './userModel.js';
 import { Request } from './Request.js';
 import './Planning.js';
+import { requestCaseDefaults } from '../services/requestWorkflow.js';
 const string = (size = 255, required = false) => ({ type: D.STRING(size), allowNull: !required });
 export const Barangay = sequelize.define('Barangay', {
   name: { ...string(100, true), unique: true }, code: { ...string(40), unique: true }, archivedAt: D.DATE,
@@ -78,8 +80,25 @@ export async function initializePlatform() {
     if (location.barangay?.trim()) await Barangay.findOrCreate({ where: { name: location.barangay.trim() } });
   }
   const columns = await qi.describeTable('civil_requests');
-  for (const name of ['residentId', 'recordId', 'assignee', 'notes', 'appointmentDate', 'appointmentStatus', 'rescheduleReason', 'rescheduleRequested', 'paidAt']) {
+  for (const name of ['residentId', 'recordId', 'assignee', 'assigneeUserId', 'office', 'dueAt', 'slaPausedAt', 'notes', 'appointmentDate', 'appointmentStatus', 'rescheduleReason', 'rescheduleRequested', 'paidAt']) {
     if (!columns[name]) await qi.addColumn('civil_requests', name, Request.rawAttributes[name]);
+  }
+  const requestsWithoutDeadlines = await Request.findAll({
+    attributes: ['id', 'documentType', 'createdAt', 'office', 'dueAt'],
+    where: { [Op.or]: [{ dueAt: null }, { office: null }] },
+  });
+  for (const request of requestsWithoutDeadlines) {
+    const defaults = requestCaseDefaults(request.documentType, request.createdAt || new Date());
+    await request.update({ office: request.office || defaults.office, dueAt: request.dueAt || defaults.dueAt });
+  }
+  const legacyAssignments = await Request.findAll({
+    attributes: ['id', 'assignee'],
+    where: { assigneeUserId: null, assignee: { [Op.ne]: null } },
+  });
+  for (const request of legacyAssignments) {
+    const matches = (await User.findAll({ attributes: ['id', 'role'], where: { name: request.assignee, isActive: true } }))
+      .filter(user => ['admin', 'staff', 'registrar'].includes(user.role));
+    if (matches.length === 1) await request.update({ assigneeUserId: matches[0].id });
   }
 }
 export { sequelize, User, Request };

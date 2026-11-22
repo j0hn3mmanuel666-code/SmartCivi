@@ -48,6 +48,6 @@ export function stockChange(available, action, quantity, outstanding = 0) {
   return integer(available + (['allocate', 'consume'].includes(action) ? -amount : amount), 'Resulting stock');
 }
 export const csv = cells => cells.map(value => { let s = String(value ?? ''); if (/^[\s]*[=+@-]/.test(s) || /^[\t\r\n]/.test(s)) s = `'${s}`; return `"${s.replaceAll('"', '""')}"`; }).join(',');
-export const requestStatuses = ['pending', 'processing', 'approved', 'rejected', 'paid', 'payment_pending', 'completed', 'released'];
+export const requestStatuses = ['pending', 'processing', 'waiting_for_applicant', 'approved', 'rejected', 'paid', 'payment_pending', 'completed', 'released'];
 export const paymentComplete = request => !!request.paidAt || request.status === 'paid';
 export function requestStatus(value) { return choice(String(value || '').toLowerCase(), requestStatuses, 'request status'); }

@@ -15,7 +15,7 @@ Docker Desktop shows the `smartcivi` group with `app` and `db` containers. Image
 
 The local `.env` contains generated database passwords and a session secret and is excluded from Git and the application image. On another checkout, copy `.env.example` to `.env` and replace all three placeholders before starting.
 
-The database is a new, isolated activity database; an existing database on your computer is not imported. Startup creates missing model tables without dropping existing tables. Do not run the existing `npm run migrate` command for routine Docker startup: that script drops tables and uses a separate localhost database connection.
+The database is a new, isolated activity database; an existing database on your computer is not imported. Startup creates missing model tables without dropping existing tables. `npm run migrate` also uses additive initialization, but is unnecessary for routine Docker startup and its database-creation connection targets localhost rather than the Compose database service.
 
 Useful commands:
 

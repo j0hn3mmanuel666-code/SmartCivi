@@ -57,8 +57,6 @@ import {
   officesPage,
   adminRecordsPage,
   analyticsPage,
-  notificationsPage,
-  sendNotification,
   helpPage,
   attachmentsPage,
   auditLogPage,
@@ -77,7 +75,7 @@ import {
   dashboardPage, loginUser, registerUser, logoutUser
 } from "../controllers/authController.js";
 import { setupAdmin } from "../controllers/authController.js";
-import { ensureAdmin, ensureAuthenticated } from "../middleware/auth.js";
+import { ensureAdmin } from "../middleware/auth.js";
 import { updateRequestStatus, assignRequest, deleteRequestAdmin } from "../controllers/homeController.js";
 
 const router = express.Router();
@@ -144,8 +142,6 @@ router.get('/admin/records/new', adminRecordsPage);
 router.get('/admin/analytics', analyticsPage);
 
 // Notifications & help
-router.get('/dashboard/notifications', ensureAuthenticated, notificationsPage);
-router.post('/admin/notifications', ensureAdmin, sendNotification);
 router.get('/help', helpPage);
 
 router.get("/offices", officesPage);

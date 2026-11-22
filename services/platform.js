@@ -10,10 +10,15 @@ export async function notifyStaff(feature, title, message, url, transaction) {
   const users = await User.findAll({ attributes: ['id', 'role'], where: { isActive: true }, transaction });
   await Notice.bulkCreate(users.filter(user => can(user.role, feature)).map(user => ({ userId: user.id, title, message, url })), { transaction });
 }
-export async function requestEvent(req, request, detail, transaction) {
+export async function requestEvent(req, request, detail, transaction, { notifyRequester = true, requesterMessage = null } = {}) {
   await RequestEvent.create({ requestId: request.id, status: request.status, actorName: req.session?.user?.name, detail }, { transaction });
-  const owner = await User.findOne({ where: { email: request.email }, transaction });
-  if (owner) await Notice.create({ userId: owner.id, title: `Request #${request.id} updated`, message: `Your ${request.documentType} request is ${request.status}.`, url: `/request/${request.id}`, }, { transaction });
+  if (notifyRequester) {
+    const owner = await User.findOne({ where: { email: request.email }, transaction });
+    const statusLabels = { pending: 'pending review', processing: 'under review', waiting_for_applicant: 'waiting for information from you', approved: 'approved', rejected: 'not approved', payment_pending: 'awaiting payment', paid: 'paid', completed: 'completed', released: 'released' };
+    const status = String(request.status).toLowerCase();
+    const message = `Your ${request.documentType} request is ${statusLabels[status] || status.replaceAll('_', ' ')}.`;
+    if (owner) await Notice.create({ userId: owner.id, title: `Request #${request.id} updated`, message: requesterMessage ? `${message} ${requesterMessage}` : message, url: `/request/${request.id}` }, { transaction });
+  }
   await audit(req, 'request.updated', 'request', request.id, detail, transaction);
 }
 export async function saveResident(req, id) {

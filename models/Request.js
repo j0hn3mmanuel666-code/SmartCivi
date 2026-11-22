@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "./db.js";
+import { requestCaseDefaults } from "../services/requestWorkflow.js";
 
 export const Request = sequelize.define(
   "Request",
@@ -7,6 +8,10 @@ export const Request = sequelize.define(
     residentId: { type: DataTypes.INTEGER, allowNull: true, references: { model: 'residents', key: 'id' } },
     recordId: { type: DataTypes.INTEGER, allowNull: true, references: { model: 'civil_records', key: 'id' } },
     assignee: { type: DataTypes.STRING, allowNull: true },
+    assigneeUserId: { type: DataTypes.INTEGER, allowNull: true },
+    office: { type: DataTypes.STRING(120), allowNull: false, defaultValue: 'Municipal Civil Registry' },
+    dueAt: { type: DataTypes.DATE, allowNull: true },
+    slaPausedAt: { type: DataTypes.DATE, allowNull: true },
     notes: { type: DataTypes.TEXT, allowNull: true },
     appointmentDate: { type: DataTypes.DATE, allowNull: true },
     appointmentStatus: { type: DataTypes.STRING(30), allowNull: true },
@@ -55,6 +60,13 @@ export const Request = sequelize.define(
   {
     tableName: "civil_requests", // 👈 your custom table name
     timestamps: true, // optional: adds createdAt and updatedAt
+    hooks: {
+      beforeCreate(request) {
+        const defaults = requestCaseDefaults(request.documentType);
+        if (!request.office) request.office = defaults.office;
+        if (!request.dueAt) request.dueAt = defaults.dueAt;
+      },
+    },
   }
 );
 

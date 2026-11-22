@@ -25,10 +25,7 @@
     */
     
 import { Sequelize } from "sequelize";
-import { sequelize } from "./models/db.js";
-import { User } from "./models/userModel.js";
-import { Request } from "./models/Request.js";
-import "./models/Notification.js";
+import { initializePlatform, sequelize } from "./models/Platform.js";
 import inquirer from "inquirer";
 
 // Server-level connection (no database selected)
@@ -51,11 +48,13 @@ if (createDb) {
 try {
   await sequelize.authenticate();
   console.log("✅ Connected to MySQL database!");
-  await sequelize.sync({ force: true }); // Drops and recreates tables
-  console.log("✅ Tables created for all models!");
+  await initializePlatform();
+  console.log("✅ Database schema initialized without dropping existing tables!");
 } catch (err) {
   console.error("❌ Migration failed:", err);
+  process.exitCode = 1;
 } finally {
-  process.exit();
+  await sequelize.close();
+  await rootSequelize.close();
 }
 

@@ -33,6 +33,7 @@ import { normalizeUsername, accountStatus } from "../services/accountIdentity.js
 import { sequelize, Notice, RequestEvent, Resident, CivilRecord } from '../models/Platform.js';
 import { audit, notifyStaff, requestEvent, pagination } from '../services/platform.js';
 import { can, date, fail, integer, requestStatus, roles, text, paymentComplete } from '../services/platformRules.js';
+import { requestCaseDefaults } from '../services/requestWorkflow.js';
 
 export const homePage = (req, res) => {
   res.render("home", { title: "SmartCivi" });
@@ -158,6 +159,7 @@ export const createRequest = async (req, res) => {
       phone,
       documentType,
       purpose,
+      ...requestCaseDefaults(documentType),
       status: 'pending', appointmentDate, appointmentStatus: appointmentDate ? 'scheduled' : null
       }, { transaction });
       await requestEvent(req, created, appointmentDate ? 'Appointment and document request submitted' : 'Document request submitted', transaction);

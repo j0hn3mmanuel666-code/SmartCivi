@@ -93,6 +93,29 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
     assert.equal(r.status, 302);
     const request = await Request.findOne({ where: { email: users.user.email }, order: [['id', 'DESC']] });
     assert.ok(request, 'Owner email comes from session');
+    assert.equal(request.office, 'Municipal Civil Registry');
+    assert.ok(request.dueAt);
+    assert.equal((await admin.call(`/admin/requests/${request.id}/assign`, {
+      office: 'Municipal Civil Registry',
+      assigneeUserId: String(users.registrar.id),
+      dueAt: '2030-01-15',
+    }, 'POST')).status, 302);
+    await request.reload();
+    assert.equal(request.assigneeUserId, users.registrar.id);
+    assert.equal(request.dueAt.toISOString(), '2030-01-15T15:59:59.000Z');
+    assert.match((await admin.get(`/admin/requests?office=Municipal%20Civil%20Registry&owner=${users.registrar.id}`)).html, new RegExp(`#${request.id}`));
+    assert.ok(await Notice.findOne({ where: { userId: users.registrar.id, title: 'Request assigned to you' } }));
+    assert.equal((await admin.call(`/admin/requests/${request.id}/status`, { status: 'waiting_for_applicant', requesterMessage: 'Please upload a clearer copy.' }, 'POST')).status, 302);
+    await request.reload();
+    assert.equal(request.status, 'waiting_for_applicant');
+    assert.ok(request.slaPausedAt);
+    assert.match((await citizen.get('/dashboard/notifications')).html, /Please upload a clearer copy/);
+    const previousDueAt = request.dueAt;
+    await request.update({ slaPausedAt: new Date(Date.now() - 10 * 86400000) });
+    assert.equal((await admin.call(`/admin/requests/${request.id}/status`, { status: 'processing' }, 'POST')).status, 302);
+    await request.reload();
+    assert.equal(request.slaPausedAt, null);
+    assert.ok(request.dueAt > previousDueAt, 'Resuming extends the deadline by elapsed business days');
     assert.equal((await admin.call(`/admin/requests/${request.id}/status`, { status: 'processing' }, 'POST')).status, 302);
     assert.match((await citizen.get(`/request/${request.id}`)).html, /processing/i);
     const other = await Request.create({ fullName: 'Other', email: 'other@example.test', phone: '0', documentType: 'birth', purpose: 'Test' });

@@ -44,6 +44,7 @@ test('CSV escapes quotes/newlines and neutralizes spreadsheet formulas', () => {
 });
 test('request status validates the existing and release workflows', () => {
   assert.equal(requestStatus('Processing'), 'processing');
+  assert.equal(requestStatus('waiting_for_applicant'), 'waiting_for_applicant');
   assert.equal(requestStatus('released'), 'released');
   assert.throws(() => requestStatus('unrecognized'));
 });

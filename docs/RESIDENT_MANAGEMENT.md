@@ -19,7 +19,7 @@ Front desk staff, civil registrars and administrators can manage residents and b
 
 ## Data preservation and backups
 
-Normal startup adds the new tables and columns without deleting records. It does not reset accounts or renumber existing residents. Do not use the destructive `npm run migrate` command to upgrade an existing installation.
+Normal startup adds the new tables and columns without deleting records. It does not reset accounts or renumber existing residents. `npm run migrate` uses the same additive initialization and is safe to run against an existing installation.
 
 Encrypted backups include the barangay catalog and archive states. Older archives without a catalog remain readable; restoration derives barangays only from resident locations in that archive. Restore continues to require an empty target database.
 

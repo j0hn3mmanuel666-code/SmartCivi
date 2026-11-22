@@ -27,7 +27,7 @@ test('database backups preserve barangay states and accept pre-catalog archives'
     await run(['scripts/backup.js', '--restore', file, '--apply'], { DB_NAME: target });
     const [catalog] = await connection.query(`SELECT name,archivedAt FROM \`${target}\`.barangays ORDER BY name`);
     assert.equal(catalog.length, 2); assert.ok(catalog.find(row => row.name === 'Backup Archived').archivedAt);
-    delete snapshot.tables.barangays; delete snapshot.tables.budget_items;
+    delete snapshot.tables.barangays; delete snapshot.tables.budget_items; delete snapshot.tables.request_drafts;
     for (const resident of snapshot.tables.residents) delete resident.civilStatus;
     snapshot.tables.residents.push({ ...snapshot.tables.residents[0], id: 2, residentCode: 'OLD-VARIANT', firstName: 'Variant', barangay: 'BACKUP ACTIVE' });
     const oldFile = resolve(directory, 'pre-catalog.scbackup'); await writeFile(oldFile, encryptArchive(snapshot, env.BACKUP_KEY));

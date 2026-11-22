@@ -1,13 +1,13 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { sequelize, initializePlatform, User, Barangay, Resident, CivilRecord, Request, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport } from '../models/Platform.js';
+import { sequelize, initializePlatform, User, Barangay, Resident, CivilRecord, Request, RequestDraft, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport } from '../models/Platform.js';
 import { BudgetItem } from '../models/Planning.js';
 import { Appointment } from '../models/Appointment.js';
 import { Attachment } from '../models/Attachment.js';
 import { encryptArchive, decryptArchive } from '../services/backupArchive.js';
 import { pruneSessions } from '../middleware/platformSecurity.js';
 
-const models = [User, Barangay, BudgetItem, Resident, CivilRecord, Request, Appointment, Attachment, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport];
+const models = [User, Barangay, BudgetItem, Resident, CivilRecord, Request, RequestDraft, Appointment, Attachment, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport];
 async function backup() {
   const snapshot = await sequelize.transaction({ isolationLevel: 'REPEATABLE READ' }, async transaction => {
     const tables = {};
@@ -30,6 +30,7 @@ async function restore(path, apply) {
     snapshot.tables.barangays = [...new Set(snapshot.tables.residents.map(row => row.barangay?.trim()).filter(Boolean))].map(name => ({ name, archivedAt: null }));
   }
   if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'budget_items')) snapshot.tables.budget_items = [];
+  if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'request_drafts')) snapshot.tables.request_drafts = [];
   if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'citizen_reports')) snapshot.tables.citizen_reports = [];
   const expected = models.map(model => model.tableName).sort();
   if (snapshot.format !== 1 || JSON.stringify(Object.keys(snapshot.tables || {}).sort()) !== JSON.stringify(expected) || expected.some(table => !Array.isArray(snapshot.tables[table]))) throw new Error('Backup schema is incompatible with this application.');

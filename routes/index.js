@@ -101,8 +101,6 @@ router.get("/admin/panel", ensureAdmin, adminPanelPage);
 router.get("/browse", browsePage);
 router.get("/request", requestPage);
 router.get("/appoint", requestPage);
-import { requestSubmitPage } from "../controllers/homeController.js";
-router.get('/request/submit', requestSubmitPage);
 router.post("/request", createRequest);
 router.get("/tool", toolPage);
 // Admin aliases and additional pages

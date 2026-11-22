@@ -3,9 +3,13 @@
 {{> staffNav}}
 <main id="main" class="request-form-main form-workspace">
 
+  {{#if savedDrafts}}<section class="bg-white p-4 rounded-xl shadow-sm mb-4"><h2 class="font-semibold mb-2">Saved drafts</h2><ul>{{#each savedDrafts}}<li><a class="text-blue-700 underline" href="/request/submit?draftId={{id}}">{{label}} · Draft #{{id}} · saved {{when}}</a></li>{{/each}}</ul><a class="text-sm text-blue-700 underline" href="/dashboard/my-request-drafts">View all drafts</a></section>{{else}}<p class="mb-3 text-sm"><a class="text-blue-700 underline" href="/dashboard/my-request-drafts">My saved drafts</a></p>{{/if}}
   <form id="submitRequestForm" method="POST" action="/request" class="bg-white bg-opacity-90 backdrop-blur-lg w-full max-w-3xl p-6 rounded-xl shadow-lg border border-gray-200">
     <h1 class="text-2xl font-extrabold text-center mb-4 text-blue-700">Submit a Request</h1>
+    <input type="hidden" name="draftId" value="{{draftId}}">
+    <div class="flex flex-wrap justify-end gap-3 mb-4"><button type="submit" name="_action" value="save_draft" formnovalidate formaction="/request/drafts" class="text-blue-700 underline">Save draft</button><a class="text-blue-700 underline" href="/dashboard/my-request-drafts">My saved drafts</a></div>
     <label class="text-sm font-medium" for="documentType">Certificate type</label><select id="documentType" name="documentType" required class="mb-4"><option value="birth">Birth certificate</option><option value="marriage">Marriage certificate</option><option value="death">Death certificate</option></select>
+    <section class="mb-5 rounded-lg border border-blue-200 bg-blue-50 p-4" aria-live="polite" aria-labelledby="serviceInfoTitle"><h2 id="serviceInfoTitle" class="font-semibold text-blue-900">Birth certificate guidance</h2><p class="mt-2"><strong>Required documents:</strong> <span id="serviceRequirements"></span></p><p class="mt-2"><strong>Fee:</strong> <span id="serviceFee"></span></p><p class="mt-2"><strong>Processing time:</strong> <span id="serviceProcessingTime"></span></p></section>
 
     {{#if success_msg}}
       <div class="mb-3 text-green-800 bg-green-100 p-2 rounded">{{success_msg}}</div>
@@ -88,7 +92,7 @@
     <!-- STEP 2: Father -->
     <section data-step="2" class="step hidden">
       <div class="flex items-start space-x-2">
-        <input type="checkbox" id="noFatherName" />
+        <input type="checkbox" id="noFatherName" name="noFatherName" />
         <label for="noFatherName" class="text-xs text-gray-700">There is no Father's Name in the Certificate of Live Birth</label>
       </div>
 
@@ -223,12 +227,12 @@
 
       <div class="grid grid-cols-2 gap-2 mb-3">
         <div>
-          <label for="copies" class="text-xs text-gray-700">Number of copies (1 copy = 300)</label>
+          <label for="copies" class="text-xs text-gray-700">Number of copies</label>
           <input type="number" id="copies" name="copies" min="1" value="1" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300" />
         </div>
         <div>
-          <label for="totalCost" class="text-xs text-gray-700">Total (PHP)</label>
-          <input type="text" id="totalCost" readonly value="300" class="mb-3 mt-1 w-full p-2 rounded border border-gray-300 bg-gray-50" />
+          <span class="text-xs text-gray-700">Fee information</span>
+          <p id="reviewFee" class="mb-3 mt-1 p-2 rounded border border-gray-300 bg-gray-50"></p>
         </div>
       </div>
 
@@ -438,7 +442,7 @@
       };
 
       // Initialize selects: first try to load comprehensive JSON, otherwise use fallback
-      (async ()=>{
+      const countriesReady = (async ()=>{
         const ok = await tryLoadCountriesJson();
         if(!ok){
           populateSelect(countryEl, fallbackCountries);
@@ -479,14 +483,33 @@
         }
       });
 
-      // copies cost
-      const copiesEl = document.getElementById('copies');
-      const totalEl = document.getElementById('totalCost');
-      const updateTotal = ()=>{
-        const copies = parseInt(copiesEl.value) || 1;
-        totalEl.value = (copies * 300).toString();
+      const form = document.getElementById('submitRequestForm');
+      const draftPayload = {{{draftPayloadJson}}};
+      const serviceCatalog = {{{serviceCatalogJson}}};
+      const setServiceInfo = () => {
+        const service = serviceCatalog[document.getElementById('documentType').value];
+        if (!service) return;
+        document.getElementById('serviceInfoTitle').textContent = `${service.label} guidance`;
+        document.getElementById('serviceRequirements').textContent = service.requirements;
+        document.getElementById('serviceFee').textContent = service.fee;
+        document.getElementById('serviceProcessingTime').textContent = service.processingTime;
+        document.getElementById('reviewFee').textContent = service.fee;
       };
-      copiesEl.addEventListener('input', updateTotal);
+      document.getElementById('documentType').addEventListener('change', setServiceInfo);
+      const restoreDraftFields = () => {
+        for (const field of form.querySelectorAll('[name]')) {
+          if (!Object.prototype.hasOwnProperty.call(draftPayload, field.name) || ['birthCountry', 'birthProvince', 'birthMunicipality'].includes(field.name)) continue;
+          if (field.type === 'checkbox') field.checked = draftPayload[field.name] === 'on';
+          else if (field.type === 'radio') field.checked = field.value === draftPayload[field.name];
+          else field.value = draftPayload[field.name];
+        }
+        document.getElementById('noFatherName').dispatchEvent(new Event('change'));
+        for (const group of ['deliveryOption', 'recipientType']) {
+          form.querySelector(`[name="${group}"]:checked`)?.dispatchEvent(new Event('change'));
+        }
+        document.getElementById('purposeSelect').dispatchEvent(new Event('change'));
+        setServiceInfo();
+      };
 
       function buildReview(){
         const gender = document.getElementById('gender').value;
@@ -530,20 +553,30 @@
         const deliveryText = delivery==='door' ? `Door delivery to ${delStreet}, ${delBarangay}, ${delMunicipality}, ${delProvince} ${delZip}. Contact: ${delMobile} / ${delEmail}` : 'Pick up at office';
 
         const reviewEl = document.getElementById('reviewSummary');
-        reviewEl.innerHTML = `
-          <div><strong>Full name:</strong> ${fullName}</div>
-          <div><strong>Gender / Birthdate:</strong> ${gender} / ${birthdate}</div>
-          <div><strong>Email / Mobile:</strong> ${email} / ${phone}</div>
-          <div><strong>ID to present:</strong> ${presentId}</div>
-          <div><strong>Father:</strong> ${noFather ? 'Not present on certificate' : (father || 'N/A')}</div>
-          <div><strong>Mother (maiden):</strong> ${mother || 'N/A'}</div>
-          <div><strong>Birthplace:</strong> ${birthCountry}, ${birthProvince}, ${birthMunicipality}</div>
-          <div><strong>Purpose:</strong> ${purposeText}</div>
-          <div><strong>Delivery:</strong> ${deliveryText}</div>
-          <div><strong>Copies:</strong> ${copies} (PHP ${ (parseInt(copies)||1) * 300 })</div>
-          <div><strong>Recipient:</strong> ${ recipient === 'self' ? 'Self' : `Authorized: ${authName} / ${authMobile}` }</div>
-          <div><strong>Reminder:</strong> ${ reminder || '—' }</div>
-        `;
+        const service = serviceCatalog[document.getElementById('documentType').value];
+        const summary = [
+          ['Full name', fullName],
+          ['Gender / Birthdate', `${gender} / ${birthdate}`],
+          ['Email / Mobile', `${email} / ${phone}`],
+          ['ID to present', presentId],
+          ['Father', noFather ? 'Not present on certificate' : (father || 'N/A')],
+          ['Mother (maiden)', mother || 'N/A'],
+          ['Birthplace', `${birthCountry}, ${birthProvince}, ${birthMunicipality}`],
+          ['Purpose', purposeText],
+          ['Delivery', deliveryText],
+          ['Copies', copies],
+          ['Fee', service?.fee || 'Confirm with the Municipal Civil Registry.'],
+          ['Recipient', recipient === 'self' ? 'Self' : `Authorized: ${authName} / ${authMobile}`],
+          ['Reminder', reminder || '—'],
+        ];
+        reviewEl.replaceChildren();
+        for (const [label, value] of summary) {
+          const row = document.createElement('div');
+          const heading = document.createElement('strong');
+          heading.textContent = `${label}: `;
+          row.append(heading, document.createTextNode(String(value)));
+          reviewEl.append(row);
+        }
 
         // construct purpose field (concise machine-readable summary)
         const purposeField = `Purpose:${purposeText}; Birthplace:${birthCountry}/${birthProvince}/${birthMunicipality}; Parent:${ noFather ? 'NoFather' : father }/${mother }; Delivery:${delivery}; Copies:${copies}`;
@@ -556,7 +589,8 @@
       }));
 
       // submit handler: ensure hidden fullName and purpose are set
-      document.getElementById('submitRequestForm').addEventListener('submit', (e)=>{
+      form.addEventListener('submit', (e)=>{
+        if (e.submitter && e.submitter.name === '_action' && e.submitter.value === 'save_draft') return;
         buildReview();
         // final minimal check
         if(!document.getElementById('fullNameHidden').value){ alert('Missing name'); e.preventDefault(); }
@@ -564,7 +598,17 @@
 
       // initialize
       setStep(0);
-      updateTotal();
+      restoreDraftFields();
+      countriesReady.then(() => {
+        const selectLocation = (field, value) => {
+          if (!value) return;
+          field.value = value;
+          field.dispatchEvent(new Event('change'));
+        };
+        selectLocation(countryEl, draftPayload.birthCountry);
+        selectLocation(provinceEl, draftPayload.birthProvince);
+        selectLocation(municipalityEl, draftPayload.birthMunicipality);
+      });
     })();
   </script>
 

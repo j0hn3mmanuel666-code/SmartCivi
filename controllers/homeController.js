@@ -30,10 +30,11 @@ import { User } from "../models/User.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
 import { normalizeUsername, accountStatus } from "../services/accountIdentity.js";
-import { sequelize, Notice, RequestEvent, Resident, CivilRecord } from '../models/Platform.js';
+import { sequelize, Notice, RequestEvent, RequestDraft, Resident, CivilRecord } from '../models/Platform.js';
 import { audit, notifyStaff, requestEvent, pagination } from '../services/platform.js';
 import { can, date, fail, integer, requestStatus, roles, text, paymentComplete } from '../services/platformRules.js';
 import { requestCaseDefaults } from '../services/requestWorkflow.js';
+import { requestServiceDetails } from '../services/requestIntake.js';
 
 export const homePage = (req, res) => {
   res.render("home", { title: "SmartCivi" });
@@ -118,12 +119,6 @@ export const requestPage = (req, res) => {
   res.render("appoint");
 };
 
-// Render the submit-request flow (separate from appointment)
-export const requestSubmitPage = (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
-  res.render('request');
-};
-
 export const toolPage = (req, res) => {
   res.render("adminTool");
 };
@@ -136,13 +131,14 @@ export const createRequest = async (req, res) => {
       req.flash('error_msg', 'Please login to submit a request');
       return res.redirect('/login');
     }
+    const draftId = text(req.body.draftId, 'Draft', false, 20);
     const { fullName, phone, documentType, purpose } = req.body;
     const email = req.session.user.email;
 
     // Basic validation
     if (!fullName || !email || !phone || !documentType || !purpose) {
       req.flash('error_msg', 'All fields are required');
-      return res.redirect('/request');
+      return res.redirect(draftId ? `/request/submit?draftId=${encodeURIComponent(draftId)}` : '/request/submit');
     }
 
     if (!['birth', 'marriage', 'death'].includes(documentType)) fail('Choose a supported certificate type.');
@@ -153,6 +149,15 @@ export const createRequest = async (req, res) => {
       if (!Number.isFinite(appointmentDate.getTime()) || appointmentDate < new Date()) fail('Choose a future appointment date.');
     }
     const newReq = await sequelize.transaction(async transaction => {
+      if (draftId) {
+        const draft = await RequestDraft.findOne({
+          where: { id: integer(draftId, 'Draft', 1), userId: req.session.user.id },
+          transaction,
+          lock: transaction.LOCK.UPDATE,
+        });
+        if (!draft) fail('Saved draft not found.', 404);
+        await draft.destroy({ transaction });
+      }
       const created = await Request.create({
       fullName,
       email,
@@ -173,7 +178,8 @@ export const createRequest = async (req, res) => {
   } catch (error) {
     console.error('Error creating request:', error);
     req.flash('error_msg', 'Failed to submit request');
-    return res.redirect('/request');
+    const draftId = /^\d+$/.test(String(req.body?.draftId || '')) ? String(req.body.draftId) : '';
+    return res.redirect(draftId ? `/request/submit?draftId=${draftId}` : '/request/submit');
   }
 };
 // Admin Requests Page Controller
@@ -1504,16 +1510,14 @@ export const requestConfirmationPage = async (req, res) => {
     }
 
     // Calculate estimated processing time and fees
+    const serviceInfo = requestServiceDetails(request.documentType);
     const processingInfo = {
-      estimatedDays: '3-5 business days',
-      fees: {
-        'birth': 155.00,
-        'marriage': 210.00,
-        'death': 155.00
-      }[request.documentType] || 155.00,
+      estimatedDays: serviceInfo.processingTime,
+      fees: serviceInfo.fee,
+      requirements: serviceInfo.requirements,
       nextSteps: [
         'Your request has been submitted and is now pending review',
-        'You will receive an email notification when your request is approved',
+        'Check the Notifications section of your account for status updates',
         'Once approved, you can proceed to payment',
         'After payment, your document will be processed for release'
       ]

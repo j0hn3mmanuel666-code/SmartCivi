@@ -43,6 +43,11 @@ export const CitizenReport = sequelize.define('CitizenReport', {
   description: { type: D.TEXT, allowNull: false },
   status: { ...string(30, true), defaultValue: 'Submitted' },
 }, { tableName: 'citizen_reports', indexes: [{ fields: ['userId', 'id'] }, { fields: ['status', 'id'] }] });
+export const RequestDraft = sequelize.define('RequestDraft', {
+  userId: { type: D.INTEGER, allowNull: false, references: { model: 'users', key: 'id' }, onDelete: 'CASCADE' },
+  documentType: { type: D.STRING(20), allowNull: false },
+  payload: { type: D.JSON, allowNull: false },
+}, { tableName: 'request_drafts', indexes: [{ fields: ['userId', 'updatedAt'] }] });
 export const Session = sequelize.define('Session', {
   sid: { type: D.STRING(128), primaryKey: true }, data: { type: D.TEXT('long'), allowNull: false }, expires: { type: D.DATE, allowNull: false },
 }, { tableName: 'sessions', timestamps: false });

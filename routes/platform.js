@@ -1,10 +1,11 @@
 import express from 'express';
 import { Op, col, where as sqlWhere } from 'sequelize';
-import { Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, Request, RequestEvent, User, sequelize, Barangay } from '../models/Platform.js';
+import { Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, Request, RequestEvent, RequestDraft, User, sequelize, Barangay } from '../models/Platform.js';
 import { audit, pagination, searchWhere, saveResident, saveBarangay, saveRecord, saveResource, moveResource, requestEvent } from '../services/platform.js';
 import { can, csv, date, fail, integer, SYSTEM_TITLE, civilStatuses, text, paymentComplete, requestStatus } from '../services/platformRules.js';
 import { requireFeature, ownRequest } from '../middleware/platformSecurity.js';
 import { ACTIVE_REQUEST_STATUSES, OPEN_REQUEST_STATUSES, REQUEST_OFFICES, REQUEST_PAUSED_STATUS, addBusinessDays, dueDateDeadline, dueDateInput, isDueSoonCase, isOverdueCase, slaStatusUpdate } from '../services/requestWorkflow.js';
+import { requestDraftData, requestServiceCatalog, requestServiceDetails } from '../services/requestIntake.js';
 
 import { updateProfile } from '../controllers/profileController.js';
 import { residentLabels } from '../services/residentRules.js';
@@ -23,6 +24,7 @@ const run = handler => (req, res, next) => Promise.resolve(handler(req, res, nex
 const plain = row => row.toJSON();
 const displayDate = value => value ? new Date(value).toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' }) : '—';
 const name = resident => `${resident.firstName} ${resident.lastName}`;
+const inlineJson = value => JSON.stringify(value).replace(/[<>&\u2028\u2029]/g, character => ({ '<': '\\u003c', '>': '\\u003e', '&': '\\u0026', '\u2028': '\\u2028', '\u2029': '\\u2029' })[character]);
 const configs = {
   barangays: { model: Barangay, feature: 'barangays', title: 'Barangay management', singular: 'barangay', description: 'Maintain the barangay names available for resident registration. Archive unused entries to retain their history.', search: ['name', 'code'], columns: ['Barangay', 'Code'], cells: row => [row.name, row.code || '—'], save: saveBarangay },
   residents: { model: Resident, feature: 'residents', title: 'Residents', singular: 'resident', description: 'One master profile connects each resident to their civil records and transactions.', search: ['residentCode', 'firstName', 'lastName', 'barangay'], columns: ['Resident ID', 'Name', 'Birth date', 'Civil status', 'Barangay'], cells: row => [row.residentCode, name(row), row.birthDate, residentLabels[row.civilStatus] || 'Not recorded', row.barangay], save: saveResident },
@@ -44,6 +46,88 @@ async function fieldsFor(kind, value = {}) {
   }
   return [{ ...input('code', value.id ? 'Resource / employee ID' : 'Resource code (optional; generated when blank)', value.code), isReadonly: !!value.id }, input('name', 'Resource / personnel name', value.name, 'text', true), input('category', 'Category', value.category || 'supply', 'text', true, ['supply', 'equipment', 'personnel', 'other']), input('department', 'Office / department', value.department || 'Municipal Civil Registry', 'text', true), input('position', 'Position (personnel)', value.position), input('unit', 'Unit (person, ream, piece…)', value.unit || 'piece', 'text', true), ...(!value.id ? [input('quantity', 'Opening quantity (1 for personnel)', value.quantity ?? 1, 'number', true)] : []), input('minimum', 'Low stock threshold', value.minimum ?? 0, 'number', true), input('condition', 'Condition', value.condition || 'good', 'text', true, ['good', 'fair', 'poor', 'serviceable', 'maintenance', 'unserviceable']), input('location', 'Location', value.location), ...(value.category === 'personnel' || !value.id ? [input('contactNumber', 'Personnel contact number', value.contactNumber, 'tel'), input('employeeStatus', 'Personnel status', value.employeeStatus || 'active', 'text', true, ['active', 'on_leave', 'inactive'])] : []), input('notes', 'Notes', value.notes, 'textarea')];
 }
+
+router.get('/request/submit', run(async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  let draft = null;
+  if (req.query.draftId) {
+    draft = await RequestDraft.findOne({
+      where: { id: integer(req.query.draftId, 'Draft', 1), userId: req.session.user.id },
+    });
+    if (!draft) fail('Saved draft not found.', 404);
+  }
+  const savedDrafts = await RequestDraft.findAll({
+    attributes: ['id', 'documentType', 'updatedAt'],
+    where: { userId: req.session.user.id },
+    order: [['updatedAt', 'DESC']],
+    limit: 10,
+  });
+  const catalog = requestServiceCatalog();
+  res.render('request', {
+    title: 'Submit a Request',
+    user: req.session.user,
+    draftId: draft?.id || '',
+    draftPayloadJson: inlineJson(draft?.payload || {}),
+    serviceCatalogJson: inlineJson(Object.fromEntries(catalog.map(service => [service.documentType, service]))),
+    savedDrafts: savedDrafts.map(item => ({
+      id: item.id,
+      label: requestServiceDetails(item.documentType).label,
+      when: displayDate(item.updatedAt),
+    })),
+    success_msg: req.query.saved === '1' ? 'Draft saved. You can continue it now or return later from this page.' : '',
+  });
+}));
+
+router.post('/request/drafts', run(async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  const data = requestDraftData(req.body);
+  const draftId = text(req.body.draftId, 'Draft', false, 20);
+  let savedId;
+  await sequelize.transaction(async transaction => {
+    let draft;
+    if (draftId) {
+      draft = await RequestDraft.findOne({
+        where: { id: integer(draftId, 'Draft', 1), userId: req.session.user.id },
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+      if (!draft) fail('Saved draft not found.', 404);
+      await draft.update(data, { transaction });
+    } else {
+      draft = await RequestDraft.create({ ...data, userId: req.session.user.id }, { transaction });
+    }
+    savedId = draft.id;
+    await audit(req, 'request.draft_saved', 'request_draft', draft.id, 'Applicant saved a request draft', transaction);
+  });
+  res.redirect(`/request/submit?draftId=${savedId}&saved=1`);
+}));
+
+router.get('/dashboard/my-request-drafts', run(async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  const q = text(req.query.q, 'Search', false, 100) || '';
+  const where = { userId: req.session.user.id };
+  if (q) where.documentType = { [Op.like]: `%${q.replace(/[\\%_]/g, '\\$&')}%` };
+  const drafts = await RequestDraft.findAll({
+    where,
+    order: [['updatedAt', 'DESC']],
+    limit: 100,
+  });
+  res.render('platformList', {
+    title: 'My request drafts',
+    description: 'Only drafts saved to your account are listed here.',
+    columns: ['Draft', 'Certificate type', 'Last saved'],
+    rows: drafts.map(draft => ({
+      cells: [`Draft #${draft.id}`, requestServiceDetails(draft.documentType).label, displayDate(draft.updatedAt)],
+      url: `/request/submit?draftId=${draft.id}`,
+    })),
+    count: drafts.length,
+    q,
+    emptyMessage: 'Saved drafts will appear here. Start a request and choose Save draft to keep your progress.',
+    page: 1,
+    pages: 1,
+    base: '/dashboard/my-request-drafts',
+  });
+}));
 
 router.get('/admin', requireFeature('overview'), run(async (req, res) => {
   const role = req.session.user.role;

@@ -6,7 +6,7 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
   assert.match(process.env.DB_NAME || '', /_test$/, 'Use a disposable database ending in _test');
   process.env.ELECTRON = '1';
   const { default: app } = await import('../index.js');
-  const { User, Resident, CivilRecord, Resource, Notice, Audit, Request, sequelize, Barangay } = await import('../models/Platform.js');
+  const { User, Resident, CivilRecord, Resource, Notice, Audit, Request, RequestDraft, sequelize, Barangay } = await import('../models/Platform.js');
   const { default: bcrypt } = await import('bcrypt');
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
@@ -89,8 +89,27 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
     assert.ok(await Notice.count({ where: { userId: users.resource_officer.id } }));
   });
   await t.test('citizen requests, ownership, status timeline and notices', async () => {
-    const r = await citizen.call('/request', { fullName: 'Test Citizen', email: 'forged@example.test', phone: '09123456789', documentType: 'birth', purpose: 'Personal copy' }, 'POST');
+    const intake = await citizen.get('/request/submit');
+    assert.equal(intake.status, 200);
+    assert.match(intake.html, /official birth certificate document checklist has not been configured/i);
+    assert.match(intake.html, /Confirm the current fee with the Municipal Civil Registry/);
+    assert.match(intake.html, /5 business days/);
+    assert.match(intake.html, /Save draft/);
+    const saved = await citizen.call('/request/drafts', { documentType: 'birth', firstName: 'Draft Applicant', birthdate: '2000-01-01', reminder: 'Return with ID' }, 'POST');
+    assert.equal(saved.status, 302);
+    const draftId = Number(saved.location.match(/draftId=(\d+)/)?.[1]);
+    assert.ok(draftId);
+    const draft = await RequestDraft.findByPk(draftId);
+    assert.equal(draft.userId, users.user.id);
+    assert.equal(draft.payload.firstName, 'Draft Applicant');
+    assert.equal((await admin.get(`/request/submit?draftId=${draftId}`)).status, 404);
+    const resumed = await citizen.get(`/request/submit?draftId=${draftId}`);
+    assert.equal(resumed.status, 200);
+    assert.match(resumed.html, /Draft Applicant/);
+    assert.match((await citizen.get('/dashboard/my-request-drafts')).html, /Birth certificate/);
+    const r = await citizen.call('/request', { draftId: String(draftId), fullName: 'Test Citizen', email: 'forged@example.test', phone: '09123456789', documentType: 'birth', purpose: 'Personal copy' }, 'POST');
     assert.equal(r.status, 302);
+    assert.equal(await RequestDraft.count({ where: { id: draftId } }), 0, 'Submitting the request consumes its saved draft');
     const request = await Request.findOne({ where: { email: users.user.email }, order: [['id', 'DESC']] });
     assert.ok(request, 'Owner email comes from session');
     assert.equal(request.office, 'Municipal Civil Registry');

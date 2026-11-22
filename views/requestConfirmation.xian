@@ -111,14 +111,14 @@
                 <span class="font-semibold text-blue-600">{{processingInfo.estimatedDays}}</span>
               </div>
               <div class="flex justify-between">
-                <span class="font-medium text-gray-600">Processing Fee:</span>
-                <span class="font-semibold text-green-600">₱{{processingInfo.fees}}</span>
+                <span class="font-medium text-gray-600">Fee:</span>
+                <span class="font-semibold text-green-600">{{processingInfo.fees}}</span>
               </div>
             </div>
             <div>
+              <p class="text-sm text-gray-600"><strong>Required documents:</strong> {{processingInfo.requirements}}</p>
               <p class="text-sm text-gray-600">
-                <strong>Note:</strong> You will receive email notifications at each stage of processing. 
-                Payment will be required once your request is approved.
+                <strong>Note:</strong> Confirm the current fee and document checklist with the Municipal Civil Registry. Payment will be required once your request is approved.
               </p>
             </div>
           </div>
@@ -394,12 +394,13 @@
                     <span>{{processingInfo.estimatedDays}}</span>
                   </div>
                   <div class="info-row">
-                    <span><strong>Processing Fee:</strong></span>
-                    <span>₱{{processingInfo.fees}}</span>
+                    <span><strong>Fee:</strong></span>
+                    <span>{{processingInfo.fees}}</span>
                   </div>
                 </div>
                 <div>
-                  <p><strong>Note:</strong> You will receive email notifications at each stage of processing. Payment will be required once your request is approved.</p>
+                  <p><strong>Required documents:</strong> {{processingInfo.requirements}}</p>
+                  <p><strong>Note:</strong> Check the Notifications section of your account for status updates. Confirm current fees and requirements with the Municipal Civil Registry.</p>
                 </div>
               </div>
             </div>

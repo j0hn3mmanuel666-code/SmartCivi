@@ -1,19 +1,13 @@
 {{> head }}
-<body class="bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
+<body class="office transaction-page bg-gradient-to-br from-pink-300 via-purple-300 to-blue-400 text-gray-800 min-h-screen">
 
-  {{> sidebar}}
+  {{> staffNav}}
 
-  <section class="flex flex-col justify-center items-center text-center h-44 px-6 pt-24">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">Request Details</h1>
-    <p class="text-md md:text-lg text-white mt-3 max-w-2xl">View the complete information for your civil registry request.</p>
-    <div class="mt-3">
-      <a href="/status" class="text-sm text-white underline">← Back to Request Status</a>
-    </div>
-  </section>
-
-  <main class="container mx-auto px-4 py-8">
+  <main id="main" class="office-main transaction-main">
+<header class="page-heading"><div><h1>Request Details</h1><p>View the complete information for your civil registry request.</p></div></header>
+{{> officeFlash}}
     <div class="bg-white bg-opacity-90 rounded-lg shadow-md p-6 max-w-4xl mx-auto">
-      
+
       {{#if request}}
         <!-- Request Header -->
         <div class="border-b border-gray-200 pb-6 mb-6">
@@ -36,23 +30,11 @@
                 {{#ifEq request.status 'payment_pending'}}
                   <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full">Payment Pending</span>
                 {{/ifEq}}
-                {{#ifEq request.status 'paid'}}
+                {{#ifPaid request}}
                   <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">Paid</span>
-                {{/ifEq}}
+                {{/ifPaid}}
                 {{#ifEq request.status 'rejected'}}
                   <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full">Rejected</span>
-                {{/ifEq}}
-                {{#ifEq request.status 'Submitted'}}
-                  <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">Submitted</span>
-                {{/ifEq}}
-                {{#ifEq request.status 'Under Review'}}
-                  <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">Under Review</span>
-                {{/ifEq}}
-                {{#ifEq request.status 'Resolved'}}
-                  <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">Resolved</span>
-                {{/ifEq}}
-                {{#ifEq request.status 'Closed'}}
-                  <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Closed</span>
                 {{/ifEq}}
               </div>
             </div>
@@ -94,12 +76,12 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-600">Date Submitted</label>
-                <p class="text-gray-800">{{request.createdAt}}</p>
+                <p class="text-gray-800">{{localDateTime request.createdAt}}</p>
               </div>
               {{#if request.updatedAt}}
               <div>
                 <label class="block text-sm font-medium text-gray-600">Last Updated</label>
-                <p class="text-gray-800">{{request.updatedAt}}</p>
+                <p class="text-gray-800">{{localDateTime request.updatedAt}}</p>
               </div>
               {{/if}}
               {{#if request.paymentAmount}}
@@ -145,25 +127,13 @@
                 {{/ifEq}}
               {{/if}}
             {{/ifEq}}
-            {{#ifEq request.status 'paid'}}
+            {{#ifPaid request}}
               <p class="text-purple-700 font-medium">Payment received! Your document is being prepared.</p>
               <p class="text-sm text-gray-600">You will be notified when your document is ready for pickup or delivery.</p>
-            {{/ifEq}}
+            {{/ifPaid}}
             {{#ifEq request.status 'rejected'}}
               <p class="text-red-700 font-medium">Unfortunately, your request has been rejected.</p>
               <p class="text-sm text-gray-600">Please contact our office for more information or to resubmit with corrections.</p>
-            {{/ifEq}}
-            {{#ifEq request.status 'Submitted'}}
-              <p class="text-gray-700">Your report has been submitted and is waiting for review.</p>
-            {{/ifEq}}
-            {{#ifEq request.status 'Under Review'}}
-              <p class="text-blue-700">Your report is being reviewed by the office.</p>
-            {{/ifEq}}
-            {{#ifEq request.status 'Resolved'}}
-              <p class="text-green-700 font-medium">Your report has been resolved.</p>
-            {{/ifEq}}
-            {{#ifEq request.status 'Closed'}}
-              <p class="text-gray-700">This report has been closed.</p>
             {{/ifEq}}
           </div>
         </div>
@@ -195,10 +165,11 @@
           </a>
         </div>
 
+        {{#if events}}<section class="mt-8 border-t border-gray-200 pt-6"><h2 class="text-xl font-semibold mb-4">Processing history</h2><ol class="timeline">{{#each events}}<li><strong>{{status}}</strong> · {{detail}}<small>{{when}}</small></li>{{/each}}</ol></section>{{/if}}
       {{else}}
         <!-- Request Not Found -->
         <div class="text-center py-12">
-          <div class="text-6xl text-gray-300 mb-4">📄</div>
+
           <h2 class="text-2xl font-bold text-gray-800 mb-2">Request Not Found</h2>
           <p class="text-gray-600 mb-6">The request you're looking for doesn't exist or you don't have permission to view it.</p>
           <a href="/status" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-all">
@@ -208,7 +179,7 @@
       {{/if}}
 
     </div>
-  </main>
+  </main>{{> officeFooter}}
 
 
 

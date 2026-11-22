@@ -25,7 +25,7 @@
     
 import express from "express";
 import path from "path";
-import { randomBytes } from "node:crypto";
+import { sessionSecret as loadSessionSecret } from './services/sessionSecret.js';
 import session from "express-session";
 import flash from "connect-flash";
 import router from "./routes/index.js";
@@ -34,13 +34,18 @@ import hbs from "hbs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { sequelize } from "./models/db.js";
+import platformRouter from './routes/platform.js';
+import { DatabaseSessionStore, platformSecurity } from './middleware/platformSecurity.js';
+import { paymentComplete } from './services/platformRules.js';
+import { authConfiguration } from './services/authProviders.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const sessionSecret = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
+const sessionSecret = loadSessionSecret(path.join(__dirname, '.local'));
+if (process.env.TRUST_PROXY === 'true') app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -48,10 +53,15 @@ app.use(express.static(path.join(process.cwd(), "public")));
 
 app.use(session({
   secret: sessionSecret,
+  store: new DatabaseSessionStore(),
+  name: 'smartcivi.sid',
+  rolling: true,
+  cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.COOKIE_SECURE === 'true', maxAge: 30 * 60 * 1000 },
   resave: false,
   saveUninitialized: false
 }));
 app.use(flash());
+app.use(platformSecurity);
 
 app.engine("xian", async (filePath, options, callback) => {
   try {
@@ -76,7 +86,9 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash("error_msg");
   // expose user to templates
   res.locals.user = req.session && req.session.user ? req.session.user : null;
-  res.locals.isAdmin = Boolean(req.session && req.session.user && req.session.user.role === 'admin');
+  const auth = authConfiguration();
+  res.locals.googleReady = auth.googleReady;
+  res.locals.mailReady = auth.mailReady || Boolean(req.app.locals.mailTransport);
   next();
 });
 
@@ -84,32 +96,17 @@ app.use((req, res, next) => {
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "xian");
 const partialsDir = path.join(__dirname, "views/partials");
-fs.readdir(partialsDir, (err, files) => {
-  if (err) {
-    console.error("❌ Could not read partials directory:", err);
-    return;
-  }
-
-   files
-    .filter(file => file.endsWith('.xian'))
-    .forEach(file => {
-      const partialName = file.replace('.xian', ''); 
-      const fullPath = path.join(partialsDir, file);
-
-      fs.readFile(fullPath, 'utf8', (err, content) => {
-        if (err) {
-          console.error(`❌ Failed to read partial: ${file}`, err);
-          return;
-        }
-        hbs.registerPartial(partialName, content);
-        
-      });
-    });
-  // Register a small helper used by admin templates
-  hbs.registerHelper('ifEq', function(a, b, options) {
-    if (a === b) return options.fn(this);
-    return options.inverse(this);
-  });
+for (const file of fs.readdirSync(partialsDir).filter(file => file.endsWith('.xian'))) {
+  hbs.registerPartial(file.replace('.xian', ''), fs.readFileSync(path.join(partialsDir, file), 'utf8'));
+}
+hbs.registerHelper('ifEq', function(a, b, options) {
+  return a === b ? options.fn(this) : options.inverse(this);
+});
+hbs.registerHelper('ifPaid', function(request, options) { return paymentComplete(request) ? options.fn(this) : options.inverse(this); });
+hbs.registerHelper('localDateTime', value => {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' });
 });
 
 app.get('/api/health', async (_req, res) => {
@@ -121,7 +118,12 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
+app.use('/', platformRouter);
 app.use("/", router);
+app.use((error, req, res, _next) => {
+  console.error('Request failed:', error);
+  res.status(error.status || 500).send('The request could not be completed. Reload the page and try again.');
+});
 
 export default app;
 

@@ -1,0 +1,20 @@
+{{> head officeStyles=true}}
+<body class="auth-page">
+<a href="#main" class="skip-link">Skip to verification</a>
+{{> authHeader}}
+<main id="main" class="auth-single">
+<section class="auth-card" aria-labelledby="verification-title">
+  <h1 id="verification-title">{{#if verificationToken}}Confirm your email{{else}}Verify your email{{/if}}</h1>
+  <p class="auth-description">{{#if verificationToken}}Confirm your email address to finish setting up your citizen account.{{else}}Open the link in your SmartCivi verification email. The link expires after 30 minutes.{{/if}}</p>
+  {{> authFlash}}
+  {{#if verificationToken}}
+  <form method="post" action="/verify-email" class="auth-form"><input type="hidden" name="token" value="{{verificationToken}}"><button class="auth-submit" type="submit">Confirm email address</button></form>
+  {{else}}
+  <form method="post" action="/verify-email/resend" class="auth-form"><div class="auth-field"><label for="email">Email address</label><input id="email" type="email" name="email" autocomplete="email" value="{{pendingEmail}}" maxlength="255" required></div><button class="auth-submit" type="submit" {{#unless mailReady}}disabled{{/unless}}>Resend verification email</button></form>
+  <p class="auth-provider-note">Check your spam folder too. Wait one minute between requests.</p>
+  {{#unless mailReady}}<div class="auth-alert" role="status">Verification email is temporarily unavailable. Please contact the office.</div>{{/unless}}
+  {{/if}}
+  <p class="auth-register"><a href="/login">Back to sign in</a></p>
+</section></main>
+{{> authFooter}}
+</body></html>

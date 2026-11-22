@@ -4,6 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.cjs -i styles/utilities.css -o public/utilities.css --minify",
+    "prexian": "npm run build:css",
+    "test": "node --test tests/*.test.js",
+    "backup": "node scripts/backup.js",
     "xian-start": "node index.js",
     "xian": "nodemon --ext js,mjs,cjs,json,xian index.js",
     "migrate": "node migrate.js",
@@ -15,12 +19,14 @@
     "connect-flash": "^0.1.1",
     "express": "^4.19.2",
     "express-session": "^1.17.3",
+    "google-auth-library": "^11.3.4",
     "hbs": "^4.2.0",
     "inquirer": "^9.2.15",
     "mysql2": "^3.9.2",
+    "nodemailer": "^10.5.0",
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "tailwindcss": "^3.4.17"
   }
 }

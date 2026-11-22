@@ -1,8 +1,12 @@
 node_modules/
+.local/
 .env
 .env.*
 !.env.example
+!.env.auth.example
 npm-debug.log*
 .DS_Store
 tmp/
+backups/
+*.scbackup
 output/diagrams/qa/

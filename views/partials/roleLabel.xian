@@ -1,0 +1,1 @@
+{{#ifEq user.role 'user'}}Citizen{{else}}{{#ifEq user.role 'registrar'}}Civil registrar{{else}}{{#ifEq user.role 'resource_officer'}}Resource officer{{else}}{{#ifEq user.role 'staff'}}Front desk staff{{else}}Administrator{{/ifEq}}{{/ifEq}}{{/ifEq}}{{/ifEq}}

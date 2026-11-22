@@ -10,6 +10,7 @@ ENV NODE_ENV=production
 ENV PORT=3000
 COPY --from=dependencies --chown=node:node /app/node_modules ./node_modules
 COPY --chown=node:node . .
+RUN mkdir -p /app/backups && chown node:node /app/backups
 USER node
 EXPOSE 3000
 CMD ["node", "index.js"]

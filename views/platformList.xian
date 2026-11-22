@@ -1,0 +1,15 @@
+{{> head officeStyles=true}}<body class="office">{{> staffNav}}
+<main id="main" class="office-main">{{> officeFlash}}
+<header class="page-heading"><div><h1>{{title}}</h1><p>{{description}}</p></div><div class="record-links no-print">{{#if generateUrl}}<a class="button secondary" href="{{generateUrl}}">Generate report</a>{{/if}}{{#if exportUrl}}<a class="button secondary" href="{{exportUrl}}">Export CSV</a>{{/if}}{{#if canPrint}}{{#if printResources}}<button class="button secondary" type="button" data-print>Print table</button>{{else}}<a class="button secondary" href="{{printUrl}}">Print table</a>{{/if}}{{/if}}{{#if newUrl}}<a class="button" href="{{newUrl}}">Add {{singular}}</a>{{/if}}</div></header>
+<section class="panel" aria-label="{{title}} list">
+<form action="{{base}}" method="get" class="toolbar"><label><span>Search</span><input name="q" value="{{q}}" placeholder="Search records" maxlength="100"></label>{{#if filterLabel}}<label><span>Filter by {{filterLabel}}</span><input name="filter" value="{{filter}}" placeholder="All {{filterLabel}}" maxlength="100"></label>{{/if}}{{#if newUrl}}<label class="check"><input type="checkbox" name="archived" value="1" {{#if archived}}checked{{/if}}> Archived only</label>{{/if}}{{#if auditPagination}}<label><span>Rows per page</span><select name="limit" aria-label="Rows per page"><option value="10" {{#ifEq limit 10}}selected{{/ifEq}}>10</option><option value="25" {{#ifEq limit 25}}selected{{/ifEq}}>25</option><option value="50" {{#ifEq limit 50}}selected{{/ifEq}}>50</option></select></label>{{/if}}<button class="button" type="submit">Search</button><a class="button secondary" href="{{base}}">Reset</a></form>
+{{#if auditPagination}}
+{{> auditPagination pager=auditPagination position="top"}}
+{{else}}<p class="small muted">{{count}} matching records{{#if archived}} · Archived records{{/if}}</p>{{/if}}
+{{#if rows}}<div class="table-wrap{{#if auditPagination}} audit-table{{/if}}"><table class="office-table"><thead><tr>{{#each columns}}<th scope="col">{{this}}</th>{{/each}}{{#unless hideActions}}<th scope="col">Actions</th>{{/unless}}</tr></thead><tbody>{{#each rows}}<tr>{{#each cells}}<td>{{this}}</td>{{/each}}{{#unless ../hideActions}}<td><div class="record-actions">{{#if url}}<a href="{{url}}">Open</a>{{/if}}{{#if registerUrl}}<a href="{{registerUrl}}">Register civil record</a>{{/if}}</div></td>{{/unless}}</tr>{{/each}}</tbody></table></div>
+{{else}}<div class="empty"><h2>No records to show</h2><p>{{#if q}}Try a different search or reset your filters.{{else}}Records will appear here as your office adds them.{{/if}}</p>{{#if newUrl}}<a class="button" href="{{newUrl}}">Add {{singular}}</a>{{/if}}</div>{{/if}}
+{{#if auditPagination}}
+{{> auditPagination pager=auditPagination position="bottom"}}
+{{else}}<div class="pagination"><span class="small muted">Page {{page}} of {{pages}}</span><div class="record-links">{{#if previous}}<a class="button secondary" href="{{previous}}">Previous</a>{{/if}}{{#if next}}<a class="button secondary" href="{{next}}">Next</a>{{/if}}</div></div>{{/if}}
+</section></main>{{> officeFooter}}</body></html>
+

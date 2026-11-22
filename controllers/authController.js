@@ -24,13 +24,18 @@
     SOFTWARE.
     */
     
+import { normalizeUsername, identityWhere } from '../services/accountIdentity.js';
 import bcrypt from "bcrypt";
 import { User, sequelize } from "../models/userModel.js";
 import "../models/Request.js";
 import "../models/Attachment.js";
 import "../models/Appointment.js";
-import "../models/Notification.js";
-await sequelize.sync();
+import { initializePlatform } from '../models/Platform.js';
+import { audit } from '../services/platform.js';
+import { signIn } from '../services/accountAccess.js';
+import { authConfiguration } from '../services/authProviders.js';
+import { issueVerification } from './providerAuthController.js';
+await initializePlatform();
 
 // Development helper: create or update the dev admin user
 export const setupAdmin = async (req, res) => {
@@ -97,26 +102,29 @@ export const dashboardPage = (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const password = typeof req.body.password === 'string' ? req.body.password : '';
+    const user = await User.findOne({ where: identityWhere(email) });
     if (!user) {
+      await audit(req, 'login.failed', 'account', null, 'Invalid credentials');
       req.flash('error_msg', 'User not found');
       return res.redirect('/login');
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
+      await audit(req, 'login.failed', 'account', user.id, 'Invalid credentials');
       req.flash('error_msg', 'Incorrect password');
       return res.redirect('/login');
     }
 
-    req.session.userId = user.id;
-    req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role };
-    // Redirect admin users to the admin panel, others to browse
-    if (user.role === 'admin') {
-      return res.redirect('/admin');
+    if (user.isActive === false) return await signIn(req, res, user);
+    if (user.emailVerificationRequired && !user.emailVerifiedAt) {
+      req.session.pendingEmail = user.email;
+      req.flash('error_msg', 'Please verify your email address before signing in.');
+      return res.redirect('/verify-email');
     }
-    return res.redirect('/browse');
+    return await signIn(req, res, user);
   } catch (err) {
     console.error('Login error:', err);
     req.flash('error_msg', 'Login failed. Please try again.');
@@ -126,48 +134,44 @@ export const loginUser = async (req, res) => {
 
 export const registerUser = async (req, res) => {
   try {
-    console.log("Registration attempt:", { ...req.body, password: '[REDACTED]' });
-    
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      console.log("Missing required fields");
-      req.flash('error_msg', 'All fields are required');
+    const { name, password } = req.body;
+    const username = normalizeUsername(req.body.username);
+    const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    if (typeof name !== 'string' || !name.trim() || name.trim().length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255 || typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) {
+      req.flash('error_msg', 'Enter your full name, a valid email and a password of at least 8 characters (up to 72 bytes).');
       return res.redirect('/register');
     }
-    
-    // Check if user already exists
-    console.log("Checking for existing user with email:", email);
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      console.log("User already exists");
-      req.flash('error_msg', 'Email already registered');
+    if (!authConfiguration().mailReady && !req.app.locals.mailTransport) {
+      req.flash('error_msg', 'Email registration is temporarily unavailable. Please contact the office or use Google if available.');
       return res.redirect('/register');
     }
-
-    console.log("Hashing password...");
-    const hashed = await bcrypt.hash(password, 10);
-    
-    console.log("Creating new user...");
-    const user = await User.create({ 
-      name, 
-      email, 
-      password: hashed 
-    });
-    
-    console.log("User created successfully:", { id: user.id, name: user.name, email: user.email });
-    
-    req.session.userId = user.id;
-    req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role || 'user' };
-    // After successful registration, send the user to the services browsing page
-    res.redirect("/browse");
+    if (await User.findOne({ where: { email } })) {
+      req.flash('error_msg', 'This email is already registered. Sign in or request another verification email.');
+      return res.redirect('/login');
+    }
+    const user = await User.create({ name: name.trim(), username, email, password: await bcrypt.hash(password, 10), role: 'user', emailVerificationRequired: true });
+    req.session.pendingEmail = user.email;
+    try {
+      await issueVerification(user, req.app.locals.mailTransport);
+      req.flash('success_msg', 'Check your inbox for a verification link before signing in.');
+    } catch {
+      req.flash('error_msg', 'Your account is waiting for verification, but we could not send the email. Please request another email later.');
+    }
+    return res.redirect('/verify-email');
   } catch (error) {
-    console.error("Registration error:", error);
-    req.flash('error_msg', 'Registration failed: ' + error.message);
-    res.redirect('/register');
+    if (error.status === 400 || error.name === 'SequelizeUniqueConstraintError') {
+      req.flash('error_msg', error.status === 400 ? error.message : 'This email or username is already registered.');
+      return res.redirect('/register');
+    }
+    req.flash('error_msg', 'Registration could not be completed. Please try signing in or request a verification email.');
+    return res.redirect('/register');
   }
 };
 
-export const logoutUser = (req, res) => {
-  req.session.destroy();
-  res.redirect("/login");
+export const logoutUser = (req, res, next) => {
+  req.session.destroy(error => {
+    if (error) return next(error);
+    res.clearCookie('smartcivi.sid', { path: '/' });
+    res.redirect('/login');
+  });
 };

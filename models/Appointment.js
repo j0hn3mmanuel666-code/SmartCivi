@@ -77,4 +77,5 @@ export const Appointment = sequelize.define("Appointment", {
   timestamps: true
 });
 
+
 export { sequelize };

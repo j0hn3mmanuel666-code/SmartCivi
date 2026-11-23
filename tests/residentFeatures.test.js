@@ -10,7 +10,7 @@ test('resident information workflows and population access boundaries', { skip: 
   const { default: bcrypt } = await import('bcrypt');
   const suffix = `${Date.now()}${process.pid}`, password = 'Resident-test-password-123';
   const users = {};
-  for (const role of ['staff', 'resource_officer', 'user']) users[role] = await User.create({ name: `RIMS ${role}`, email: `rims-${role}${suffix}@example.test`, password: await bcrypt.hash(password, 4), role });
+  for (const role of ['staff', 'registrar', 'resource_officer', 'user']) users[role] = await User.create({ name: `RIMS ${role}`, email: `rims-${role}${suffix}@example.test`, password: await bcrypt.hash(password, 4), role });
   const server = app.listen(0, '127.0.0.1'); await once(server, 'listening');
   t.after(async () => { await new Promise(resolve => server.close(resolve)); await sequelize.close(); });
   const origin = `http://127.0.0.1:${server.address().port}`;
@@ -20,18 +20,18 @@ test('resident information workflows and population access boundaries', { skip: 
     const html = await r.text(); this.token = html.match(/name="csrf-token" content="([^"]+)"/)?.[1] || this.token;
     return { status: r.status, html, location: r.headers.get('location') };
   }, async login(role) { await this.call('/login'); assert.equal((await this.call('/login', { email: users[role].email, password })).status, 302); await this.call('/login'); } });
-  const staff = client(), officer = client(), citizen = client();
-  await staff.login('staff'); await officer.login('resource_officer'); await citizen.login('user');
+  const staff = client(), frontDesk = client(), officer = client(), citizen = client();
+  await staff.login('registrar'); await frontDesk.login('staff'); await officer.login('resource_officer'); await citizen.login('user');
   const barangayName = `RIMS ${suffix}`;
   let barangay, resident;
   const data = { firstName: `Resident${suffix}`, middleName: 'Middle', lastName: 'Sample', birthDate: '2000-11-18', sex: 'female', civilStatus: 'married', barangay: barangayName, address: 'Example street', phone: '09123456789', email: 'resident@example.test', residentCode: 'SPOOFED' };
-  await t.test('staff dashboard directly opens each resident-management module', async () => {
+  await t.test('registrar dashboard directly opens each resident-management module', async () => {
     const response = await staff.call('/admin'); assert.equal(response.status, 200);
     const main = response.html.slice(response.html.indexOf('<main'));
     for (const path of ['/admin/residents', '/admin/barangays', '/admin/population', '/admin/resident-activity']) assert.ok(main.includes(`href="${path}"`), path);
     assert.ok((await staff.call('/admin/reports')).html.includes('href="/admin/population"'));
   });
-  await t.test('staff can maintain barangays with duplicate protection', async () => {
+  await t.test('registrars can maintain barangays with duplicate protection', async () => {
     assert.equal((await staff.call('/admin/barangays', { name: barangayName, code: `T${suffix}` })).status, 302);
     barangay = await Barangay.findOne({ where: { name: barangayName } }); assert.ok(barangay);
     assert.equal((await staff.call('/admin/barangays', { name: barangayName })).status, 409);
@@ -127,8 +127,16 @@ test('resident information workflows and population access boundaries', { skip: 
     assert.equal((await staff.call(`/admin/residents/${resident.id}/archive`, {})).status, 302);
     assert.equal((await resident.reload()).archivedAt, null);
   });
-  await t.test('resident staff access never grants security administration or resource access', async () => {
+  await t.test('registrar and front-desk permissions remain separated', async () => {
     for (const path of ['/admin/users', '/admin/audit', '/admin/resources', '/admin/reports?dataset=registry&format=csv']) assert.equal((await staff.call(path)).status, 403, path);
+    for (const path of ['/admin/residents', '/admin/barangays', '/admin/population', '/admin/resident-activity', '/admin/registry', '/admin/resources', '/admin/reports', '/admin/users', '/admin/audit', '/admin/budget', '/admin/personnel', '/admin/planning-reports', '/admin/diagrams']) {
+      assert.equal((await frontDesk.call(path)).status, 403, path);
+    }
+    for (const path of ['/admin', '/admin/requests', '/admin/appointments']) assert.equal((await frontDesk.call(path)).status, 200, path);
+    const frontDeskHome = await frontDesk.call('/admin');
+    assert.ok(frontDeskHome.html.includes('href="/admin/requests"'));
+    assert.ok(frontDeskHome.html.includes('href="/admin/appointments"'));
+    for (const path of ['/admin/residents', '/admin/reports', '/admin/resources', '/admin/users']) assert.ok(!frontDeskHome.html.includes(`href="${path}"`), path);
     for (const path of ['/admin/barangays', '/admin/population', '/admin/resident-activity', `/admin/residents/${resident.id}/profile`, `/admin/residents/${resident.id}/print`]) {
       assert.equal((await officer.call(path)).status, 403, path); assert.equal((await citizen.call(path)).status, 403, path);
     }

@@ -1,6 +1,6 @@
 # Resource planning workflow
 
-SmartCivi implements the requested planning functions using the existing authenticated MySQL application. Resource officers and administrators can access **Resources**, **Budget**, **Personnel**, **Planning reports**, and **System diagrams** from the sidebar. Front desk staff, registrars and citizens retain their existing resident/civil-registry permissions.
+SmartCivi implements the requested planning functions using the existing authenticated MySQL application. Resource officers and administrators can access **Resources**, **Budget**, **Personnel**, **Planning reports**, and **System diagrams** from the sidebar. Front desk staff are limited to the overview, document requests and appointments. Civil registrars manage resident and civil-registry workflows; citizens do not access staff modules.
 
 ## Available functions
 

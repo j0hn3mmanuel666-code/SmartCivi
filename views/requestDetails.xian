@@ -24,6 +24,9 @@
                 {{#ifEq request.status 'processing'}}
                   <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">Processing</span>
                 {{/ifEq}}
+                {{#ifEq request.status 'waiting_for_applicant'}}
+                  <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full">Waiting for your information</span>
+                {{/ifEq}}
                 {{#ifEq request.status 'approved'}}
                   <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">Approved</span>
                 {{/ifEq}}
@@ -112,6 +115,10 @@
               <p class="text-gray-700">Your request is currently being processed by our team.</p>
               <p class="text-sm text-gray-600">We'll notify you once it's ready for pickup or delivery.</p>
             {{/ifEq}}
+            {{#ifEq request.status 'waiting_for_applicant'}}
+              <p class="text-amber-800 font-medium">The office needs more information to continue processing your request.</p>
+              <p class="text-sm text-gray-600">The processing deadline is paused until you reply.</p>
+            {{/ifEq}}
             {{#ifEq request.status 'approved'}}
               <p class="text-green-700 font-medium">Great news! Your request has been approved.</p>
               <p class="text-sm text-gray-600">Please proceed to payment to complete your request.</p>
@@ -137,6 +144,47 @@
             {{/ifEq}}
           </div>
         </div>
+
+        <section class="mt-8 rounded-lg border border-gray-200 bg-white p-6">
+          <h3 class="text-lg font-semibold text-gray-900">Messages and documents</h3>
+          {{#if messages}}
+            <ol class="mt-4 space-y-4">
+              {{#each messages}}
+                <li class="rounded-md bg-gray-50 p-4">
+                  <div class="flex flex-wrap items-baseline justify-between gap-2">
+                    <strong class="text-gray-900">{{this.authorName}}</strong>
+                    <time class="text-sm text-gray-500">{{this.when}}</time>
+                  </div>
+                  <p class="mt-2 whitespace-pre-wrap text-gray-700">{{this.message}}</p>
+                  {{#if this.documents}}
+                    <ul class="mt-3 space-y-2">
+                      {{#each this.documents}}
+                        <li><a class="font-medium text-blue-700 underline" href="/request/{{../../request.id}}/documents/{{this.id}}">{{this.originalName}}</a> <span class="text-sm text-gray-500">({{this.fileSize}} bytes)</span></li>
+                      {{/each}}
+                    </ul>
+                  {{/if}}
+                </li>
+              {{/each}}
+            </ol>
+          {{else}}
+            <p class="mt-2 text-sm text-gray-600">There are no messages from the office yet.</p>
+          {{/if}}
+          {{#if canRespond}}
+            <form id="applicant-response-form" class="mt-6 space-y-4" method="post" action="/request/{{request.id}}/respond" enctype="multipart/form-data">
+              <label class="block">
+                <span class="mb-1 block text-sm font-medium text-gray-700">Your reply</span>
+                <textarea name="message" rows="4" maxlength="2000" placeholder="Reply to the office or explain the documents you are attaching." class="w-full rounded-md border border-gray-300 p-3"></textarea>
+              </label>
+              <label class="block">
+                <span class="mb-1 block text-sm font-medium text-gray-700">Supporting documents</span>
+                <input type="file" name="documents" multiple accept=".pdf,.jpg,.jpeg,.png" class="w-full rounded-md border border-gray-300 p-2">
+                <span class="mt-1 block text-sm text-gray-500">PDF, JPG, JPEG, or PNG; up to 5 MB each and 3 files per reply.</span>
+              </label>
+              <p id="response-feedback" class="hidden text-sm" role="status" aria-live="polite"></p>
+              <button type="submit" class="rounded-md bg-emerald-800 px-5 py-2 font-semibold text-white hover:bg-emerald-900">Send reply and resume processing</button>
+            </form>
+          {{/if}}
+        </section>
 
         <!-- Action Buttons -->
         <div class="mt-8 flex flex-col sm:flex-row gap-4">
@@ -181,6 +229,43 @@
     </div>
   </main>{{> officeFooter}}
 
-
+  <script>
+    const responseForm = document.getElementById('applicant-response-form');
+    if (responseForm) {
+      responseForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const feedback = document.getElementById('response-feedback');
+        const submit = responseForm.querySelector('button[type="submit"]');
+        const formData = new FormData(responseForm);
+        const files = responseForm.querySelector('input[type="file"]').files;
+        if (!formData.get('message').trim() && files.length === 0) {
+          feedback.textContent = 'Write a reply or attach at least one document.';
+          feedback.className = 'text-sm text-red-700';
+          return;
+        }
+        submit.disabled = true;
+        feedback.textContent = 'Sending your response...';
+        feedback.className = 'text-sm text-gray-600';
+        try {
+          const response = await fetch(responseForm.action, {
+            method: 'POST',
+            headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content },
+            body: formData
+          });
+          const result = await response.json().catch(() => null);
+          if (!result) throw new Error('Your session expired or the request could not be completed. Reload the page and try again.');
+          if (!response.ok) throw new Error(result.error || 'Your response could not be sent.');
+          feedback.textContent = 'Your reply and documents were received. Processing has resumed.';
+          feedback.className = 'text-sm text-green-700';
+          setTimeout(() => window.location.reload(), 900);
+        } catch (error) {
+          feedback.textContent = error.message || 'Your response could not be sent. Please try again.';
+          feedback.className = 'text-sm text-red-700';
+        } finally {
+          submit.disabled = false;
+        }
+      });
+    }
+  </script>
 
 </body>

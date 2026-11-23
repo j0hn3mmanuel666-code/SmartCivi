@@ -30,7 +30,7 @@ import { User } from "../models/User.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
 import { normalizeUsername, accountStatus } from "../services/accountIdentity.js";
-import { sequelize, Notice, RequestEvent, RequestDraft, Resident, CivilRecord } from '../models/Platform.js';
+import { sequelize, Notice, RequestEvent, RequestDraft, RequestMessage, RequestDocument, Resident, CivilRecord } from '../models/Platform.js';
 import { audit, notifyStaff, requestEvent, pagination } from '../services/platform.js';
 import { can, date, fail, integer, requestStatus, roles, text, paymentComplete } from '../services/platformRules.js';
 import { requestCaseDefaults } from '../services/requestWorkflow.js';
@@ -732,7 +732,7 @@ export const requestDetailsPage = async (req, res) => {
 
     // Security check: Users can only view their own requests (unless admin)
     const isAdmin = can(req.session.user.role, 'requests');
-    const isOwner = request.email === req.session.user.email;
+    const isOwner = request.email.toLowerCase() === req.session.user.email.toLowerCase();
 
     if (!isAdmin && !isOwner) {
       return res.render('requestDetails', {
@@ -741,10 +741,26 @@ export const requestDetailsPage = async (req, res) => {
       });
     }
 
+    const messages = await RequestMessage.findAll({
+      where: { requestId: request.id },
+      include: [{ model: RequestDocument, as: 'documents', attributes: ['id', 'originalName', 'mediaType', 'fileSize'] }],
+      order: [['createdAt', 'ASC'], ['id', 'ASC']],
+    });
+    const status = String(request.status).toLowerCase();
     res.render('requestDetails', {
       title: 'Request Details',
       request: request.toJSON(),
       events: (await RequestEvent.findAll({ where: { requestId: request.id }, order: [['id', 'ASC']] })).map(event => ({ ...event.toJSON(), when: new Date(event.createdAt).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) })),
+      messages: messages.map(message => ({
+        ...message.toJSON(),
+        when: new Date(message.createdAt).toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' }),
+        documents: message.documents.map(document => ({
+          id: document.id,
+          originalName: document.originalName,
+          fileSize: document.fileSize,
+        })),
+      })),
+      canRespond: isOwner && status === 'waiting_for_applicant' && Boolean(request.slaPausedAt),
       user: req.session.user
     });
   } catch (err) {
@@ -1146,41 +1162,8 @@ function generateReceipt(request) {
 export const attachmentsPage = async (req, res) => {
   const { id } = req.params;
 
-  // Require authentication
   if (!req.session.user) return res.redirect('/login');
-
-  try {
-    const request = await Request.findByPk(id);
-    if (!request) {
-      return res.render('attachments', {
-        title: 'Attachments',
-        request: null,
-        requestId: id
-      });
-    }
-
-    // Security check: Users can only view attachments for their own requests (unless admin)
-    const isAdmin = can(req.session.user.role, 'requests');
-    const isOwner = request.email === req.session.user.email;
-
-    if (!isAdmin && !isOwner) {
-      return res.render('attachments', {
-        title: 'Attachments',
-        request: null,
-        requestId: id
-      });
-    }
-
-    res.render('attachments', {
-      title: 'Attachments',
-      request: request.toJSON(),
-      requestId: id,
-      user: req.session.user
-    });
-  } catch (err) {
-    console.error('Error loading attachments page:', err);
-    res.status(500).send('Failed to load attachments page');
-  }
+  res.redirect(`/request/${id}`);
 };
 
 export const downloadDocument = async (req, res) => {

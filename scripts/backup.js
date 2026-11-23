@@ -1,13 +1,13 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { sequelize, initializePlatform, User, Barangay, Resident, CivilRecord, Request, RequestDraft, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport } from '../models/Platform.js';
+import { sequelize, initializePlatform, User, Barangay, Resident, CivilRecord, Request, RequestDraft, RequestMessage, RequestDocument, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport } from '../models/Platform.js';
 import { BudgetItem } from '../models/Planning.js';
 import { Appointment } from '../models/Appointment.js';
 import { Attachment } from '../models/Attachment.js';
 import { encryptArchive, decryptArchive } from '../services/backupArchive.js';
 import { pruneSessions } from '../middleware/platformSecurity.js';
 
-const models = [User, Barangay, BudgetItem, Resident, CivilRecord, Request, RequestDraft, Appointment, Attachment, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport];
+const models = [User, Barangay, BudgetItem, Resident, CivilRecord, Request, RequestDraft, RequestMessage, RequestDocument, Appointment, Attachment, Resource, Allocation, Movement, Audit, Notice, RequestEvent, CitizenReport];
 async function backup() {
   const snapshot = await sequelize.transaction({ isolationLevel: 'REPEATABLE READ' }, async transaction => {
     const tables = {};
@@ -31,9 +31,14 @@ async function restore(path, apply) {
   }
   if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'budget_items')) snapshot.tables.budget_items = [];
   if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'request_drafts')) snapshot.tables.request_drafts = [];
+  if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'request_messages')) snapshot.tables.request_messages = [];
+  if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'request_documents')) snapshot.tables.request_documents = [];
   if (snapshot.format === 1 && snapshot.tables && !Object.hasOwn(snapshot.tables, 'citizen_reports')) snapshot.tables.citizen_reports = [];
   const expected = models.map(model => model.tableName).sort();
   if (snapshot.format !== 1 || JSON.stringify(Object.keys(snapshot.tables || {}).sort()) !== JSON.stringify(expected) || expected.some(table => !Array.isArray(snapshot.tables[table]))) throw new Error('Backup schema is incompatible with this application.');
+  for (const row of snapshot.tables.request_documents) {
+    if (row.content?.type === 'Buffer' && Array.isArray(row.content.data)) row.content = Buffer.from(row.content.data);
+  }
   console.log(`Authenticated backup created ${snapshot.createdAt}; ${expected.reduce((sum, table) => sum + snapshot.tables[table].length, 0)} rows across ${expected.length} tables.`);
   if (!apply) { console.log('Verification only. To restore into an EMPTY target database, add --apply.'); return; }
   await sequelize.transaction(async transaction => {

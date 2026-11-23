@@ -168,7 +168,7 @@ router.get("/admin/requests", requireFeature('requests'), adminRequestsPage);
 
 // Admin request action routes
 router.post('/admin/requests/:id/status', requireFeature('requests'), updateRequestStatus);
-router.post('/admin/requests/:id/assign', requireFeature('requests'), assignRequest);
+router.post('/admin/requests/:id/assign', requireFeature('assignRequests'), assignRequest);
 router.post('/admin/requests/:id/delete', requireFeature('requests'), deleteRequestAdmin);
 
 // Admin users management

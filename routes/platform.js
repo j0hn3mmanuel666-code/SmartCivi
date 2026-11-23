@@ -1,11 +1,14 @@
 import express from 'express';
+import { readFile } from 'node:fs/promises';
 import { Op, col, where as sqlWhere } from 'sequelize';
-import { Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, Request, RequestEvent, RequestDraft, User, sequelize, Barangay } from '../models/Platform.js';
-import { audit, pagination, searchWhere, saveResident, saveBarangay, saveRecord, saveResource, moveResource, requestEvent } from '../services/platform.js';
+import { Resident, CivilRecord, Resource, Allocation, Movement, Audit, Notice, Request, RequestEvent, RequestDraft, RequestMessage, RequestDocument, User, sequelize, Barangay } from '../models/Platform.js';
+import { audit, notifyStaff, pagination, searchWhere, saveResident, saveBarangay, saveRecord, saveResource, moveResource, requestEvent } from '../services/platform.js';
 import { can, csv, date, fail, integer, SYSTEM_TITLE, civilStatuses, text, paymentComplete, requestStatus } from '../services/platformRules.js';
 import { requireFeature, ownRequest } from '../middleware/platformSecurity.js';
+import { parseRequestDocuments, removeStagedDocuments } from '../middleware/requestUploads.js';
 import { ACTIVE_REQUEST_STATUSES, OPEN_REQUEST_STATUSES, REQUEST_OFFICES, REQUEST_PAUSED_STATUS, addBusinessDays, dueDateDeadline, dueDateInput, isDueSoonCase, isOverdueCase, slaStatusUpdate } from '../services/requestWorkflow.js';
 import { requestDraftData, requestServiceCatalog, requestServiceDetails } from '../services/requestIntake.js';
+import { inspectRequestDocument } from '../services/requestDocuments.js';
 
 import { updateProfile } from '../controllers/profileController.js';
 import { residentLabels } from '../services/residentRules.js';
@@ -25,6 +28,31 @@ const plain = row => row.toJSON();
 const displayDate = value => value ? new Date(value).toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' }) : '—';
 const name = resident => `${resident.firstName} ${resident.lastName}`;
 const inlineJson = value => JSON.stringify(value).replace(/[<>&\u2028\u2029]/g, character => ({ '<': '\\u003c', '>': '\\u003e', '&': '\\u0026', '\u2028': '\\u2028', '\u2029': '\\u2029' })[character]);
+async function requestMessagesFor(requestId) {
+  const messages = await RequestMessage.findAll({
+    where: { requestId },
+    include: [{ model: RequestDocument, as: 'documents', attributes: ['id', 'originalName', 'mediaType', 'fileSize'] }],
+    order: [['createdAt', 'ASC'], ['id', 'ASC']],
+  });
+  return messages.map(message => ({
+    ...message.toJSON(),
+    when: displayDate(message.createdAt),
+    documents: message.documents.map(document => ({
+      id: document.id,
+      originalName: document.originalName,
+      fileSize: document.fileSize,
+    })),
+  }));
+}
+function applicantResponseAccess(req, _res, next) {
+  if (req.ownedRequest.email.toLowerCase() !== req.session.user.email.toLowerCase()) {
+    return next(Object.assign(new Error('Only the applicant can send a response.'), { status: 403 }));
+  }
+  if (String(req.ownedRequest.status).toLowerCase() !== REQUEST_PAUSED_STATUS || !req.ownedRequest.slaPausedAt) {
+    return next(Object.assign(new Error('This request is not waiting for applicant information.'), { status: 409 }));
+  }
+  next();
+}
 const configs = {
   barangays: { model: Barangay, feature: 'barangays', title: 'Barangay management', singular: 'barangay', description: 'Maintain the barangay names available for resident registration. Archive unused entries to retain their history.', search: ['name', 'code'], columns: ['Barangay', 'Code'], cells: row => [row.name, row.code || '—'], save: saveBarangay },
   residents: { model: Resident, feature: 'residents', title: 'Residents', singular: 'resident', description: 'One master profile connects each resident to their civil records and transactions.', search: ['residentCode', 'firstName', 'lastName', 'barangay'], columns: ['Resident ID', 'Name', 'Birth date', 'Civil status', 'Barangay'], cells: row => [row.residentCode, name(row), row.birthDate, residentLabels[row.civilStatus] || 'Not recorded', row.barangay], save: saveResident },
@@ -127,6 +155,67 @@ router.get('/dashboard/my-request-drafts', run(async (req, res) => {
     pages: 1,
     base: '/dashboard/my-request-drafts',
   });
+}));
+
+router.post('/request/:id/respond', ownRequest, applicantResponseAccess, parseRequestDocuments, async (req, res, next) => {
+  const files = req.files || [];
+  try {
+    const message = text(req.body.message, 'Reply', false, 2000);
+    if (!message && files.length === 0) fail('Write a reply or attach at least one document.');
+
+    const documents = [];
+    for (const file of files) {
+      const content = await readFile(file.path);
+      documents.push({ ...inspectRequestDocument(file.originalname, content), content });
+    }
+    await removeStagedDocuments(files);
+
+    await sequelize.transaction(async transaction => {
+      const request = await Request.findByPk(req.ownedRequest.id, { transaction, lock: transaction.LOCK.UPDATE });
+      if (!request || String(request.status).toLowerCase() !== REQUEST_PAUSED_STATUS || !request.slaPausedAt) {
+        fail('This request is not waiting for applicant information.', 409);
+      }
+      await request.update({
+        status: 'processing',
+        ...slaStatusUpdate(request, 'processing'),
+      }, { transaction });
+      const response = await RequestMessage.create({
+        requestId: request.id,
+        userId: req.session.user.id,
+        authorName: req.session.user.name,
+        authorRole: req.session.user.role,
+        kind: 'applicant_response',
+        message: message || 'Applicant uploaded the requested documents.',
+      }, { transaction });
+      if (documents.length) {
+        await RequestDocument.bulkCreate(documents.map(document => ({
+          requestId: request.id,
+          messageId: response.id,
+          uploadedByUserId: req.session.user.id,
+          ...document,
+        })), { transaction });
+      }
+      await requestEvent(req, request, 'Applicant replied to the information request', transaction, { requesterMessage: 'Your reply and documents were received.' });
+      await notifyStaff('requests', 'Applicant responded', `Applicant replied to request #${request.id}.`, `/admin/requests/${request.id}`, transaction);
+    });
+    res.status(201).json({ success: true });
+  } catch (error) {
+    try {
+      await removeStagedDocuments(files);
+    } catch (cleanupError) {
+      return next(cleanupError);
+    }
+    next(error);
+  }
+});
+
+router.get('/request/:id/documents/:documentId', ownRequest, run(async (req, res) => {
+  const document = await RequestDocument.findOne({
+    where: { id: integer(req.params.documentId, 'Document', 1), requestId: req.ownedRequest.id },
+  });
+  if (!document || !['application/pdf', 'image/jpeg', 'image/png'].includes(document.mediaType)
+    || !Buffer.isBuffer(document.content) || document.content.length !== document.fileSize) fail('Document not found.', 404);
+  res.type(document.mediaType).attachment(document.originalName).send(document.content);
 }));
 
 router.get('/admin', requireFeature('overview'), run(async (req, res) => {
@@ -387,10 +476,13 @@ router.post('/appointments/:id/reschedule', ownRequest, run(async (req, res) => 
 router.get('/admin/requests/:id', requireFeature('requests'), run(async (req, res) => {
   const request = await Request.findByPk(integer(req.params.id, 'Request', 1));
   if (!request) fail('Request not found.', 404);
-  const staff = (await User.findAll({ attributes: ['id', 'name', 'role'], where: { isActive: true }, order: [['name', 'ASC']] }))
-    .filter(user => can(user.role, 'requests'))
-    .map(user => ({ id: user.id, name: user.name, selected: user.id === request.assigneeUserId || (!request.assigneeUserId && user.name === request.assignee) }));
+  const staff = can(req.session.user.role, 'assignRequests')
+    ? (await User.findAll({ attributes: ['id', 'name', 'role'], where: { isActive: true }, order: [['name', 'ASC']] }))
+      .filter(user => can(user.role, 'requests'))
+      .map(user => ({ id: user.id, name: user.name, selected: user.id === request.assigneeUserId || (!request.assigneeUserId && user.name === request.assignee) }))
+    : [];
   const events = (await RequestEvent.findAll({ where: { requestId: request.id }, order: [['id', 'DESC']], limit: 100 })).map(event => ({ ...event.toJSON(), when: displayDate(event.createdAt) }));
+  const messages = await requestMessagesFor(request.id);
   const now = new Date();
   const requestData = {
     ...request.toJSON(),
@@ -399,9 +491,9 @@ router.get('/admin/requests/:id', requireFeature('requests'), run(async (req, re
     deadlineLabel: request.slaPausedAt ? 'Paused · awaiting applicant' : isOverdueCase(request, now) ? 'Overdue' : isDueSoonCase(request, now) ? 'Due soon' : 'On track',
     officeOptions: REQUEST_OFFICES.map(value => ({ value, selected: value === request.office })),
   };
-  res.render('requestReview', { title: `Review request #${request.id}`, request: requestData, staff, events });
+  res.render('requestReview', { title: `Review request #${request.id}`, request: requestData, staff, events, messages });
 }));
-router.post('/admin/requests/:id/assign', requireFeature('requests'), run(async (req, res) => {
+router.post('/admin/requests/:id/assign', requireFeature('assignRequests'), run(async (req, res) => {
   const requestId = integer(req.params.id, 'Request', 1);
   const office = text(req.body.office, 'Office', true, 120);
   if (!REQUEST_OFFICES.includes(office)) fail('Choose a valid office.');
@@ -439,13 +531,28 @@ router.post('/admin/requests/:id/status', requireFeature('requests'), run(async 
     const request = await Request.findByPk(requestId, { transaction, lock: transaction.LOCK.UPDATE });
     if (!request) fail('Request not found.', 404);
     const priorStatus = String(request.status).toLowerCase();
-    if (priorStatus === status) return;
-    await request.update({
-      status,
-      ...slaStatusUpdate(request, status),
-      ...((status === 'paid' || priorStatus === 'paid') && !request.paidAt ? { paidAt: new Date() } : {}),
-    }, { transaction });
-    await requestEvent(req, request, `Status changed from ${priorStatus.replaceAll('_', ' ')} to ${status.replaceAll('_', ' ')}`, transaction, { requesterMessage });
+    const statusChanged = priorStatus !== status;
+    if (!statusChanged && status !== REQUEST_PAUSED_STATUS) return;
+    if (statusChanged) {
+      await request.update({
+        status,
+        ...slaStatusUpdate(request, status),
+        ...((status === 'paid' || priorStatus === 'paid') && !request.paidAt ? { paidAt: new Date() } : {}),
+      }, { transaction });
+    }
+    if (status === REQUEST_PAUSED_STATUS) {
+      await RequestMessage.create({
+        requestId: request.id,
+        userId: req.session.user.id,
+        authorName: req.session.user.name,
+        authorRole: req.session.user.role,
+        kind: 'information_request',
+        message: requesterMessage,
+      }, { transaction });
+    }
+    await requestEvent(req, request, statusChanged
+      ? `Status changed from ${priorStatus.replaceAll('_', ' ')} to ${status.replaceAll('_', ' ')}`
+      : 'Additional information requested from applicant', transaction, { requesterMessage });
   });
   req.flash('success_msg', 'Request status updated.');
   res.redirect(`/admin/requests/${requestId}`);
@@ -571,6 +678,11 @@ router.post('/api/v1/registry-soap', requireFeature('registry'), express.text({ 
   res.status(record ? 200 : 404).type('text/xml').send(`<?xml version="1.0"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body>${payload}</soap:Body></soap:Envelope>`);
 }));
 router.use((error, req, res, next) => {
+  if (/^\/request\/\d+\/respond$/.test(req.path)) {
+    const status = error.status || 500;
+    if (status >= 500) console.error('Applicant response failed:', error);
+    return res.status(status).json({ error: status >= 500 ? 'Your response could not be saved. Please try again.' : error.message });
+  }
   if (!req.path.startsWith('/admin') && !req.path.startsWith('/api/v1') && !req.path.startsWith('/dashboard/notifications') && !req.path.startsWith('/dashboard/smartreports')) return next(error);
   let status = error.status || 500, message = error.message;
   if (error.name === 'SequelizeUniqueConstraintError') { status = 409; message = 'This identifier or resident name and birth date already exists. Search existing records before adding another.'; }

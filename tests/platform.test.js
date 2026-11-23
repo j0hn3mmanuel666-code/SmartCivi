@@ -7,6 +7,14 @@ test('office permissions keep citizens and resource officers away from registry 
   assert.equal(can('resource_officer', 'registry'), false);
   assert.equal(can('registrar', 'registry'), true);
   assert.equal(can('staff', 'resources'), false);
+  assert.equal(can('staff', 'overview'), true);
+  assert.equal(can('staff', 'requests'), true);
+  assert.equal(can('staff', 'assignRequests'), false);
+  assert.equal(can('registrar', 'assignRequests'), true);
+  assert.equal(can('admin', 'assignRequests'), true);
+  for (const feature of ['registry', 'residents', 'resources', 'reports', 'audit', 'users', 'operations', 'barangays', 'population', 'residentActivity', 'personnel', 'budget', 'planningReports', 'diagrams']) {
+    assert.equal(can('staff', feature), false, `front desk staff must not access ${feature}`);
+  }
   assert.equal(can('admin', 'users'), true);
   assert.equal(can('registrar', 'users'), false);
 });

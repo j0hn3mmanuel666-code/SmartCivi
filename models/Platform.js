@@ -48,6 +48,25 @@ export const RequestDraft = sequelize.define('RequestDraft', {
   documentType: { type: D.STRING(20), allowNull: false },
   payload: { type: D.JSON, allowNull: false },
 }, { tableName: 'request_drafts', indexes: [{ fields: ['userId', 'updatedAt'] }] });
+export const RequestMessage = sequelize.define('RequestMessage', {
+  requestId: { type: D.INTEGER, allowNull: false, references: { model: 'civil_requests', key: 'id' }, onDelete: 'CASCADE' },
+  userId: { type: D.INTEGER, allowNull: false },
+  authorName: string(100, true),
+  authorRole: string(30, true),
+  kind: string(30, true),
+  message: { type: D.TEXT, allowNull: false },
+}, { tableName: 'request_messages', indexes: [{ fields: ['requestId', 'createdAt'] }] });
+export const RequestDocument = sequelize.define('RequestDocument', {
+  requestId: { type: D.INTEGER, allowNull: false, references: { model: 'civil_requests', key: 'id' }, onDelete: 'CASCADE' },
+  messageId: { type: D.INTEGER, allowNull: false, references: { model: 'request_messages', key: 'id' }, onDelete: 'CASCADE' },
+  uploadedByUserId: { type: D.INTEGER, allowNull: false },
+  originalName: { type: D.STRING(255), allowNull: false },
+  mediaType: { type: D.STRING(100), allowNull: false },
+  fileSize: { type: D.INTEGER, allowNull: false },
+  content: { type: D.BLOB('long'), allowNull: false },
+}, { tableName: 'request_documents', indexes: [{ fields: ['requestId', 'messageId'] }] });
+RequestMessage.hasMany(RequestDocument, { foreignKey: 'messageId', as: 'documents', onDelete: 'CASCADE' });
+RequestDocument.belongsTo(RequestMessage, { foreignKey: 'messageId', as: 'message' });
 export const Session = sequelize.define('Session', {
   sid: { type: D.STRING(128), primaryKey: true }, data: { type: D.TEXT('long'), allowNull: false }, expires: { type: D.DATE, allowNull: false },
 }, { tableName: 'sessions', timestamps: false });

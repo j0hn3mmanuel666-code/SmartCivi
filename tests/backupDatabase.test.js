@@ -18,7 +18,7 @@ test('database backups preserve barangay states and accept pre-catalog archives'
     const directory = await mkdtemp(resolve('tmp/backup-rims-'));
     const env = { ...process.env, DB_NAME: source, BACKUP_KEY: 'ab'.repeat(32), BACKUP_DIR: directory };
     const run = (args, overrides = {}) => execute(process.execPath, args, { env: { ...env, ...overrides }, maxBuffer: 1024 * 1024 });
-    await run(['--input-type=module', '-e', `import './models/Appointment.js'; import './models/Attachment.js'; import {initializePlatform,Barangay,Resident,sequelize} from './models/Platform.js'; await initializePlatform(); await Barangay.bulkCreate([{name:'Backup Active'},{name:'Backup Archived',archivedAt:new Date()}]); await Resident.create({residentCode:'OLD-KEPT',firstName:'Legacy',lastName:'Sample',birthDate:'2000-01-01',sex:'female',barangay:'Backup Active',civilStatus:'married'}); await sequelize.close();`]);
+    await run(['--input-type=module', '-e', `import './models/Appointment.js'; import './models/Attachment.js'; import {initializePlatform,Barangay,Resident,User,Request,RequestMessage,RequestDocument,sequelize} from './models/Platform.js'; await initializePlatform(); await Barangay.bulkCreate([{name:'Backup Active'},{name:'Backup Archived',archivedAt:new Date()}]); await Resident.create({residentCode:'OLD-KEPT',firstName:'Legacy',lastName:'Sample',birthDate:'2000-01-01',sex:'female',barangay:'Backup Active',civilStatus:'married'}); const user=await User.create({name:'Backup Applicant',email:'backup@example.test',password:'hash',role:'user'}); const request=await Request.create({fullName:'Backup Applicant',email:user.email,phone:'0',documentType:'birth',purpose:'Backup test'}); const message=await RequestMessage.create({requestId:request.id,userId:user.id,authorName:user.name,authorRole:user.role,kind:'applicant_response',message:'Attached'}); await RequestDocument.create({requestId:request.id,messageId:message.id,uploadedByUserId:user.id,originalName:'proof.pdf',mediaType:'application/pdf',fileSize:8,content:Buffer.from('%PDF-1.7')}); await sequelize.close();`]);
     await run(['--input-type=module', '-e', "import {BudgetItem} from './models/Planning.js';import {sequelize} from './models/db.js';await BudgetItem.create({department:'Backup budget',item:'Equipment',fiscalYear:2037,allocated:'100.10',spent:'150.20'});await sequelize.close();"]);
     await run(['scripts/backup.js']);
     const file = resolve(directory, (await readdir(directory)).find(name => name.endsWith('.scbackup')));
@@ -27,7 +27,10 @@ test('database backups preserve barangay states and accept pre-catalog archives'
     await run(['scripts/backup.js', '--restore', file, '--apply'], { DB_NAME: target });
     const [catalog] = await connection.query(`SELECT name,archivedAt FROM \`${target}\`.barangays ORDER BY name`);
     assert.equal(catalog.length, 2); assert.ok(catalog.find(row => row.name === 'Backup Archived').archivedAt);
-    delete snapshot.tables.barangays; delete snapshot.tables.budget_items; delete snapshot.tables.request_drafts;
+    const [[restoredDocument]] = await connection.query(`SELECT originalName,content FROM \`${target}\`.request_documents`);
+    assert.equal(restoredDocument.originalName, 'proof.pdf');
+    assert.equal(Buffer.from(restoredDocument.content).toString(), '%PDF-1.7');
+    delete snapshot.tables.barangays; delete snapshot.tables.budget_items; delete snapshot.tables.request_drafts; delete snapshot.tables.request_messages; delete snapshot.tables.request_documents;
     for (const resident of snapshot.tables.residents) delete resident.civilStatus;
     snapshot.tables.residents.push({ ...snapshot.tables.residents[0], id: 2, residentCode: 'OLD-VARIANT', firstName: 'Variant', barangay: 'BACKUP ACTIVE' });
     const oldFile = resolve(directory, 'pre-catalog.scbackup'); await writeFile(oldFile, encryptArchive(snapshot, env.BACKUP_KEY));

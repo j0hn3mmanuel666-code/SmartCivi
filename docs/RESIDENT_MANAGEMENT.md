@@ -4,11 +4,11 @@ SmartCivi retains its Bongabong branding and existing civil-registry and resourc
 
 ## Access
 
-Front desk staff, civil registrars and administrators can manage residents and barangays, print resident profiles, view population statistics and review resident activity. Civil registrars also retain civil-record management. Resource officers and citizens cannot access these resident modules. Full security audit history and account administration remain administrator-only.
+Civil registrars and administrators can manage residents and barangays, print resident profiles, view population statistics and review resident activity. Civil registrars also retain civil-record management. Front desk staff are limited to document-request and appointment workflows; resource officers and citizens cannot access resident modules. Full security audit history and account administration remain administrator-only.
 
 ## Workflow
 
-1. Sign in with email or an optional username. The staff dashboard provides direct links to Resident Profiles, Barangay Management, Reports and Statistics, and Resident Activity. Inactive accounts cannot sign in with a password or Google; existing sessions lose access on their next request. Administrators set account status in User management. Users can set their own username in My profile.
+1. Sign in with email or an optional username. The civil registrar dashboard provides direct links to Resident Profiles, Barangay Management, Reports and Statistics, and Resident Activity. Inactive accounts cannot sign in with a password or Google; existing sessions lose access on their next request. Administrators set account status in User management. Users can set their own username in My profile.
 2. Open **Barangay management** to add the locations available for registration. Existing resident locations are imported automatically. This is a local catalog; an official municipality-wide list is not assumed. Names must be unique. Renaming a barangay updates its resident associations, including archived residents. Archive only after moving or archiving active residents.
 3. Open **Residents → Add resident**. Enter personal details and civil status, and select an active barangay. A new Resident ID is generated when the record is saved. Existing IDs are retained and cannot be edited. Existing civil status defaults to **Not recorded** until corrected.
 4. Open a resident to review the profile, edit details, print a profile or inspect activity. Archive and restore controls are on the edit page. Active linked civil records must be archived first. Restore the barangay before restoring a resident whose barangay is archived.

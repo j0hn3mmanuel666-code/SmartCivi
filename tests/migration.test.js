@@ -40,6 +40,7 @@ test('additive initialization preserves existing users and requests and is repea
     assert.ok(indexes.some(index => index.unique && index.fields.some(field => field.attribute === 'username')));
     const columns = await sequelize.getQueryInterface().describeTable('civil_requests');
     for (const key of ['residentId', 'recordId', 'appointmentDate', 'appointmentStatus', 'rescheduleRequested', 'paidAt']) assert.ok(columns[key], key);
-    assert.ok((await sequelize.getQueryInterface().showAllTables()).includes('request_drafts'));
+    const tables = await sequelize.getQueryInterface().showAllTables();
+    for (const table of ['request_drafts', 'request_messages', 'request_documents']) assert.ok(tables.includes(table), table);
   } finally { await sequelize.close(); }
 });

@@ -16,11 +16,12 @@ test('population filters reject inverted and invalid ranges', () => {
   assert.throws(() => populationInput({ sex: 'invalid' }));
   assert.throws(() => populationInput({ civilStatus: 'invalid' }));
 });
-test('resident staff get resident tools but not security administration', () => {
-  for (const role of ['staff', 'registrar', 'admin']) {
+test('resident tools are limited to registrars and administrators', () => {
+  for (const role of ['registrar', 'admin']) {
     for (const feature of ['barangays', 'population', 'residentActivity', 'reports']) assert.equal(can(role, feature), true);
   }
-  assert.equal(can('staff', 'audit'), false); assert.equal(can('staff', 'users'), false);
+  for (const feature of ['residents', 'barangays', 'population', 'residentActivity', 'reports', 'audit', 'users']) assert.equal(can('staff', feature), false);
+  assert.equal(can('staff', 'requests'), true);
   assert.equal(can('user', 'population'), false); assert.equal(can('resource_officer', 'residentActivity'), false);
 });
 test('resident creation validates civil status without requiring a typed Resident ID', () => {

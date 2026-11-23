@@ -6,7 +6,7 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
   assert.match(process.env.DB_NAME || '', /_test$/, 'Use a disposable database ending in _test');
   process.env.ELECTRON = '1';
   const { default: app } = await import('../index.js');
-  const { User, Resident, CivilRecord, Resource, Notice, Audit, Request, RequestDraft, sequelize, Barangay } = await import('../models/Platform.js');
+  const { User, Resident, CivilRecord, Resource, Notice, Audit, Request, RequestDraft, RequestMessage, RequestDocument, sequelize, Barangay } = await import('../models/Platform.js');
   const { default: bcrypt } = await import('bcrypt');
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
@@ -15,16 +15,23 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
   const suffix = Date.now();
   const password = 'Local-test-password-123';
   const users = {};
-  for (const role of ['admin', 'registrar', 'resource_officer', 'user']) users[role] = await User.create({ name: `Test ${role}`, email: `${role}${suffix}@example.test`, password: await bcrypt.hash(password, 4), role });
+  for (const role of ['admin', 'registrar', 'staff', 'resource_officer', 'user']) users[role] = await User.create({ name: `Test ${role}`, email: `${role}${suffix}@example.test`, password: await bcrypt.hash(password, 4), role });
   const client = () => ({ cookie: '', token: '', async get(path) { return this.call(path); }, async call(path, body, method = 'GET') {
     const response = await fetch(origin + path, { redirect: 'manual', method, headers: { Cookie: this.cookie, ...(body ? { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': this.token } : {}) }, body: body ? new URLSearchParams(body) : undefined });
     if (response.headers.get('set-cookie')) this.cookie = response.headers.get('set-cookie').split(';')[0];
     const html = await response.text();
     this.token = html.match(/name="csrf-token" content="([^"]+)"/)?.[1] || this.token;
     return { status: response.status, html, location: response.headers.get('location') };
+  }, async upload(path, message, fileName, fileContent) {
+    const body = new FormData();
+    body.set('message', message);
+    if (fileName) body.append('documents', new Blob([fileContent], { type: 'application/pdf' }), fileName);
+    const response = await fetch(origin + path, { method: 'POST', headers: { Cookie: this.cookie, 'X-CSRF-Token': this.token }, body });
+    if (response.headers.get('set-cookie')) this.cookie = response.headers.get('set-cookie').split(';')[0];
+    return { status: response.status, body: await response.json() };
   }, async login(role) { await this.get('/login'); const r = await this.call('/login', { email: users[role].email, password }, 'POST'); assert.equal(r.status, 302); await this.get('/login'); } });
-  const admin = client(), citizen = client(), officer = client(), registrar = client();
-  await admin.login('admin'); await citizen.login('user'); await officer.login('resource_officer'); await registrar.login('registrar');
+  const admin = client(), citizen = client(), officer = client(), registrar = client(), frontDesk = client();
+  await admin.login('admin'); await citizen.login('user'); await officer.login('resource_officer'); await registrar.login('registrar'); await frontDesk.login('staff');
   await t.test('SmartReports submission, review, notifications, and export', async () => {
     const title = `Lighting repair ${suffix}`;
     const submitted = await citizen.call('/dashboard/smartreports', { title, description: 'The streetlight needs repair.' }, 'POST');
@@ -114,6 +121,12 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
     assert.ok(request, 'Owner email comes from session');
     assert.equal(request.office, 'Municipal Civil Registry');
     assert.ok(request.dueAt);
+    assert.match((await admin.get(`/admin/requests/${request.id}`)).html, /Route and assign/);
+    const staffReview = await frontDesk.get(`/admin/requests/${request.id}`);
+    assert.equal(staffReview.status, 200);
+    assert.doesNotMatch(staffReview.html, /Route and assign/);
+    const assignment = { office: 'Municipal Civil Registry', assigneeUserId: String(users.registrar.id), dueAt: '2030-01-15' };
+    assert.equal((await frontDesk.call(`/admin/requests/${request.id}/assign`, assignment, 'POST')).status, 403);
     assert.equal((await admin.call(`/admin/requests/${request.id}/assign`, {
       office: 'Municipal Civil Registry',
       assigneeUserId: String(users.registrar.id),
@@ -129,14 +142,34 @@ test('isolated MySQL office and citizen workflows', { skip: !process.env.RUN_DB_
     assert.equal(request.status, 'waiting_for_applicant');
     assert.ok(request.slaPausedAt);
     assert.match((await citizen.get('/dashboard/notifications')).html, /Please upload a clearer copy/);
+    const tracking = await citizen.get(`/request/${request.id}`);
+    assert.match(tracking.html, /The office needs more information/);
+    assert.match(tracking.html, /Please upload a clearer copy/);
+    assert.match(tracking.html, /applicant-response-form/);
     const previousDueAt = request.dueAt;
     await request.update({ slaPausedAt: new Date(Date.now() - 10 * 86400000) });
-    assert.equal((await admin.call(`/admin/requests/${request.id}/status`, { status: 'processing' }, 'POST')).status, 302);
+    const rejectedUpload = await citizen.upload(`/request/${request.id}/respond`, 'Reply', 'not-a-pdf.pdf', 'not a pdf');
+    assert.equal(rejectedUpload.status, 400);
+    const response = await citizen.upload(`/request/${request.id}/respond`, 'Here is the clearer copy.', 'supporting-document.pdf', '%PDF-1.7\nsample');
+    assert.equal(response.status, 201);
     await request.reload();
     assert.equal(request.slaPausedAt, null);
+    assert.equal(request.status, 'processing');
     assert.ok(request.dueAt > previousDueAt, 'Resuming extends the deadline by elapsed business days');
     assert.equal((await admin.call(`/admin/requests/${request.id}/status`, { status: 'processing' }, 'POST')).status, 302);
-    assert.match((await citizen.get(`/request/${request.id}`)).html, /processing/i);
+    const responsePage = await citizen.get(`/request/${request.id}`);
+    assert.match(responsePage.html, /Here is the clearer copy/);
+    assert.match(responsePage.html, /supporting-document\.pdf/);
+    const uploaded = await RequestDocument.findOne({ where: { requestId: request.id } });
+    assert.ok(uploaded.content.equals(Buffer.from('%PDF-1.7\nsample')));
+    const downloaded = await fetch(`${origin}/request/${request.id}/documents/${uploaded.id}`, { headers: { Cookie: citizen.cookie } });
+    assert.equal(downloaded.status, 200);
+    assert.match(downloaded.headers.get('content-disposition'), /supporting-document\.pdf/);
+    assert.equal(Buffer.from(await downloaded.arrayBuffer()).toString(), '%PDF-1.7\nsample');
+    assert.equal((await officer.get(`/request/${request.id}/documents/${uploaded.id}`)).status, 404);
+    assert.match((await admin.get(`/admin/requests/${request.id}`)).html, /Here is the clearer copy/);
+    assert.ok(await Notice.findOne({ where: { userId: users.registrar.id, title: 'Applicant responded' } }));
+    assert.ok(await RequestMessage.findOne({ where: { requestId: request.id, kind: 'information_request' } }));
     const other = await Request.create({ fullName: 'Other', email: 'other@example.test', phone: '0', documentType: 'birth', purpose: 'Test' });
     assert.equal((await citizen.get(`/request/${other.id}/confirmation`)).status, 404);
     assert.ok(await Notice.count({ where: { userId: users.user.id } }));
